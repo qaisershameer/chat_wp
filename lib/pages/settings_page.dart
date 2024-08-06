@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'blocked_users_page.dart';
+import 'crud_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -86,6 +87,41 @@ class SettingsPage extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                               builder: (context) => BlockedUsersPage())),
+                      icon: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // users notes CRUD Operations
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                margin: const EdgeInsets.all(25.0),
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // title
+                    Text(
+                      'User Notes CRUD Operations',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+
+                    // button to go blocked users page
+                    IconButton(
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const CrudPage())),
                       icon: Icon(
                         Icons.arrow_forward_ios_rounded,
                         color: Theme.of(context).colorScheme.tertiary,
