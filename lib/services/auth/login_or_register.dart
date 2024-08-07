@@ -1,6 +1,6 @@
-import 'package:chat_wp/pages/login_page.dart';
-import 'package:chat_wp/pages/register_page.dart';
 import 'package:flutter/material.dart';
+import 'package:chat_wp/pages/logins_chat/login_page.dart';
+import 'package:chat_wp/pages/logins_chat/register_page.dart';
 
 class LoginOrRegister extends StatefulWidget {
   const LoginOrRegister({super.key});
