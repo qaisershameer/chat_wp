@@ -43,7 +43,7 @@ class CrudPageState extends State<CrudPage> {
               // close to dialogue box
               Navigator.pop(context);
             },
-            child: const Text('Enter Note'),
+            child: const Text('Save'),
           ),
         ],
       ),

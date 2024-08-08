@@ -91,6 +91,7 @@ class BlockedUsersPage extends StatelessWidget {
                 final user = blockedUsers[index];
                 return UserTile(
                   text: user['email'],
+                  onLongPress: null,
                   onTap: () => _showUnblockBox(context, user['uid']),
                 );
               },

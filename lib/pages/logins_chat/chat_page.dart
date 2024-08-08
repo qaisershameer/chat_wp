@@ -80,7 +80,6 @@ class _ChatPageState extends State<ChatPage> {
       // clear text controller
       _messageController.clear();
     }
-
     scrollDown();
   }
 

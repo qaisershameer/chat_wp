@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:chat_wp/services/auth/auth_service.dart';
 import 'package:chat_wp/services/accounts/area_service.dart';
 
 class AreaInfo extends StatefulWidget {
@@ -12,13 +13,14 @@ class AreaInfo extends StatefulWidget {
 
 class _AreaInfoState extends State<AreaInfo> {
   // area services
+  final AuthService _authService = AuthService();
   final AreaService _areaService = AreaService();
 
   // text controller
   final TextEditingController _textArea = TextEditingController();
 
   // open a dialogue box to add a aea
-  void openAreaBox(String? docID, String? areaText) {
+  void openAreaBox(String? docID, String? areaText, String userId) {
     _textArea.text = areaText ?? '';
     showDialog(
       context: context,
@@ -32,10 +34,10 @@ class _AreaInfoState extends State<AreaInfo> {
             onPressed: () {
               if (docID == null) {
                 // add a area to database in area table
-                _areaService.addArea(_textArea.text);
+                _areaService.addArea(_textArea.text, userId);
               } else {
                 // update area to database in area table
-                _areaService.updateArea(docID, _textArea.text);
+                _areaService.updateArea(docID, _textArea.text, userId);
               }
 
               // clear the text controller after adding into database
@@ -44,14 +46,14 @@ class _AreaInfoState extends State<AreaInfo> {
               // close to dialogue box
               Navigator.pop(context);
             },
-            child: const Text('Enter Area'),
+            child: const Text('Save'),
           ),
         ],
       ),
     );
   }
 
-  void _deleteAreaBox(BuildContext context, String docID) {
+  void _deleteAreaBox(BuildContext context, String docID, String userId) {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -63,11 +65,10 @@ class _AreaInfoState extends State<AreaInfo> {
                 onPressed: () => Navigator.pop(context),
                 child: const Text('Cancel')),
 
-            // unblock button
+            // delete button
             TextButton(
                 onPressed: () {
-                  // _chatService.unBlockUser(userId);
-                  _areaService.deleteArea(docID);
+                  _areaService.deleteArea(docID, userId);
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -82,6 +83,10 @@ class _AreaInfoState extends State<AreaInfo> {
 
   @override
   Widget build(BuildContext context) {
+
+    // GET CURRENT USER ID
+    String userId = _authService.getCurrentUser()!.uid;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Areas'),
@@ -100,7 +105,7 @@ class _AreaInfoState extends State<AreaInfo> {
                 ),
                 margin: const EdgeInsets.only(right: 10.0),
                 child: IconButton(
-                    onPressed: () => openAreaBox(null, ''),
+                    onPressed: () => openAreaBox(null, '', userId),
                     icon: const Icon(
                       Icons.add,
                       color: Colors.white,
@@ -109,7 +114,7 @@ class _AreaInfoState extends State<AreaInfo> {
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _areaService.getAreasStream(),
+        stream: _areaService.getAreasStream(userId),
         builder: (context, snapshot) {
           // if we have data, get all the docs.
           if (snapshot.hasData) {
@@ -150,12 +155,12 @@ class _AreaInfoState extends State<AreaInfo> {
                         children: [
                           // update button
                           IconButton(
-                            onPressed: () => openAreaBox(docID, areaText),
+                            onPressed: () => openAreaBox(docID, areaText, userId),
                             icon: const Icon(Icons.settings),
                           ),
                           // delete button
                           IconButton(
-                            onPressed: () =>_deleteAreaBox(context, docID),
+                            onPressed: () =>_deleteAreaBox(context, docID, userId),
                             icon: const Icon(Icons.delete),
                           ),
                         ],

@@ -1,5 +1,6 @@
 import 'package:chat_wp/home_screen.dart';
 import 'package:chat_wp/pages/accounts/acc_dashboard.dart';
+import 'package:chat_wp/pages/logins_chat/home_page.dart';
 import 'package:flutter/material.dart';
 import '../pages/logins_chat/settings_page.dart';
 import '../services/auth/auth_service.dart';
@@ -43,8 +44,17 @@ class MyDrawer extends StatelessWidget {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   onTap: () {
-                    // pop the drawer
-                    Navigator.pop(context);
+                    // // pop the drawer
+                    // Navigator.pop(context);
+
+                    // navigate to settings page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomePage(),
+                      ),
+                    );
+
                   },
                 ),
               ),

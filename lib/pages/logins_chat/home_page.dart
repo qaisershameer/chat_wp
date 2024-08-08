@@ -1,9 +1,9 @@
-import 'package:chat_wp/services/chat/chat_service.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_wp/components/my_drawer.dart';
 import 'package:chat_wp/services/auth/auth_service.dart';
-import 'package:chat_wp/components/user_tile.dart';
+import 'package:chat_wp/services/chat/chat_service.dart';
 import 'package:chat_wp/pages/logins_chat/chat_page.dart';
+import 'package:chat_wp/components/user_tile.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({super.key});
@@ -16,12 +16,41 @@ class HomePage extends StatelessWidget {
     _authService.signOut();
   }
 
+  // show confirm block box
+  void showBlockBox(BuildContext context, String userId) {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Block User'),
+          content: const Text('Are you sure! want to block this user?'),
+          actions: [
+            // cancel button
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel')),
+
+            // unblock button
+            TextButton(
+                onPressed: () {
+                  _chatService.blockUser(userId);
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('User blocked!'),
+                    ),
+                  );
+                },
+                child: const Text('Block')),
+          ],
+        ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        title: const Text('WhatsApp PK'),
+        title: const Text('Network Users List'),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.teal,
         elevation: 0,
@@ -70,6 +99,7 @@ class HomePage extends StatelessWidget {
     if (userData['email'] != _authService.getCurrentUser()) {
       return UserTile(
         text: userData['email'],
+        onLongPress: () => showBlockBox(context, userData['uid']),
         onTap: () {
           // tapped on user and go to chat page
           Navigator.push(
