@@ -15,15 +15,12 @@ class AreaService {
   }
 
   // READ: getting area from database
-  Stream<QuerySnapshot> getAreasStream(Object userId) {
-    // print(userId);
+  Stream<QuerySnapshot> getAreasStream(String userId) {
     final areaStream = areas
-        // .where('uid', isEqualTo: userId)
-        .orderBy('area_name', descending: false)
-        .snapshots();
+        .where('uid', isEqualTo: userId)
+        .orderBy("area_name", descending:false).snapshots();
     return areaStream;
   }
-
 
   // UPDATE: update area given a doc id
   Future<void> updateArea(String docID, String newArea, String userId){
@@ -35,9 +32,8 @@ class AreaService {
   }
 
   // DELETE: delete area given a doc id
-  Future<void> deleteArea(String docID, String userId){
+  Future<void> deleteArea(String docID){
     return areas.doc(docID).delete();
   }
 
-//
 }

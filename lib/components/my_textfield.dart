@@ -6,6 +6,7 @@ class MyTextField extends StatelessWidget {
   final bool obsecureText;
   final TextEditingController controller;
   final FocusNode? focusNode;
+  final TextInputType textInputType;
 
   const MyTextField({
     super.key,
@@ -13,6 +14,7 @@ class MyTextField extends StatelessWidget {
     required this.obsecureText,
     required this.controller,
     required this.focusNode,
+    required this.textInputType,
   });
 
 
@@ -24,6 +26,8 @@ class MyTextField extends StatelessWidget {
         obscureText: obsecureText,
         controller: controller,
         focusNode: focusNode,
+        keyboardType: textInputType,
+        // keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary),

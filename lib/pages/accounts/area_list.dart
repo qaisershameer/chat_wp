@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:chat_wp/services/auth/auth_service.dart';
-// import 'package:chat_wp/services/accounts/area_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:chat_wp/services/auth/auth_service.dart';
+import 'package:chat_wp/services/accounts/area_service.dart';
 
 class AreaList extends StatefulWidget {
   const AreaList({super.key});
@@ -12,12 +12,20 @@ class AreaList extends StatefulWidget {
 }
 
 class AreaListState extends State<AreaList> {
+  // area services
+  final AuthService _authService = AuthService();
+  final AreaService _areaService = AreaService();
 
   final CollectionReference _currency =
-  FirebaseFirestore.instance.collection('currency');
+      FirebaseFirestore.instance.collection('currency');
 
-  var selectedType;
+  final CollectionReference _area =
+  FirebaseFirestore.instance.collection('area');
+
+  String? selectedType, selectedCurrency, selectedArea;
+
   final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
+
   final List<String> _accountType = <String>[
     'Savings',
     'Deposit',
@@ -27,9 +35,12 @@ class AreaListState extends State<AreaList> {
 
   @override
   Widget build(BuildContext context) {
+    // GET CURRENT USER ID
+    String userId = _authService.getCurrentUser()!.uid;
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.teal,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         leading: IconButton(
           icon: const Icon(
             FontAwesomeIcons.bars,
@@ -40,7 +51,7 @@ class AreaListState extends State<AreaList> {
         title: Container(
           alignment: Alignment.center,
           child: const Text(
-            'Account Details',
+            'Supplier Details',
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -57,144 +68,271 @@ class AreaListState extends State<AreaList> {
       ),
       body: Form(
         key: _formKeyValue,
-        // autovalidate: true,
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           children: [
+
+            TextFormField(
+              keyboardType: TextInputType.text,
+              decoration: const InputDecoration(
+                icon: Icon(
+                  FontAwesomeIcons.circleUser,
+                  color: Colors.teal,
+                ),
+                hintText: 'Enter your name',
+                labelText: 'Name',
+                labelStyle: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+              ),
+            ),
+
             TextFormField(
               decoration: const InputDecoration(
-                  icon: Icon(
-                    FontAwesomeIcons.userCircle,
-                    color: Color(0xff11b719),
-                  ),
-                  hintText: 'Enter your name',
-                  labelText: 'Name'),
+                icon: Icon(
+                  FontAwesomeIcons.phone,
+                  color: Colors.teal,
+                ),
+                hintText: 'Enter your phone number',
+                labelText: 'Phone Number',
+                labelStyle: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+              ),
             ),
+
             TextFormField(
+              keyboardType: TextInputType.emailAddress,
               decoration: const InputDecoration(
-                  icon: Icon(
-                    FontAwesomeIcons.phone,
-                    color: Color(0xff11b719),
-                  ),
-                  hintText: 'Enter your phone number',
-                  labelText: 'Phone Number'),
+                icon: Icon(
+                  FontAwesomeIcons.envelope,
+                  color: Colors.teal,
+                ),
+                hintText: 'Enter your E-mail Address',
+                labelText: 'Email',
+                labelStyle: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+              ),
             ),
-            TextFormField(
-              decoration: const InputDecoration(
-                  icon: Icon(
-                    FontAwesomeIcons.envelope,
-                    color: Color(0xff11b719),
-                  ),
-                  hintText: 'Enter your E-mail Address',
-                  labelText: 'Email'),
-            ),
-            const SizedBox(
-              height: 20.0,
-            ),
+
+            const SizedBox(height: 20.0),
+
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 const Icon(
                   FontAwesomeIcons.moneyBill,
                   size: 25.0,
-                  color: Color(0xff11b719),
+                  color: Colors.teal,
                 ),
-                const SizedBox(
-                  width: 50.0,
-                ),
-                DropdownButton<String>(
-                  items: _accountType
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(
-                        value,
-                        style: const TextStyle(color: Color(0xff11b719)),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (selectedAccountType) {
-                    setState(() {
-                      selectedType = selectedAccountType;
-                    });
-                  },
-                  value: selectedType,
-                  isExpanded: false,
-                  hint: const Text(
-                    'Choose Account Type',
-                    style: TextStyle(color: Color(0xff11b719)),
+                const SizedBox(width: 20.0),
+                SizedBox(
+                  width:MediaQuery.of(context).size.width/1.25,
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    items: _accountType
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(
+                          value,
+                          style: const TextStyle(color: Colors.teal),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (typeValue) {
+                      final snackBar = SnackBar(
+                        content: Text(
+                          'Selected Account Type Value is $typeValue',
+                          style: const TextStyle(color: Colors.teal),
+                        ),
+                      );
+
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+                      setState(() {
+                        selectedType = typeValue;
+                      });
+                    },
+                    value: selectedType,
+                    hint: const Text(
+                      'Choose Account Type',
+                      style: TextStyle(color: Colors.teal),
+                    ),
                   ),
                 ),
-
-                const SizedBox(
-                  height: 40.0,
-                ),
-
-                // StreamBuilder<QuerySnapshot>(
-                //   stream: _areaService.getAreasStream(userId),
-                //   builder: (context, snapshot) {
-                //     // if we have data, get all the docs.
-                //     if (snapshot.hasData) {
-                //       List areaList = snapshot.data!.docs;
-                //
-                //       // display as a list
-                //       return ListView.builder(
-                //           itemCount: areaList.length,
-                //           itemBuilder: (context, index) {
-                //             // get each individual doc
-                //             DocumentSnapshot document = areaList[index];
-                //             String docID = document.id;
-                //
-                //             // get area from each doc
-                //             Map<String, dynamic> data =
-                //             document.data() as Map<String, dynamic>;
-                //
-                //             String areaText = data['area_name'];
-                //
-                //             Timestamp timeStamp = data['timestamp'] as Timestamp;
-                //             DateTime date = timeStamp.toDate();
-                //             String formatedDT = DateFormat('dd MMM yyyy hh:mm:ss a').format(date);
-                //
-                //             // display as a list title
-                //             return Container(
-                //               decoration: BoxDecoration(
-                //                 color: Theme.of(context).colorScheme.secondary,
-                //                 borderRadius: BorderRadius.circular(12),
-                //               ),
-                //               margin:
-                //               const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
-                //               padding: const EdgeInsets.all(3),
-                //               child: ListTile(
-                //                 title: Text(areaText),
-                //                 subtitle: Text(formatedDT),
-                //                 trailing: Row(
-                //                   mainAxisSize: MainAxisSize.min,
-                //                   children: [
-                //                     // update button
-                //                     IconButton(
-                //                       onPressed: () => openAreaBox(docID, areaText, userId),
-                //                       icon: const Icon(Icons.settings),
-                //                     ),
-                //                     // delete button
-                //                     IconButton(
-                //                       onPressed: () =>_deleteAreaBox(context, docID, userId),
-                //                       icon: const Icon(Icons.delete),
-                //                     ),
-                //                   ],
-                //                 ),
-                //               ),
-                //             );
-                //           });
-                //     } else {
-                //       return const Center(child: Text('no area data to display!'));
-                //     }
-                //   },
-                // ),
-
-
-
               ],
             ),
+
+            const SizedBox(height: 20.0),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                const Icon(
+                  FontAwesomeIcons.moneyBillTransfer,
+                  size: 25.0,
+                  color: Colors.teal,
+                ),
+                const SizedBox(width: 20.0),
+                StreamBuilder<QuerySnapshot>(
+                  stream: _currency.snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: Text('loading...'));
+                    } else {
+                      List<DropdownMenuItem<String>> currencyItems = [];
+                      for (int i = 0; i < snapshot.data!.docs.length; i++) {
+                        DocumentSnapshot snap = snapshot.data!.docs[i];
+                        currencyItems.add(
+                          DropdownMenuItem<String>(
+                            value: snap.id,
+                            child: Text(
+                              snap.id,
+                              style: const TextStyle(color: Colors.teal),
+                            ),
+                          ),
+                        );
+                      }
+                      return SizedBox(
+                        width:MediaQuery.of(context).size.width/1.25,
+                        child: DropdownButton<String>(
+                          items: currencyItems,
+                          onChanged: (currencyValue) {
+                            final snackBar = SnackBar(
+                              content: Text(
+                                'Selected Currency Value is $currencyValue',
+                                style: const TextStyle(color: Colors.teal),
+                              ),
+                            );
+
+                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+                            setState(() {
+                              selectedCurrency = currencyValue;
+                            });
+                          },
+                          value: selectedCurrency,
+                          isExpanded: true,
+                          hint: const Text(
+                            'Select Currency',
+                            style: TextStyle(color: Colors.teal),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20.0),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                const Icon(
+                  FontAwesomeIcons.chartArea,
+                  size: 25.0,
+                  color: Colors.teal,
+                ),
+                const SizedBox(width: 20.0),
+                StreamBuilder<QuerySnapshot>(
+                  stream: _area.snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: Text('loading...'));
+                    } else {
+                      List<DropdownMenuItem<String>> currencyItems = [];
+                      for (int i = 0; i < snapshot.data!.docs.length; i++) {
+                        DocumentSnapshot snap = snapshot.data!.docs[i];
+                        // String areaText = snapshot.data!.docs['area_name'];
+                        currencyItems.add(
+                          DropdownMenuItem<String>(
+                            value: snap.id,
+                            child: Text(
+                              snap.id,
+                              style: const TextStyle(color: Colors.teal),
+                            ),
+                          ),
+                        );
+                      }
+                      return SizedBox(
+                        width:MediaQuery.of(context).size.width/1.25,
+                        child: DropdownButton<String>(
+                          items: currencyItems,
+                          onChanged: (areaValue) {
+                            final snackBar = SnackBar(
+                              content: Text(
+                                'Selected Area Name is $areaValue',
+                                style: const TextStyle(color: Colors.teal),
+                              ),
+                            );
+
+                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+                            setState(() {
+                              selectedArea = areaValue;
+                            });
+                          },
+                          value: selectedArea,
+                          isExpanded: true,
+                          hint: const Text(
+                            'Select Area',
+                            style: TextStyle(color: Colors.teal),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
+
+
+            const SizedBox(height: 20.0),
+
+            Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+
+                  ElevatedButton(
+                    onPressed: () {
+                      // Handle the form submission
+                      if (_formKeyValue.currentState!.validate()) {
+                        // Perform the form submission logic
+                        // For example, you might want to send data to Firestore or another service
+                        const snackBar = SnackBar(
+                          content: Text(
+                            'Form submitted successfully!',
+                            style: TextStyle(color: Colors.teal),
+                          ),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      }
+                    },
+                    child: const Text('Submit'),
+                  ),
+
+                  ElevatedButton(
+                    onPressed: () {
+                      // Handle the form submission
+                      if (_formKeyValue.currentState!.validate()) {
+                        // Perform the form submission logic
+                        // For example, you might want to send data to Firestore or another service
+                        const snackBar = SnackBar(
+                          content: Text(
+                            'Form submitted successfully!',
+                            style: TextStyle(color: Colors.teal),
+                          ),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      }
+                    },
+                    child: const Text('Cancel'),
+                  ),
+
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20.0),
           ],
         ),
       ),

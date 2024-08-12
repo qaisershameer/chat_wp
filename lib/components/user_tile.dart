@@ -5,7 +5,11 @@ class UserTile extends StatelessWidget {
   final void Function()? onTap;
   final void Function()? onLongPress;
 
-  const UserTile({super.key, required this.text, required this.onTap, required this.onLongPress});
+  const UserTile(
+      {super.key,
+      required this.text,
+      required this.onTap,
+      required this.onLongPress});
 
   @override
   Widget build(BuildContext context) {
@@ -17,19 +21,27 @@ class UserTile extends StatelessWidget {
           color: Theme.of(context).colorScheme.secondary,
           borderRadius: BorderRadius.circular(12),
         ),
-        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 25),
-        padding: const EdgeInsets.all(20),
+        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+        padding: const EdgeInsets.all(15),
         child: Row(
           children: [
             // icon
             const Icon(Icons.person),
 
             // icon & text vertical gap in width
-            const SizedBox(width: 10,),
+            const SizedBox(
+              width: 10,
+            ),
 
             // user name
-            Text(text),
-
+            Text(
+              text,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
           ],
         ),
       ),

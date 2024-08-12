@@ -54,17 +54,17 @@ class _LoginPageState extends State<LoginPage> {
         // cause a delay so that the keyboard has time to showup
         // then the amount of remaining space will be calculated,
         // then scroll down
-        Future.delayed(
-          const Duration(microseconds: 500),
-              () => scrollDown(),
-        );
+        // Future.delayed(
+        //   const Duration(microseconds: 500),
+        //       () => scrollDown(),
+        // );
       }
     });
 
     // wait a bit for listview to be build, then scroll to bottom
     Future.delayed(
       const Duration(milliseconds: 500),
-          () => scrollDown(),
+          // () => scrollDown(),
     );
   }
 
@@ -77,14 +77,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // scroll controller
-  final ScrollController _scrollController = ScrollController();
-  void scrollDown() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: const Duration(seconds: 1),
-      curve: Curves.fastOutSlowIn,
-    );
-  }
+  // final ScrollController _scrollController = ScrollController();
+  // void scrollDown() {
+  //   _scrollController.animateTo(
+  //     _scrollController.position.maxScrollExtent,
+  //     duration: const Duration(seconds: 1),
+  //     curve: Curves.fastOutSlowIn,
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +120,7 @@ class _LoginPageState extends State<LoginPage> {
               obsecureText: false,
               controller: _emailController,
               focusNode: null, //myFocusNode,
+              textInputType: TextInputType.emailAddress,
             ),
 
             const SizedBox(height: 10.0),
@@ -130,6 +131,7 @@ class _LoginPageState extends State<LoginPage> {
               obsecureText: true,
               controller: _pwdController,
               focusNode: null, //myFocusNode,
+              textInputType: TextInputType.text,
             ),
 
             const SizedBox(height: 25.0),

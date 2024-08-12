@@ -133,6 +133,7 @@ class _RegisterPageState extends State<RegisterPage> {
               obsecureText: false,
               controller: _emailController,
               focusNode: null, //myFocusNode,
+              textInputType: TextInputType.emailAddress,
             ),
 
             const SizedBox(height: 10.0),
@@ -143,6 +144,7 @@ class _RegisterPageState extends State<RegisterPage> {
               obsecureText: true,
               controller: _pwdController,
               focusNode: null, //myFocusNode,
+              textInputType: TextInputType.text,
             ),
 
             const SizedBox(height: 10.0),
@@ -153,6 +155,7 @@ class _RegisterPageState extends State<RegisterPage> {
               obsecureText: true,
               controller: _confirmPwdController,
               focusNode: null, //myFocusNode,
+              textInputType: TextInputType.text,
             ),
 
             const SizedBox(height: 25.0),

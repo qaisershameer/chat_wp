@@ -1,9 +1,8 @@
+import 'package:chat_wp/components/my_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:chat_wp/themes/theme_provider.dart';
-import 'package:chat_wp/pages/logins_chat/blocked_users_page.dart';
-import 'crud_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -35,15 +34,23 @@ class SettingsPage extends StatelessWidget {
                   color: Theme.of(context).colorScheme.secondary,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                margin: const EdgeInsets.all(12.0),
-                padding: const EdgeInsets.all(12.0),
+                margin: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                padding: const EdgeInsets.all(5.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     // dark mode
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15.0),
+                      child: Icon(
+                        Icons.settings,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
                     Text(
-                      'Dark Mode',
+                      'Dark Mode Theme',
                       style: TextStyle(
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.primary,
                       ),
@@ -62,86 +69,14 @@ class SettingsPage extends StatelessWidget {
               ),
 
               // blocked users
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BlockedUsersPage(),
-                    ),
-                  );
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondary,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  margin: const EdgeInsets.all(12.0),
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // title
-                      Text(
-                        'Blocked Users',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
+              const MyListTile(pageNo: 9, text: 'Blocked Users', icon: Icons.person),
 
-                      // button to go blocked users page
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // blocked users
+              const MyListTile(pageNo: 10, text: 'User Notes', icon: Icons.receipt_long_rounded),
 
-              // users notes CRUD Operations
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const CrudPage()));
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondary,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  margin: const EdgeInsets.all(12.0),
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // title
-                      Text(
-                        'User Notes',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
+              // blocked users
+              const MyListTile(pageNo: 11, text: 'Search List Example', icon: Icons.search_sharp),
 
-                      // button to go blocked users page
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ],
           ),
         ),

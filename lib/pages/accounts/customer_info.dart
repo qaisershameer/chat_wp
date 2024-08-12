@@ -2,46 +2,48 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chat_wp/services/auth/auth_service.dart';
-import 'package:chat_wp/services/accounts/area_service.dart';
+import 'package:chat_wp/services/accounts/customer_service.dart';
 
-class AreaInfo extends StatefulWidget {
-  const AreaInfo({super.key});
+class CustomerInfo extends StatefulWidget {
+  const CustomerInfo({super.key});
 
   @override
-  State<AreaInfo> createState() => AreaInfoState();
+  State<CustomerInfo> createState() => _CustomerInfoState();
 }
 
-class AreaInfoState extends State<AreaInfo> {
-  // area services
+class _CustomerInfoState extends State<CustomerInfo> {
+
+  // customer services
   final AuthService _authService = AuthService();
-  final AreaService _areaService = AreaService();
+  final CustomerService _customerService = CustomerService();
 
   // text controller
-  final TextEditingController _textArea = TextEditingController();
+  final TextEditingController _textCustomer = TextEditingController();
 
-  // open a dialogue box to add area
-  void openAreaBox(String? docID, String? areaText, String userId) {
-    _textArea.text = areaText ?? '';
+
+  // open a dialogue box to add customer
+  void openCustomerBox(String? docID, String? customerText, String userId) {
+    _textCustomer.text = customerText ?? '';
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         content: TextField(
-          controller: _textArea,
+          controller: _textCustomer,
         ),
         actions: [
-          // button to save Areas
+          // button to save Customers
           ElevatedButton(
             onPressed: () {
               if (docID == null) {
-                // add a area to database in area table
-                _areaService.addArea(_textArea.text, userId);
+                // add a customer to database
+                _customerService.addCustomer(_textCustomer.text, userId);
               } else {
-                // update area to database in area table
-                _areaService.updateArea(docID, _textArea.text, userId);
+                // update customer to database
+                _customerService.updateCustomer(docID, _textCustomer.text, userId);
               }
 
               // clear the text controller after adding into database
-              _textArea.clear();
+              _textCustomer.clear();
 
               // close to dialogue box
               Navigator.pop(context);
@@ -53,33 +55,33 @@ class AreaInfoState extends State<AreaInfo> {
     );
   }
 
-  // open a dialogue box to delete area
-  void _deleteAreaBox(BuildContext context, String docID) {
+  // open a dialogue box to delete customer
+  void _deleteCustomerBox(BuildContext context, String docID) {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
-              title: const Text('Delete Area'),
-              content: const Text('Are you sure! want to Delete this Area?'),
-              actions: [
-                // cancel button
-                TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel')),
+          title: const Text('Delete Customer'),
+          content: const Text('Are you sure! want to Delete this Customer?'),
+          actions: [
+            // cancel button
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel')),
 
-                // delete button
-                TextButton(
-                    onPressed: () {
-                      _areaService.deleteArea(docID);
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Area deleted!'),
-                        ),
-                      );
-                    },
-                    child: const Text('Delete')),
-              ],
-            ));
+            // delete button
+            TextButton(
+                onPressed: () {
+                  _customerService.deleteCustomer(docID);
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Customer deleted!'),
+                    ),
+                  );
+                },
+                child: const Text('Delete')),
+          ],
+        ));
   }
 
   @override
@@ -89,15 +91,15 @@ class AreaInfoState extends State<AreaInfo> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Areas'),
+        title: const Text('Customers'),
         // centerTitle: true,
         // backgroundColor: Colors.transparent,
-        foregroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.teal,
         elevation: 0,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 25.0, bottom: 16.0),
-            // add button
+            // Add button
             child: Container(
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primary,
@@ -105,7 +107,7 @@ class AreaInfoState extends State<AreaInfo> {
                 ),
                 margin: const EdgeInsets.only(right: 10.0,),
                 child: IconButton(
-                    onPressed: () => openAreaBox(null, '', userId),
+                    onPressed: () => openCustomerBox(null, '', userId),
                     icon: const Icon(
                       Icons.add,
                       color: Colors.white,
@@ -114,30 +116,30 @@ class AreaInfoState extends State<AreaInfo> {
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _areaService.getAreasStream(userId),
+        stream: _customerService.getCustomersStream(userId),
         builder: (context, snapshot) {
           // if we have data, get all the docs.
           if (snapshot.hasData) {
-            List areaList = snapshot.data!.docs;
+            List customerList = snapshot.data!.docs;
 
             // display as a list
             return ListView.builder(
-                itemCount: areaList.length,
+                itemCount: customerList.length,
                 itemBuilder: (context, index) {
                   // get each individual doc
-                  DocumentSnapshot document = areaList[index];
+                  DocumentSnapshot document = customerList[index];
                   String docID = document.id;
 
-                  // get area from each doc
+                  // get customer from each doc
                   Map<String, dynamic> data =
-                      document.data() as Map<String, dynamic>;
+                  document.data() as Map<String, dynamic>;
 
-                  String areaText = data['area_name'];
+                  String customerText = data['customer_name'];
 
                   Timestamp timeStamp = data['timestamp'] as Timestamp;
                   DateTime date = timeStamp.toDate();
                   String formatedDT =
-                      DateFormat('dd MMM yyyy hh:mm:ss a').format(date);
+                  DateFormat('dd MMM yyyy hh:mm:ss a').format(date);
 
                   // display as a list title
                   return Container(
@@ -146,10 +148,10 @@ class AreaInfoState extends State<AreaInfo> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     margin:
-                        const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
+                    const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
                     padding: const EdgeInsets.all(3),
                     child: ListTile(
-                      title: Text(areaText),
+                      title: Text(customerText),
                       subtitle: Text(formatedDT),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -157,13 +159,13 @@ class AreaInfoState extends State<AreaInfo> {
                           // update button
                           IconButton(
                             onPressed: () =>
-                                openAreaBox(docID, areaText, userId),
+                                openCustomerBox(docID, customerText, userId),
                             icon: const Icon(Icons.settings),
                           ),
                           // delete button
                           IconButton(
                             onPressed: () =>
-                                _deleteAreaBox(context, docID),
+                                _deleteCustomerBox(context, docID),
                             icon: const Icon(Icons.delete),
                           ),
                         ],
@@ -172,15 +174,11 @@ class AreaInfoState extends State<AreaInfo> {
                   );
                 });
           } else {
-            return const Center(child: Text('no area data to display!'));
+            return const Center(child: Text('no customer data to display!'));
           }
         },
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   // open area box dialogue box
-      //   onPressed: () => openAreaBox(null),
-      //   child: const Icon(Icons.add),
-      // ),
     );
   }
+
 }

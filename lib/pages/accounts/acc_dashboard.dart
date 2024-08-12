@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:chat_wp/components/my_drawer.dart';
-import 'package:chat_wp/pages/accounts/area_info.dart';
-import 'package:chat_wp/pages/logins_chat//crud_page.dart';
 import 'package:chat_wp/components/my_list_tile.dart';
 
 class AccountsDashboard extends StatelessWidget {

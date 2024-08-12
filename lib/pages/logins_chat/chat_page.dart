@@ -174,6 +174,7 @@ class _ChatPageState extends State<ChatPage> {
               hintText: 'Type a message',
               obsecureText: false,
               focusNode: myFocusNode,
+              textInputType: TextInputType.text,
             ),
           ),
 
