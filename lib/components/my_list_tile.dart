@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:chat_wp/pages/accounts/area_list.dart';
 import 'package:chat_wp/pages/accounts/area_info.dart';
 import 'package:chat_wp/pages/accounts/customer_info.dart';
+import 'package:chat_wp/pages/accounts/supplier_info.dart';
 
 import 'package:chat_wp/pages/logins_chat/blocked_users_page.dart';
 import 'package:chat_wp/pages/logins_chat/crud_page.dart';
@@ -32,7 +32,7 @@ class MyListTile extends StatelessWidget {
             MaterialPageRoute(builder: (context) => const CustomerInfo()));
       case 3:
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const AreaList()));
+            context, MaterialPageRoute(builder: (context) => const SupplierInfo()));
       case 4:
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => const AreaInfo()));

@@ -1,31 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:chat_wp/services/auth/auth_service.dart';
 import 'package:chat_wp/services/accounts/area_service.dart';
+import 'package:chat_wp/services/accounts/account_service.dart';
+import 'package:chat_wp/services/accounts/currency_service.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class AreaList extends StatefulWidget {
-  const AreaList({super.key});
-
+class CustomerAdd extends StatefulWidget {
+  const CustomerAdd({super.key});
   @override
-  State<AreaList> createState() => AreaListState();
+  State<CustomerAdd> createState() => CustomerAddState();
 }
 
-class AreaListState extends State<AreaList> {
-  // area services
+class CustomerAddState extends State<CustomerAdd> {
+  // auth area account currency services
   final AuthService _authService = AuthService();
   final AreaService _areaService = AreaService();
+  final AccountService _accountService = AccountService();
+  final CurrencyService _currencyService = CurrencyService();
 
   final CollectionReference _currency =
   FirebaseFirestore.instance.collection('currency');
 
-  String? _selectedType, _selectedCurrency, _selectedArea;
+  String? _accountId, _selectedType, _selectedCurrency, _selectedArea;
 
   final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
 
   final List<String> _accountType = <String>[
-    'Customer',
-    'Supplier',
+    'CUSTOMER',
+    // 'SUPPLIER',
   ];
 
   final TextEditingController _nameController = TextEditingController();
@@ -50,7 +53,7 @@ class AreaListState extends State<AreaList> {
         title: Container(
           alignment: Alignment.center,
           child: const Text(
-            'Supplier Details',
+            'Customer Details',
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -328,6 +331,16 @@ class AreaListState extends State<AreaList> {
                       // Handle the form submission
                       if (_formKeyValue.currentState!.validate()) {
                         // Perform the form submission logic
+                        if (_accountId == null) {
+                          // add a customer to database
+                          _accountService.addAccount(_nameController.text, _phoneController.text, _emailController.text,
+                              _selectedType!, _selectedCurrency!, _selectedArea!, userId);
+                        } else {
+                          // update customer to database
+                          _accountService.updateAccount(_nameController.text, _phoneController.text, _emailController.text,
+                              _selectedType!, _selectedCurrency!, _selectedArea!, userId);
+                        }
+
                         // For example, you might want to send data to Firestore or another service
                         const snackBar = SnackBar(
                           content: Text(
@@ -338,6 +351,15 @@ class AreaListState extends State<AreaList> {
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
                         // You can also perform further actions here
+                        // clear the text controller after adding into database
+                        _nameController.clear();
+                        _phoneController.clear();
+                        _emailController.clear();
+
+                        // close to dialogue box
+                        Navigator.pop(context);
+
+
                       }
                     },
                     child: const Text('Submit'),

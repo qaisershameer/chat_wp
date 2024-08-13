@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:chat_wp/services/auth/auth_service.dart';
 import 'package:chat_wp/services/accounts/area_service.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class AreaList extends StatefulWidget {
-  const AreaList({super.key});
-
+class SupplierInfo extends StatefulWidget {
+  const SupplierInfo({super.key});
   @override
-  State<AreaList> createState() => AreaListState();
+  State<SupplierInfo> createState() => SupplierInfoState();
 }
 
-class AreaListState extends State<AreaList> {
+class SupplierInfoState extends State<SupplierInfo> {
   // area services
   final AuthService _authService = AuthService();
   final AreaService _areaService = AreaService();

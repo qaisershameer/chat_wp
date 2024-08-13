@@ -2,6 +2,10 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chat_wp/services/auth/auth_service.dart';
+import 'package:chat_wp/services/accounts/account_service.dart';
+import 'package:chat_wp/pages/accounts/customer_add.dart';
+
+// will delete after correcting form edit delete
 import 'package:chat_wp/services/accounts/customer_service.dart';
 
 class CustomerInfo extends StatefulWidget {
@@ -13,8 +17,9 @@ class CustomerInfo extends StatefulWidget {
 
 class _CustomerInfoState extends State<CustomerInfo> {
 
-  // customer services
+  // auth account services
   final AuthService _authService = AuthService();
+  final AccountService _accountService = AccountService();
   final CustomerService _customerService = CustomerService();
 
   // text controller
@@ -107,7 +112,11 @@ class _CustomerInfoState extends State<CustomerInfo> {
                 ),
                 margin: const EdgeInsets.only(right: 10.0,),
                 child: IconButton(
-                    onPressed: () => openCustomerBox(null, '', userId),
+                    // onPressed: () => openCustomerBox(null, '', userId),
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => const CustomerAdd()));
+                    } ,
                     icon: const Icon(
                       Icons.add,
                       color: Colors.white,
@@ -116,7 +125,7 @@ class _CustomerInfoState extends State<CustomerInfo> {
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _customerService.getCustomersStream(userId),
+        stream: _accountService.getAccountsStream(userId, 'CUSTOMER'),
         builder: (context, snapshot) {
           // if we have data, get all the docs.
           if (snapshot.hasData) {
@@ -134,7 +143,9 @@ class _CustomerInfoState extends State<CustomerInfo> {
                   Map<String, dynamic> data =
                   document.data() as Map<String, dynamic>;
 
-                  String customerText = data['customer_name'];
+                  String customerText = data['accountName'];
+                  String phoneText = data['phone'];
+                  String emailText = data['email'];
 
                   Timestamp timeStamp = data['timestamp'] as Timestamp;
                   DateTime date = timeStamp.toDate();
@@ -152,20 +163,22 @@ class _CustomerInfoState extends State<CustomerInfo> {
                     padding: const EdgeInsets.all(3),
                     child: ListTile(
                       title: Text(customerText),
-                      subtitle: Text(formatedDT),
+                      subtitle: Text('$phoneText\n$emailText'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           // update button
                           IconButton(
-                            onPressed: () =>
-                                openCustomerBox(docID, customerText, userId),
+                            onPressed: (){},
+                            // onPressed: () =>
+                            //     openCustomerBox(docID, customerText, userId),
                             icon: const Icon(Icons.settings),
                           ),
                           // delete button
                           IconButton(
-                            onPressed: () =>
-                                _deleteCustomerBox(context, docID),
+                            onPressed: (){},
+                            // onPressed: () =>
+                            //     _deleteCustomerBox(context, docID),
                             icon: const Icon(Icons.delete),
                           ),
                         ],

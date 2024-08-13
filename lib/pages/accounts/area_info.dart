@@ -103,7 +103,9 @@ class AreaInfoState extends State<AreaInfo> {
                   color: Theme.of(context).colorScheme.primary,
                   shape: BoxShape.circle,
                 ),
-                margin: const EdgeInsets.only(right: 10.0,),
+                margin: const EdgeInsets.only(
+                  right: 10.0,
+                ),
                 child: IconButton(
                     onPressed: () => openAreaBox(null, '', userId),
                     icon: const Icon(
@@ -162,8 +164,7 @@ class AreaInfoState extends State<AreaInfo> {
                           ),
                           // delete button
                           IconButton(
-                            onPressed: () =>
-                                _deleteAreaBox(context, docID),
+                            onPressed: () => _deleteAreaBox(context, docID),
                             icon: const Icon(Icons.delete),
                           ),
                         ],
