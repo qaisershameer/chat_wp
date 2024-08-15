@@ -1,12 +1,15 @@
+import 'package:chat_wp/services/accounts/search_list.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chat_wp/pages/accounts/area_info.dart';
+import 'package:chat_wp/pages/accounts/account_info.dart';
+
 import 'package:chat_wp/pages/accounts/customer_info.dart';
 import 'package:chat_wp/pages/accounts/supplier_info.dart';
 
 import 'package:chat_wp/pages/logins_chat/blocked_users_page.dart';
 import 'package:chat_wp/pages/logins_chat/crud_page.dart';
-import 'package:chat_wp/services/accounts/search_list.dart';
+import 'package:chat_wp/pages/logins_chat/currency_page.dart';
 
 class MyListTile extends StatelessWidget {
   final int pageNo;
@@ -20,7 +23,6 @@ class MyListTile extends StatelessWidget {
       required this.icon});
 
   void _showPage(int pageNum, BuildContext context) {
-
     // print (pageNum);
 
     switch (pageNum) {
@@ -29,35 +31,44 @@ class MyListTile extends StatelessWidget {
             context, MaterialPageRoute(builder: (context) => const AreaInfo()));
       case 2:
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const CustomerInfo()));
+            MaterialPageRoute(builder: (context) => const AccountInfo()));
       case 3:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const SupplierInfo()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const SupplierInfo()));
       case 4:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const AreaInfo()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const CustomerInfo()));
       case 5:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const AreaInfo()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const CustomerInfo()));
       case 6:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const AreaInfo()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const CustomerInfo()));
       case 7:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const AreaInfo()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const CustomerInfo()));
       case 8:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const AreaInfo()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const CustomerInfo()));
       case 9:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => BlockedUsersPage()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const CurrencyPage()));
       case 10:
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => const CrudPage()));
       case 11:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const SearchList()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => BlockedUsersPage()));
       case 12:
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => const CrudPage()));
+      case 13:
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const CurrencyPage()));
+      case 14:
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const SearchList()));
+      case 15:
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => const CrudPage()));
         return;

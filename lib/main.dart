@@ -5,6 +5,7 @@ import 'package:chat_wp/services/auth/auth_gate.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
       options: const FirebaseOptions(
@@ -15,6 +16,7 @@ void main() async {
         storageBucket: 'myapp-b9yt18.appspot.com',                // firebase default value
       )
   );
+
   runApp(
     ChangeNotifierProvider(
         create: (context) => ThemeProvider(),

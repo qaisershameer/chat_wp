@@ -125,7 +125,8 @@ class _CustomerInfoState extends State<CustomerInfo> {
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _accountService.getAccountsStream(userId, 'CUSTOMER'),
+        // stream: _accountService.getAccountsTypeStream(userId, 'CUSTOMER'),
+        stream: _accountService.getAccountsTypeStream(userId, 'PARTIES'),
         builder: (context, snapshot) {
           // if we have data, get all the docs.
           if (snapshot.hasData) {

@@ -30,7 +30,16 @@ class AccountService{
   }
 
   // READ: getting accounts from database
-  Stream<QuerySnapshot> getAccountsStream(String userId, String type) {
+  Stream<QuerySnapshot> getAccountsStream(String userId) {
+    final accountsStream = _accounts
+        .where('uid', isEqualTo: userId)
+        .orderBy("accountName", descending: false)
+        .snapshots();
+    return accountsStream;
+  }
+
+// READ: getting accounts from database
+  Stream<QuerySnapshot> getAccountsTypeStream(String userId, String type) {
     final accountsStream = _accounts
         .where('uid', isEqualTo: userId)
         .where('type', isEqualTo: type)
@@ -51,7 +60,6 @@ class AccountService{
       ) {
 
     return _accounts.doc(docID).update({
-
       'accountName': newAccount,
       'email': newEmail,
       'type': newType,
@@ -59,7 +67,6 @@ class AccountService{
       'areaId': newAreaId,
       'uid': userId,
       'timestamp': Timestamp.now(),
-
     });
   }
 

@@ -6,10 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
    FirebaseFirestore.instance.collection('currency');
 
    // CREATE: add a new currency
-   Future<void> addCurrency(
-       String currencyName,
-       String userId) {
-
+   Future<void> addCurrency(String currencyName,String userId) {
      return _currency.add({
        'currencyName': currencyName,
        'uid': userId,
@@ -18,7 +15,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
    }
 
    // READ: getting currency from database
-   Stream<QuerySnapshot> getCurrencyStream(String userId, String type) {
+   Stream<QuerySnapshot> getCurrencyStream(String userId) {
      final currencyStream = _currency
          .where('uid', isEqualTo: userId)
          .orderBy("currencyName", descending: false)
@@ -27,12 +24,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
    }
 
    // UPDATE: update currency given a doc id
-   Future<void> updateCurrency(
-       String docID,
-       String newCurrency,
-       String userId
-       ) {
-
+   Future<void> updateCurrency(String docID, String newCurrency, String userId) {
      return _currency.doc(docID).update({
        'currencyName': newCurrency,
        'uid': userId,

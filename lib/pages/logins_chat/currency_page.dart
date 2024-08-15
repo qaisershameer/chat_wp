@@ -3,18 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:chat_wp/themes/const.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:chat_wp/services/chat/crud_service.dart';
+import 'package:chat_wp/services/accounts/currency_service.dart';
 
+class CurrencyPage extends StatefulWidget {
+  const CurrencyPage({super.key});
 
-class CrudPage extends StatefulWidget {
-  const CrudPage({super.key});
   @override
-  State<CrudPage> createState() => CrudPageState();
+  State<CurrencyPage> createState() => _CurrencyPageState();
 }
 
-class CrudPageState extends State<CrudPage> {
+class _CurrencyPageState extends State<CurrencyPage> {
   // crud services
-  final CrudService _crud = CrudService();
+  final CurrencyService _currency = CurrencyService();
 
   // text controller
   final TextEditingController _textNotes = TextEditingController();
@@ -34,10 +34,10 @@ class CrudPageState extends State<CrudPage> {
             onPressed: () {
               if (docID == null) {
                 // add a note to database in notes table
-                _crud.addNote(_textNotes.text, kUserId);
+                _currency.addCurrency(_textNotes.text, kUserId);
               } else {
                 // update a note to database in notes table
-                _crud.updateNote(docID, _textNotes.text, kUserId);
+                _currency.updateCurrency(docID, _textNotes.text, kUserId);
               }
 
               // clear the text controller after adding into database
@@ -57,8 +57,8 @@ class CrudPageState extends State<CrudPage> {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Delete Notes'),
-          content: const Text('Are you sure! want to Delete this Note?'),
+          title: const Text('Delete Currency'),
+          content: const Text('Are you sure! want to Delete this Currency?'),
           actions: [
             // cancel button
             TextButton(
@@ -69,11 +69,11 @@ class CrudPageState extends State<CrudPage> {
             TextButton(
                 onPressed: () {
                   // _chatService.unBlockUser(userId);
-                  _crud.deleteNote(docID);
+                  _currency.deleteCurrency(docID);
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Note deleted!'),
+                      content: Text('Currency deleted!'),
                     ),
                   );
                 },
@@ -86,7 +86,7 @@ class CrudPageState extends State<CrudPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notes'),
+        title: const Text('Currency'),
         // centerTitle: true,
         // backgroundColor: Colors.transparent,
         foregroundColor: Colors.teal,
@@ -111,7 +111,7 @@ class CrudPageState extends State<CrudPage> {
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _crud.getNotesStream(kUserId),
+        stream: _currency.getCurrencyStream(kUserId),
         builder: (context, snapshot) {
           // if we have data, get all the docs.
           if (snapshot.hasData) {
@@ -127,15 +127,15 @@ class CrudPageState extends State<CrudPage> {
 
                   // get note from each doc
                   Map<String, dynamic> data =
-                      document.data() as Map<String, dynamic>;
+                  document.data() as Map<String, dynamic>;
 
-                  String noteText = data['note'];
+                  String noteText = data['currencyName'];
                   // Timestamp? timeStamp = data['timestamp'];
 
                   Timestamp timeStamp = data['timestamp'] as Timestamp;
                   DateTime date = timeStamp.toDate();
                   String formatedDT =
-                      DateFormat('dd MMM yyyy hh:mm:ss a').format(date);
+                  DateFormat('dd MMM yyyy hh:mm:ss a').format(date);
 
                   // display as a list title
                   return Container(
@@ -144,7 +144,7 @@ class CrudPageState extends State<CrudPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     margin:
-                        const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
+                    const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
                     padding: const EdgeInsets.all(3),
                     child: ListTile(
                       title: Text(noteText),
@@ -168,7 +168,7 @@ class CrudPageState extends State<CrudPage> {
                   );
                 });
           } else {
-            return const Center(child: Text('no notes data to display!'));
+            return const Center(child: Text('no currency data to display!'));
           }
         },
       ),
