@@ -170,6 +170,7 @@ class _ChatPageState extends State<ChatPage> {
           // textfield should take up most of the space
           Expanded(
             child: MyTextField(
+              textInputType: TextInputType.text,
               controller: _messageController,
               hintText: 'Type a message',
               obsecureText: false,

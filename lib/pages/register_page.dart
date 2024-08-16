@@ -129,6 +129,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
             // email textfield
             MyTextField(
+              textInputType: TextInputType.emailAddress,
               hintText: 'Email',
               obsecureText: false,
               controller: _emailController,
@@ -139,6 +140,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
             // pwd textfield
             MyTextField(
+              textInputType: TextInputType.text,
               hintText: 'Password',
               obsecureText: true,
               controller: _pwdController,
@@ -149,6 +151,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
             // pwd textfield
             MyTextField(
+              textInputType: TextInputType.text,
               hintText: 'Confirm Password',
               obsecureText: true,
               controller: _confirmPwdController,

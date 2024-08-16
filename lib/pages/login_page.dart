@@ -116,6 +116,7 @@ class _LoginPageState extends State<LoginPage> {
 
             // email textfield
             MyTextField(
+              textInputType: TextInputType.emailAddress,
               hintText: 'Email',
               obsecureText: false,
               controller: _emailController,
@@ -126,6 +127,7 @@ class _LoginPageState extends State<LoginPage> {
 
             // pwd textfield
             MyTextField(
+              textInputType: TextInputType.text,
               hintText: 'Password',
               obsecureText: true,
               controller: _pwdController,

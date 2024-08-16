@@ -331,13 +331,13 @@ class CustomerAddState extends State<CustomerAdd> {
                       // Handle the form submission
                       if (_formKeyValue.currentState!.validate()) {
                         // Perform the form submission logic
-                        if (_accountId == null) {
+                        if (_accountId == '') {
                           // add a customer to database
                           _accountService.addAccount(_nameController.text, _phoneController.text, _emailController.text,
                               _selectedType!, _selectedCurrency!, _selectedArea!, userId);
                         } else {
                           // update customer to database
-                          _accountService.updateAccount(_nameController.text, _phoneController.text, _emailController.text,
+                          _accountService.updateAccount(_accountId, _nameController.text, _phoneController.text, _emailController.text,
                               _selectedType!, _selectedCurrency!, _selectedArea!, userId);
                         }
 

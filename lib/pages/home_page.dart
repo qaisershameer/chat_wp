@@ -68,6 +68,7 @@ class HomePage extends StatelessWidget {
     if (userData['email'] != _authService.getCurrentUser()) {
       return UserTile(
         text: userData['email'],
+        onLongPress: null,
         onTap: () {
           // tapped on user and go to chat page
           Navigator.push(

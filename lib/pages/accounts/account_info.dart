@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:chat_wp/themes/const.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:chat_wp/pages/accounts/account_add.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 
@@ -104,12 +103,12 @@ class _AccountInfoState extends State<AccountInfo> {
 
                 Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-                String customerText = data['accountName'] ?? 'No Name';
-                String phoneText = data['phone'] ?? 'No Phone';
-                String emailText = data['email'] ?? 'No Email';
-                String typeText = data['type'] ?? 'No Type';
-                String currencyText = data['currency'] ?? 'No Currency';
-                String areaIdText = data['areaid'] ?? 'No Area';
+                String customerText = data['accountName'] ?? '';
+                String phoneText = data['phone'] ?? '';
+                String emailText = data['email'] ?? '';
+                String typeText = data['type'] ?? '';
+                String currencyText = data['currency'] ?? '';
+                String areaIdText = data['areaId'] ?? '';
 
                 // Timestamp? timeStamp = data['timestamp'] as Timestamp?;
                 // DateTime date = timeStamp?.toDate() ?? DateTime.now();

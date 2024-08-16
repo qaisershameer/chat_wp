@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:chat_wp/themes/const.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 import 'package:chat_wp/services/accounts/area_service.dart';
 import 'package:chat_wp/services/accounts/currency_service.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
@@ -27,10 +26,457 @@ class AccountAdd extends StatefulWidget {
       required this.area});
 
   @override
-  State<AccountAdd> createState() => _AccountAddState();
+  State<AccountAdd> createState() => AccountAddState();
 }
 
-class _AccountAddState extends State<AccountAdd> {
+// class AccountAddState extends State<AccountAdd> {
+//   final AreaService _areas = AreaService();
+//   final AccountService _accounts = AccountService();
+//   final CurrencyService _currency = CurrencyService();
+//
+//   String? _accountId, _selectedType, _selectedCurrency, _selectedArea;
+//
+//   final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
+//
+//   final List<String> _accountType = <String>[
+//     'PARTY',
+//     'ASSETS',
+//     'LIABILITY',
+//     'CAPITAL',
+//     'REVENUE',
+//     'EXPENSE',
+//   ];
+//
+//   final TextEditingController _nameController = TextEditingController();
+//   final TextEditingController _phoneController = TextEditingController();
+//   final TextEditingController _emailController = TextEditingController();
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     // Initialize the text controller with the data from the previous screen
+//     _accountId = widget.docId;
+//     _nameController.text = widget.name;
+//     _phoneController.text = widget.phone == '' ? '+923346013608' : widget.phone;
+//     _emailController.text = widget.email;
+//
+//     _selectedType = widget.type == '' ? 'PARTY' : widget.type;
+//     _selectedCurrency = widget.currency;
+//     _selectedArea = widget.area;
+//
+//     // print('Document ID: ${widget.docId}');
+//     // print('currency ID: ${widget.currency}');
+//     // print('area ID: ${widget.area}');
+//
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         backgroundColor: Theme.of(context).colorScheme.primary,
+//         leading: IconButton(
+//           icon: const Icon(
+//             FontAwesomeIcons.bars,
+//             color: Colors.white,
+//           ),
+//           onPressed: () {},
+//         ),
+//         title: Container(
+//           alignment: Alignment.center,
+//           child: const Text(
+//             'Customer Details',
+//             style: TextStyle(color: Colors.white),
+//           ),
+//         ),
+//         actions: const <Widget>[
+//           IconButton(
+//             icon: Icon(
+//               FontAwesomeIcons.coins,
+//               color: Colors.white,
+//               size: 20.0,
+//             ),
+//             onPressed: null,
+//           ),
+//         ],
+//       ),
+//       body: Form(
+//         key: _formKeyValue,
+//         child: ListView(
+//           padding: const EdgeInsets.symmetric(horizontal: 15.0),
+//           children: [
+//             // Name Text Field
+//             TextFormField(
+//               controller: _nameController,
+//               // onChanged: _emailController.text == _nameController.text,
+//               keyboardType: TextInputType.text,
+//               onChanged: (String value) {
+//                 setState(() {
+//                   String processedValue =
+//                       value.trim().toLowerCase().replaceAll(' ', '');
+//                   _emailController.text = '$processedValue@gmail.com';
+//                 });
+//               },
+//               decoration: const InputDecoration(
+//                 icon: Icon(
+//                   FontAwesomeIcons.circleUser,
+//                   color: Colors.teal,
+//                 ),
+//                 hintText: 'Enter your name',
+//                 labelText: 'Name',
+//                 labelStyle:
+//                     TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+//               ),
+//               validator: (value) {
+//                 if (value == null || value.isEmpty) {
+//                   return 'Please enter your name';
+//                 }
+//                 return null;
+//               },
+//             ),
+//
+//             // Phone Number Text Field
+//             TextFormField(
+//               controller: _phoneController,
+//               decoration: const InputDecoration(
+//                 icon: Icon(
+//                   FontAwesomeIcons.phone,
+//                   color: Colors.teal,
+//                 ),
+//                 hintText: 'Enter your phone number',
+//                 labelText: 'Phone Number',
+//                 labelStyle:
+//                     TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+//               ),
+//               keyboardType: TextInputType.phone,
+//               validator: (value) {
+//                 if (value == null || value.isEmpty) {
+//                   return 'Please enter your phone number';
+//                 } else if (!RegExp(r'^\+?[0-9]{10,15}$').hasMatch(value)) {
+//                   return 'Please enter a valid phone number';
+//                 }
+//                 return null;
+//               },
+//             ),
+//
+//             // Email Text Field
+//             TextFormField(
+//               controller: _emailController,
+//               keyboardType: TextInputType.emailAddress,
+//               decoration: const InputDecoration(
+//                 icon: Icon(
+//                   FontAwesomeIcons.envelope,
+//                   color: Colors.teal,
+//                 ),
+//                 hintText: 'Enter your E-mail Address',
+//                 labelText: 'Email',
+//                 labelStyle:
+//                     TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+//               ),
+//               validator: (value) {
+//                 if (value == null || value.isEmpty) {
+//                   return 'Please enter your email address';
+//                 } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+//                   return 'Please enter a valid email address';
+//                 }
+//                 return null;
+//               },
+//             ),
+//
+//             const SizedBox(height: 20.0),
+//
+//             // ACCOUNT TYPE Data COMBO
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.start,
+//               children: <Widget>[
+//                 const Icon(
+//                   FontAwesomeIcons.moneyBill,
+//                   size: 25.0,
+//                   color: Colors.teal,
+//                 ),
+//                 const SizedBox(width: 20.0),
+//                 SizedBox(
+//                   width: MediaQuery.of(context).size.width / 1.25,
+//                   child: DropdownButtonFormField<String>(
+//                     isExpanded: true,
+//                     items: _accountType
+//                         .map<DropdownMenuItem<String>>((String value) {
+//                       return DropdownMenuItem<String>(
+//                         value: value,
+//                         child: Text(
+//                           value,
+//                           style: const TextStyle(color: Colors.teal),
+//                         ),
+//                       );
+//                     }).toList(),
+//                     onChanged: (typeValue) {
+//                       setState(() {
+//                         // print(typeValue);
+//                         // print(_selectedType);
+//                         if (_selectedType != typeValue) {
+//                           _selectedType = typeValue;
+//                         }
+//                       });
+//                     },
+//                     value: _selectedType,
+//                     hint: const Text(
+//                       'Select Type',
+//                       style: TextStyle(color: Colors.teal),
+//                     ),
+//                     validator: (value) {
+//                       if (value == null) {
+//                         return 'Please select an account type';
+//                       }
+//                       return null;
+//                     },
+//                   ),
+//                 ),
+//               ],
+//             ),
+//
+//             const SizedBox(height: 20.0),
+//
+//             // CURRENCY Data COMBO
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.start,
+//               children: <Widget>[
+//                 const Icon(
+//                   FontAwesomeIcons.moneyBillTransfer,
+//                   size: 25.0,
+//                   color: Colors.teal,
+//                 ),
+//                 const SizedBox(width: 20.0),
+//                 Expanded(
+//                   // Use Expanded here
+//                   child: StreamBuilder<QuerySnapshot>(
+//                     stream: _currency.getCurrencyStream(kUserId),
+//                     builder: (context, snapshot) {
+//                       if (snapshot.hasData) {
+//                         List<DocumentSnapshot> currencyList = snapshot.data!.docs;
+//
+//                         // Create a list of dropdown items
+//                         List<DropdownMenuItem<String>> dropdownItems = currencyList.map((document) {
+//                           String docID = document.id;
+//                           Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+//                           String currencyText = data['currencyName'];
+//
+//                           return DropdownMenuItem<String>(
+//                             value: docID,
+//                             child: Text(
+//                               currencyText,
+//                               style: const TextStyle(color: Colors.teal),
+//                             ),
+//                           );
+//                         }).toList();
+//
+//                         // Ensure the initial value is set correctly
+//                         String? initialCurrency = dropdownItems.isNotEmpty ? dropdownItems[0].value : null;
+//
+//                         return DropdownButtonFormField<String>(
+//                           // value: _selectedCurrency,
+//                           items: dropdownItems,
+//                           hint: const Text(
+//                             'Select Currency',
+//                             style: TextStyle(color: Colors.teal),
+//                           ),
+//                           value: _selectedCurrency ?? initialCurrency,
+//                           isExpanded:
+//                               true, // Make dropdown button expand to fill available space
+//                           onChanged: (currencyValue) {
+//                             setState(() {
+//
+//                               // print(currencyValue);
+//                               // print(_selectedCurrency);
+//
+//                               if (_selectedCurrency != currencyValue) {
+//                                 _selectedCurrency = currencyValue;
+//                               }
+//                             });
+//                           },
+//                           validator: (value) {
+//                             if (value == null) {
+//                               return 'Please select Currency';
+//                             }
+//                             return null;
+//                           },
+//                         );
+//                       } else if (snapshot.hasError) {
+//                         return Center(child: Text('Error: ${snapshot.error}'));
+//                       } else {
+//                         return const Center(
+//                             child: Text('No Currency defined!'));
+//                       }
+//                     },
+//                   ),
+//                 ),
+//               ],
+//             ),
+//
+//             const SizedBox(height: 20.0),
+//
+//             // AREA Data COMBO
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.start,
+//               children: <Widget>[
+//                 const Icon(
+//                   FontAwesomeIcons.chartArea,
+//                   size: 25.0,
+//                   color: Colors.teal,
+//                 ),
+//                 const SizedBox(width: 20.0),
+//                 Expanded(
+//                   child: StreamBuilder<QuerySnapshot>(
+//                     stream: _areas.getAreasStream(kUserId),
+//                     builder: (context, snapshot) {
+//                       if (snapshot.hasData) {
+//                         List<DocumentSnapshot> areaList = snapshot.data!.docs;
+//
+//                         // Create a list of dropdown items
+//                         List<DropdownMenuItem<String>> dropdownItems = areaList.map((document) {
+//                           String docID = document.id;
+//                           Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+//                           String areaText = data['area_name'];
+//
+//                           return DropdownMenuItem<String>(
+//                             value: docID,
+//                             child: Text(
+//                               areaText,
+//                               style: const TextStyle(color: Colors.teal),
+//                             ),
+//                           );
+//                         }).toList();
+//
+//                         // Ensure the initial value is set correctly
+//                         String? initialArea = dropdownItems.isNotEmpty ? dropdownItems[0].value : null;
+//                         print(initialArea);
+//
+//
+//                         return SizedBox(
+//                           width: MediaQuery.of(context).size.width / 1.25,
+//                           child: DropdownButtonFormField<String>(
+//                             hint: const Text(
+//                               'Select Area',
+//                               style: TextStyle(color: Colors.teal),
+//                             ),
+//                             items: dropdownItems,
+//                             // value: _selectedArea,
+//                             value: _selectedArea ?? initialArea,
+//                             isExpanded: true,
+//                             onChanged: (areaValue) {
+//                               setState(() {
+//                                 // print(currencyValue);
+//                                 // print(_selectedCurrency);
+//                                 if (_selectedArea != areaValue) {
+//                                   _selectedArea = areaValue;
+//                                 }
+//                               });
+//                             },
+//                             // onChanged: (areaValue) {
+//                             //   setState(() {
+//                             //     _selectedArea = areaValue;
+//                             //   });
+//                             // },
+//                             validator: (value) {
+//                               if (value == null) {
+//                                 return 'Please select an area';
+//                               }
+//                               return null;
+//                             },
+//                           ),
+//                         );
+//                       } else if (snapshot.hasError) {
+//                         return Center(child: Text('Error: ${snapshot.error}'));
+//                       } else {
+//                         return const Center(child: Text('No Area defined!'));
+//                       }
+//                     },
+//                   ),
+//                 ),
+//               ],
+//             ),
+//
+//             const SizedBox(height: 20.0),
+//
+//             // FORM SAVE
+//             Center(
+//               child: Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                 children: [
+//                   // Save Button
+//                   ElevatedButton(
+//                     onPressed: () {
+//                       // print(_accountId);
+//
+//                       // Handle the form submission
+//                       if (_formKeyValue.currentState!.validate()) {
+//                         // Perform the form submission logic
+//                         // print(_accountId);
+//                         if (_accountId == '') {
+//                           // add a customer to database
+//                           _accounts.addAccount(
+//                               _nameController.text,
+//                               _phoneController.text,
+//                               _emailController.text,
+//                               _selectedType!,
+//                               _selectedCurrency!,
+//                               _selectedArea!,
+//                               kUserId);
+//                         } else {
+//                           // update customer to database
+//                           // print('ACCOUNT UPDATE PROCESS');
+//                           _accounts.updateAccount(
+//                               _accountId,
+//                               _nameController.text,
+//                               _phoneController.text,
+//                               _emailController.text,
+//                               _selectedType!,
+//                               _selectedCurrency!,
+//                               _selectedArea!,
+//                               kUserId);
+//                         }
+//
+//                         // For example, you might want to send data to Firestore or another service
+//                         const snackBar = SnackBar(
+//                           content: Text(
+//                             'Account saved successfully!',
+//                             style: TextStyle(color: Colors.teal),
+//                           ),
+//                         );
+//                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+//
+//                         // You can also perform further actions here
+//                         // clear the text controller after adding into database
+//                         _nameController.clear();
+//                         _phoneController.clear();
+//                         _emailController.clear();
+//
+//                         // close to dialogue box
+//                         Navigator.pop(context);
+//                       }
+//                     },
+//                     child: const Text('Save'),
+//                   ),
+//
+//                   // Cancel Button
+//                   ElevatedButton(
+//                     onPressed: () {
+//                       Navigator.pop(context);
+//                     },
+//                     child: const Text('Cancel'),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//
+//             const SizedBox(height: 20.0),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+class AccountAddState extends State<AccountAdd> {
   final AreaService _areas = AreaService();
   final AccountService _accounts = AccountService();
   final CurrencyService _currency = CurrencyService();
@@ -40,11 +486,12 @@ class _AccountAddState extends State<AccountAdd> {
   final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
 
   final List<String> _accountType = <String>[
+    'PARTY',
     'ASSETS',
-    'LIABILITIES',
-    'REVENUES',
-    'EXPENSES',
-    'PARTIES',
+    'LIABILITY',
+    'CAPITAL',
+    'REVENUE',
+    'EXPENSE',
   ];
 
   final TextEditingController _nameController = TextEditingController();
@@ -54,16 +501,18 @@ class _AccountAddState extends State<AccountAdd> {
   @override
   void initState() {
     super.initState();
-    // Initialize the text controller with the data from the previous screen
+    // Initialize the text controllers with data from the previous screen
     _accountId = widget.docId;
     _nameController.text = widget.name;
-    _phoneController.text = widget.phone;
+    _phoneController.text = widget.phone.isEmpty ? '+923346013608' : widget.phone;
     _emailController.text = widget.email;
 
-    _selectedType = widget.type;
-    // print(_selectedType);
+    _selectedType = widget.type.isEmpty ? 'PARTY' : widget.type;
     _selectedCurrency = widget.currency;
     _selectedArea = widget.area;
+
+    // Log initial values for debugging
+    // print('Initial Values - Currency: $_selectedCurrency, Area: $_selectedArea');
   }
 
   @override
@@ -105,6 +554,13 @@ class _AccountAddState extends State<AccountAdd> {
             TextFormField(
               controller: _nameController,
               keyboardType: TextInputType.text,
+              onChanged: (String value) {
+                setState(() {
+                  String processedValue =
+                  value.trim().toLowerCase().replaceAll(' ', '');
+                  _emailController.text = '$processedValue@gmail.com';
+                });
+              },
               decoration: const InputDecoration(
                 icon: Icon(
                   FontAwesomeIcons.circleUser,
@@ -113,7 +569,7 @@ class _AccountAddState extends State<AccountAdd> {
                 hintText: 'Enter your name',
                 labelText: 'Name',
                 labelStyle:
-                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -134,7 +590,7 @@ class _AccountAddState extends State<AccountAdd> {
                 hintText: 'Enter your phone number',
                 labelText: 'Phone Number',
                 labelStyle:
-                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               keyboardType: TextInputType.phone,
               validator: (value) {
@@ -159,7 +615,7 @@ class _AccountAddState extends State<AccountAdd> {
                 hintText: 'Enter your E-mail Address',
                 labelText: 'Email',
                 labelStyle:
-                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -199,8 +655,6 @@ class _AccountAddState extends State<AccountAdd> {
                     }).toList(),
                     onChanged: (typeValue) {
                       setState(() {
-                        // print(typeValue);
-                        // print(_selectedType);
                         if (_selectedType != typeValue) {
                           _selectedType = typeValue;
                         }
@@ -235,60 +689,59 @@ class _AccountAddState extends State<AccountAdd> {
                 ),
                 const SizedBox(width: 20.0),
                 Expanded(
-                  // Use Expanded here
                   child: StreamBuilder<QuerySnapshot>(
                     stream: _currency.getCurrencyStream(kUserId),
                     builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        List<DocumentSnapshot> currencyList =
-                            snapshot.data!.docs;
-
-                        // Create a list of dropdown items
-                        List<DropdownMenuItem<String>> dropdownItems =
-                            currencyList.map((document) {
-                          String docID = document.id;
-                          Map<String, dynamic> data =
-                              document.data() as Map<String, dynamic>;
-                          String currencyText = data['currencyName'];
-
-                          return DropdownMenuItem<String>(
-                            value: docID,
-                            child: Text(
-                              currencyText,
-                              style: const TextStyle(color: Colors.teal),
-                            ),
-                          );
-                        }).toList();
-
-                        return DropdownButtonFormField<String>(
-                          value: _selectedCurrency,
-                          hint: const Text(
-                            'Select Currency',
-                            style: TextStyle(color: Colors.teal),
-                          ),
-                          items: dropdownItems,
-                          isExpanded:
-                              true, // Make dropdown button expand to fill available space
-                          onChanged: (currencyValue) {
-                            setState(() {
-                              if (_selectedCurrency != currencyValue) {
-                                _selectedCurrency = currencyValue;
-                              }
-                            });
-                          },
-                          validator: (value) {
-                            if (value == null) {
-                              return 'Please select Currency';
-                            }
-                            return null;
-                          },
-                        );
-                      } else if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      } else {
-                        return const Center(
-                            child: Text('No Currency defined!'));
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
                       }
+
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      }
+
+                      List<DocumentSnapshot> currencyList = snapshot.data?.docs ?? [];
+                      List<DropdownMenuItem<String>> dropdownItems = currencyList.map((document) {
+                        String docID = document.id;
+                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                        String currencyText = data['currencyName'];
+
+                        return DropdownMenuItem<String>(
+                          value: docID,
+                          child: Text(
+                            currencyText,
+                            style: const TextStyle(color: Colors.teal),
+                          ),
+                        );
+                      }).toList();
+
+                      String? initialCurrency = dropdownItems.isNotEmpty ? dropdownItems[0].value : null;
+
+                      // Ensure _selectedCurrency is valid or fallback to initialCurrency
+                      String? currentCurrency = dropdownItems.any((item) => item.value == _selectedCurrency)
+                          ? _selectedCurrency
+                          : initialCurrency;
+
+                      return DropdownButtonFormField<String>(
+                        value: currentCurrency,
+                        items: dropdownItems,
+                        hint: const Text(
+                          'Select Currency',
+                          style: TextStyle(color: Colors.teal),
+                        ),
+                        isExpanded: true,
+                        onChanged: (currencyValue) {
+                          setState(() {
+                            _selectedCurrency = currencyValue;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Please select Currency';
+                          }
+                          return null;
+                        },
+                      );
                     },
                   ),
                 ),
@@ -311,54 +764,56 @@ class _AccountAddState extends State<AccountAdd> {
                   child: StreamBuilder<QuerySnapshot>(
                     stream: _areas.getAreasStream(kUserId),
                     builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        List<DocumentSnapshot> areaList = snapshot.data!.docs;
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                        // Create a list of dropdown items
-                        List<DropdownMenuItem<String>> dropdownItems =
-                            areaList.map((document) {
-                          String docID = document.id;
-                          Map<String, dynamic> data =
-                              document.data() as Map<String, dynamic>;
-                          String areaText = data['area_name'];
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      }
 
-                          return DropdownMenuItem<String>(
-                            value: docID,
-                            child: Text(
-                              areaText,
-                              style: const TextStyle(color: Colors.teal),
-                            ),
-                          );
-                        }).toList();
+                      List<DocumentSnapshot> areaList = snapshot.data?.docs ?? [];
+                      List<DropdownMenuItem<String>> dropdownItems = areaList.map((document) {
+                        String docID = document.id;
+                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                        String areaText = data['area_name'];
 
-                        return SizedBox(
-                          width: MediaQuery.of(context).size.width / 1.25,
-                          child: DropdownButtonFormField<String>(
-                            value: _selectedArea,
-                            hint: const Text(
-                              'Select Area',
-                              style: TextStyle(color: Colors.teal),
-                            ),
-                            items: dropdownItems,
-                            isExpanded: true,
-                            onChanged: (areaValue) {
-                              setState(() {
-                                _selectedArea = areaValue;
-                              });
-                            },
-                            validator: (value) {
-                              if (value == null) {
-                                return 'Please select an area';
-                              }
-                              return null;
-                            },
+                        return DropdownMenuItem<String>(
+                          value: docID,
+                          child: Text(
+                            areaText,
+                            style: const TextStyle(color: Colors.teal),
                           ),
                         );
-                      } else if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      } else {
-                        return const Center(child: Text('No Area defined!'));
-                      }
+                      }).toList();
+
+                      String? initialArea = dropdownItems.isNotEmpty ? dropdownItems[0].value : null;
+
+                      // Ensure _selectedArea is valid or fallback to initialArea
+                      String? currentArea = dropdownItems.any((item) => item.value == _selectedArea)
+                          ? _selectedArea
+                          : initialArea;
+
+                      return DropdownButtonFormField<String>(
+                        value: currentArea,
+                        items: dropdownItems,
+                        hint: const Text(
+                          'Select Area',
+                          style: TextStyle(color: Colors.teal),
+                        ),
+                        isExpanded: true,
+                        onChanged: (areaValue) {
+                          setState(() {
+                            _selectedArea = areaValue;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Please select an area';
+                          }
+                          return null;
+                        },
+                      );
                     },
                   ),
                 ),
@@ -375,13 +830,8 @@ class _AccountAddState extends State<AccountAdd> {
                   // Save Button
                   ElevatedButton(
                     onPressed: () {
-                      // print(_accountId);
-
-                      // Handle the form submission
                       if (_formKeyValue.currentState!.validate()) {
-                        // Perform the form submission logic
-                        if (_accountId == null) {
-                          // add a customer to database
+                        if (_accountId == '') {
                           _accounts.addAccount(
                               _nameController.text,
                               _phoneController.text,
@@ -391,8 +841,8 @@ class _AccountAddState extends State<AccountAdd> {
                               _selectedArea!,
                               kUserId);
                         } else {
-                          // update customer to database
                           _accounts.updateAccount(
+                              _accountId!,
                               _nameController.text,
                               _phoneController.text,
                               _emailController.text,
@@ -402,7 +852,6 @@ class _AccountAddState extends State<AccountAdd> {
                               kUserId);
                         }
 
-                        // For example, you might want to send data to Firestore or another service
                         const snackBar = SnackBar(
                           content: Text(
                             'Account saved successfully!',
@@ -411,13 +860,10 @@ class _AccountAddState extends State<AccountAdd> {
                         );
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-                        // You can also perform further actions here
-                        // clear the text controller after adding into database
                         _nameController.clear();
                         _phoneController.clear();
                         _emailController.clear();
 
-                        // close to dialogue box
                         Navigator.pop(context);
                       }
                     },

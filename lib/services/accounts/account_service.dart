@@ -50,8 +50,9 @@ class AccountService{
 
   // UPDATE: update accounts given a doc id
   Future<void> updateAccount(
-      String docID,
+      String? docID,
       String newAccount,
+      String newPhone,
       String newEmail,
       String newType,
       String newCurrency,
@@ -59,8 +60,19 @@ class AccountService{
       String userId
       ) {
 
+    // print(docID);
+    // print(newAccount);
+    // print(newPhone);
+    // print(newEmail);
+    // print(newType);
+    // print(newCurrency);
+    // print(newAreaId);
+    // print(userId);
+
+
     return _accounts.doc(docID).update({
       'accountName': newAccount,
+      'phone': newPhone,
       'email': newEmail,
       'type': newType,
       'currency': newCurrency,
