@@ -7,7 +7,6 @@ import 'package:chat_wp/services/accounts/account_service.dart';
 
 class AccountInfo extends StatefulWidget {
   const AccountInfo({super.key});
-
   @override
   State<AccountInfo> createState() => _AccountInfoState();
 }
@@ -123,7 +122,7 @@ class _AccountInfoState extends State<AccountInfo> {
                   padding: const EdgeInsets.all(3),
                   child: ListTile(
                     title: Text(customerText),
-                    subtitle: Text('$phoneText\n$emailText'),
+                    subtitle: Text('$phoneText * $typeText\n $emailText'),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [

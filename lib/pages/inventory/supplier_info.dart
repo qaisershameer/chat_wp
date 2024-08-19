@@ -1,50 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:chat_wp/themes/const.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:chat_wp/services/auth/auth_service.dart';
 import 'package:chat_wp/services/accounts/area_service.dart';
-import 'package:chat_wp/services/accounts/currency_service.dart';
-import 'package:chat_wp/services/accounts/account_service.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class AccountAdd extends StatefulWidget {
-  final String docId;
-  final String name;
-  final String phone;
-  final String email;
-  final String type;
-  final String currency;
-  final String area;
-
-  const AccountAdd(
-      {super.key,
-        required this.docId,
-        required this.name,
-        required this.phone,
-        required this.email,
-        required this.type,
-        required this.currency,
-        required this.area});
-
+class SupplierInfo extends StatefulWidget {
+  const SupplierInfo({super.key});
   @override
-  State<AccountAdd> createState() => AccountAddState();
+  State<SupplierInfo> createState() => SupplierInfoState();
 }
 
-class AccountAddState extends State<AccountAdd> {
-  final AreaService _areas = AreaService();
-  final AccountService _accounts = AccountService();
-  final CurrencyService _currency = CurrencyService();
+class SupplierInfoState extends State<SupplierInfo> {
+  // area services
+  final AuthService _authService = AuthService();
+  final AreaService _areaService = AreaService();
 
-  String? _accountId, _selectedType, _selectedCurrency, _selectedArea;
+  final CollectionReference _currency =
+  FirebaseFirestore.instance.collection('currency');
+
+  String? _selectedType, _selectedCurrency, _selectedArea;
 
   final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
 
   final List<String> _accountType = <String>[
-    'PARTY',
-    'ASSETS',
-    'LIABILITY',
-    'CAPITAL',
-    'REVENUE',
-    'EXPENSE',
+    'Customer',
+    'Supplier',
   ];
 
   final TextEditingController _nameController = TextEditingController();
@@ -52,24 +32,10 @@ class AccountAddState extends State<AccountAdd> {
   final TextEditingController _emailController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    // Initialize the text controllers with data from the previous screen
-    _accountId = widget.docId;
-    _nameController.text = widget.name;
-    _phoneController.text = widget.phone.isEmpty ? '+923346013608' : widget.phone;
-    _emailController.text = widget.email;
-
-    _selectedType = widget.type.isEmpty ? 'PARTY' : widget.type;
-    _selectedCurrency = widget.currency;
-    _selectedArea = widget.area;
-
-    // Log initial values for debugging
-    // print('Initial Values - Currency: $_selectedCurrency, Area: $_selectedArea');
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // GET CURRENT USER ID
+    String userId = _authService.getCurrentUser()!.uid;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -83,7 +49,7 @@ class AccountAddState extends State<AccountAdd> {
         title: Container(
           alignment: Alignment.center,
           child: const Text(
-            'Account Details',
+            'Supplier Details',
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -107,13 +73,6 @@ class AccountAddState extends State<AccountAdd> {
             TextFormField(
               controller: _nameController,
               keyboardType: TextInputType.text,
-              onChanged: (String value) {
-                setState(() {
-                  String processedValue =
-                  value.trim().toLowerCase().replaceAll(' ', '');
-                  _emailController.text = '$processedValue@gmail.com';
-                });
-              },
               decoration: const InputDecoration(
                 icon: Icon(
                   FontAwesomeIcons.circleUser,
@@ -208,9 +167,7 @@ class AccountAddState extends State<AccountAdd> {
                     }).toList(),
                     onChanged: (typeValue) {
                       setState(() {
-                        if (_selectedType != typeValue) {
-                          _selectedType = typeValue;
-                        }
+                        _selectedType = typeValue;
                       });
                     },
                     value: _selectedType,
@@ -241,62 +198,50 @@ class AccountAddState extends State<AccountAdd> {
                   color: Colors.teal,
                 ),
                 const SizedBox(width: 20.0),
-                Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: _currency.getCurrencyStream(kUserId),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      }
-
-                      List<DocumentSnapshot> currencyList = snapshot.data?.docs ?? [];
-                      List<DropdownMenuItem<String>> dropdownItems = currencyList.map((document) {
-                        String docID = document.id;
-                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-                        String currencyText = data['currencyName'];
-
-                        return DropdownMenuItem<String>(
-                          value: docID,
-                          child: Text(
-                            currencyText,
-                            style: const TextStyle(color: Colors.teal),
+                StreamBuilder<QuerySnapshot>(
+                  stream: _currency.snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: Text('loading...'));
+                    } else {
+                      List<DropdownMenuItem<String>> currencyItems = [];
+                      for (int i = 0; i < snapshot.data!.docs.length; i++) {
+                        DocumentSnapshot snap = snapshot.data!.docs[i];
+                        currencyItems.add(
+                          DropdownMenuItem<String>(
+                            value: snap.id,
+                            child: Text(
+                              snap.id,
+                              style: const TextStyle(color: Colors.teal),
+                            ),
                           ),
                         );
-                      }).toList();
-
-                      String? initialCurrency = dropdownItems.isNotEmpty ? dropdownItems[0].value : null;
-
-                      // Ensure _selectedCurrency is valid or fallback to initialCurrency
-                      String? currentCurrency = dropdownItems.any((item) => item.value == _selectedCurrency)
-                          ? _selectedCurrency
-                          : initialCurrency;
-
-                      return DropdownButtonFormField<String>(
-                        value: currentCurrency,
-                        items: dropdownItems,
-                        hint: const Text(
-                          'Select Currency',
-                          style: TextStyle(color: Colors.teal),
+                      }
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width / 1.25,
+                        child: DropdownButtonFormField<String>(
+                          items: currencyItems,
+                          onChanged: (currencyValue) {
+                            setState(() {
+                              _selectedCurrency = currencyValue;
+                            });
+                          },
+                          value: _selectedCurrency,
+                          isExpanded: true,
+                          hint: const Text(
+                            'Select Currency',
+                            style: TextStyle(color: Colors.teal),
+                          ),
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Please select a currency';
+                            }
+                            return null;
+                          },
                         ),
-                        isExpanded: true,
-                        onChanged: (currencyValue) {
-                          setState(() {
-                            _selectedCurrency = currencyValue;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Please select Currency';
-                          }
-                          return null;
-                        },
                       );
-                    },
-                  ),
+                    }
+                  },
                 ),
               ],
             ),
@@ -313,22 +258,18 @@ class AccountAddState extends State<AccountAdd> {
                   color: Colors.teal,
                 ),
                 const SizedBox(width: 20.0),
-                Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: _areas.getAreasStream(kUserId),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+                StreamBuilder<QuerySnapshot>(
+                  stream: _areaService.getAreasStream(userId),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      List<DocumentSnapshot> areaList = snapshot.data!.docs;
 
-                      if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      }
-
-                      List<DocumentSnapshot> areaList = snapshot.data?.docs ?? [];
-                      List<DropdownMenuItem<String>> dropdownItems = areaList.map((document) {
+                      // Create a list of dropdown items
+                      List<DropdownMenuItem<String>> dropdownItems =
+                      areaList.map((document) {
                         String docID = document.id;
-                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                        Map<String, dynamic> data =
+                        document.data() as Map<String, dynamic>;
                         String areaText = data['area_name'];
 
                         return DropdownMenuItem<String>(
@@ -340,87 +281,65 @@ class AccountAddState extends State<AccountAdd> {
                         );
                       }).toList();
 
-                      String? initialArea = dropdownItems.isNotEmpty ? dropdownItems[0].value : null;
-
-                      // Ensure _selectedArea is valid or fallback to initialArea
-                      String? currentArea = dropdownItems.any((item) => item.value == _selectedArea)
-                          ? _selectedArea
-                          : initialArea;
-
-                      return DropdownButtonFormField<String>(
-                        value: currentArea,
-                        items: dropdownItems,
-                        hint: const Text(
-                          'Select Area',
-                          style: TextStyle(color: Colors.teal),
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width / 1.25,
+                        child: DropdownButtonFormField<String>(
+                          value: _selectedArea,
+                          hint: const Text(
+                            'Select Area',
+                            style: TextStyle(color: Colors.teal),
+                          ),
+                          items: dropdownItems,
+                          isExpanded: true,
+                          onChanged: (areaValue) {
+                            setState(() {
+                              _selectedArea = areaValue;
+                            });
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Please select an area';
+                            }
+                            return null;
+                          },
                         ),
-                        isExpanded: true,
-                        onChanged: (areaValue) {
-                          setState(() {
-                            _selectedArea = areaValue;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Please select an area';
-                          }
-                          return null;
-                        },
                       );
-                    },
-                  ),
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else {
+                      return const Center(child: Text('No Area defined!'));
+                    }
+                  },
                 ),
               ],
             ),
 
             const SizedBox(height: 20.0),
 
-            // FORM SAVE
+            // FORM SUBMIT
             Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // Save Button
+                  // Submit Button
                   ElevatedButton(
                     onPressed: () {
+                      // Handle the form submission
                       if (_formKeyValue.currentState!.validate()) {
-                        if (_accountId == null || _accountId == '') {
-                          _accounts.addAccount(
-                              _nameController.text,
-                              _phoneController.text,
-                              _emailController.text,
-                              _selectedType!,
-                              _selectedCurrency!,
-                              _selectedArea!,
-                              kUserId);
-                        } else {
-                          _accounts.updateAccount(
-                              _accountId!,
-                              _nameController.text,
-                              _phoneController.text,
-                              _emailController.text,
-                              _selectedType!,
-                              _selectedCurrency!,
-                              _selectedArea!,
-                              kUserId);
-                        }
-
+                        // Perform the form submission logic
+                        // For example, you might want to send data to Firestore or another service
                         const snackBar = SnackBar(
                           content: Text(
-                            'Account saved successfully!',
+                            'Form submitted successfully!',
                             style: TextStyle(color: Colors.teal),
                           ),
                         );
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-                        _nameController.clear();
-                        _phoneController.clear();
-                        _emailController.clear();
-
-                        Navigator.pop(context);
+                        // You can also perform further actions here
                       }
                     },
-                    child: const Text('Save'),
+                    child: const Text('Submit'),
                   ),
 
                   // Cancel Button

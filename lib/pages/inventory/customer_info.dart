@@ -1,47 +1,54 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:chat_wp/themes/const.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:chat_wp/services/accounts/currency_service.dart';
+import 'package:chat_wp/services/auth/auth_service.dart';
+import 'package:chat_wp/services/accounts/account_service.dart';
+import 'package:chat_wp/pages/inventory/customer_add.dart';
 
-class CurrencyPage extends StatefulWidget {
-  const CurrencyPage({super.key});
+// will delete after correcting form edit delete
+import 'package:chat_wp/services/accounts/customer_service.dart';
+
+class CustomerInfo extends StatefulWidget {
+  const CustomerInfo({super.key});
 
   @override
-  State<CurrencyPage> createState() => _CurrencyPageState();
+  State<CustomerInfo> createState() => _CustomerInfoState();
 }
 
-class _CurrencyPageState extends State<CurrencyPage> {
-  // crud services
-  final CurrencyService _currency = CurrencyService();
+class _CustomerInfoState extends State<CustomerInfo> {
+
+  // auth account services
+  final AuthService _authService = AuthService();
+  final AccountService _accountService = AccountService();
+  final CustomerService _customerService = CustomerService();
 
   // text controller
-  final TextEditingController _textNotes = TextEditingController();
+  final TextEditingController _textCustomer = TextEditingController();
 
-  // open a dialogue box to add a note
-  void openNoteBox(String? docID, String? noteText) {
-    _textNotes.text = noteText ?? 'NA';
+
+  // open a dialogue box to add customer
+  void openCustomerBox(String? docID, String? customerText, String userId) {
+    _textCustomer.text = customerText ?? '';
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         content: TextField(
-          controller: _textNotes,
+          controller: _textCustomer,
         ),
         actions: [
-          // button to save notes
+          // button to save Customers
           ElevatedButton(
             onPressed: () {
-              if (docID == null || docID == '') {
-                // add a note to database in notes table
-                _currency.addCurrency(_textNotes.text, kUserId);
+              if (docID == null) {
+                // add a customer to database
+                _customerService.addCustomer(_textCustomer.text, userId);
               } else {
-                // update a note to database in notes table
-                _currency.updateCurrency(docID, _textNotes.text, kUserId);
+                // update customer to database
+                _customerService.updateCustomer(docID, _textCustomer.text, userId);
               }
 
               // clear the text controller after adding into database
-              _textNotes.clear();
+              _textCustomer.clear();
 
               // close to dialogue box
               Navigator.pop(context);
@@ -53,27 +60,27 @@ class _CurrencyPageState extends State<CurrencyPage> {
     );
   }
 
-  void _deleteNoteBox(BuildContext context, String docID) {
+  // open a dialogue box to delete customer
+  void _deleteCustomerBox(BuildContext context, String docID) {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Delete Currency'),
-          content: const Text('Are you sure! want to Delete this Currency?'),
+          title: const Text('Delete Customer'),
+          content: const Text('Are you sure! want to Delete this Customer?'),
           actions: [
             // cancel button
             TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('Cancel')),
 
-            // unblock button
+            // delete button
             TextButton(
                 onPressed: () {
-                  // _chatService.unBlockUser(userId);
-                  _currency.deleteCurrency(docID);
+                  _customerService.deleteCustomer(docID);
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Currency deleted!'),
+                      content: Text('Customer deleted!'),
                     ),
                   );
                 },
@@ -84,9 +91,12 @@ class _CurrencyPageState extends State<CurrencyPage> {
 
   @override
   Widget build(BuildContext context) {
+    // GET CURRENT USER ID
+    String userId = _authService.getCurrentUser()!.uid;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Currency'),
+        title: const Text('Customers'),
         // centerTitle: true,
         // backgroundColor: Colors.transparent,
         foregroundColor: Colors.teal,
@@ -94,15 +104,19 @@ class _CurrencyPageState extends State<CurrencyPage> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 25.0, bottom: 16.0),
-            // logout button
+            // Add button
             child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.teal,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
                   shape: BoxShape.circle,
                 ),
-                margin: const EdgeInsets.only(right: 10.0),
+                margin: const EdgeInsets.only(right: 10.0,),
                 child: IconButton(
-                    onPressed: () => openNoteBox(null, ''),
+                    // onPressed: () => openCustomerBox(null, '', userId),
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => const CustomerAdd()));
+                    } ,
                     icon: const Icon(
                       Icons.add,
                       color: Colors.white,
@@ -111,26 +125,28 @@ class _CurrencyPageState extends State<CurrencyPage> {
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _currency.getCurrencyStream(kUserId),
+        // stream: _accountService.getAccountsTypeStream(userId, 'CUSTOMER'),
+        stream: _accountService.getAccountsTypeStream(userId, 'PARTIES'),
         builder: (context, snapshot) {
           // if we have data, get all the docs.
           if (snapshot.hasData) {
-            List noteList = snapshot.data!.docs;
+            List customerList = snapshot.data!.docs;
 
             // display as a list
             return ListView.builder(
-                itemCount: noteList.length,
+                itemCount: customerList.length,
                 itemBuilder: (context, index) {
                   // get each individual doc
-                  DocumentSnapshot document = noteList[index];
+                  DocumentSnapshot document = customerList[index];
                   String docID = document.id;
 
-                  // get note from each doc
+                  // get customer from each doc
                   Map<String, dynamic> data =
                   document.data() as Map<String, dynamic>;
 
-                  String noteText = data['currencyName'];
-                  // Timestamp? timeStamp = data['timestamp'];
+                  String customerText = data['accountName'];
+                  String phoneText = data['phone'];
+                  String emailText = data['email'];
 
                   Timestamp timeStamp = data['timestamp'] as Timestamp;
                   DateTime date = timeStamp.toDate();
@@ -147,19 +163,23 @@ class _CurrencyPageState extends State<CurrencyPage> {
                     const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
                     padding: const EdgeInsets.all(3),
                     child: ListTile(
-                      title: Text(noteText),
-                      subtitle: Text(formatedDT),
+                      title: Text(customerText),
+                      subtitle: Text('$phoneText\n$emailText'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           // update button
                           IconButton(
-                            onPressed: () => openNoteBox(docID, noteText),
+                            onPressed: (){},
+                            // onPressed: () =>
+                            //     openCustomerBox(docID, customerText, userId),
                             icon: const Icon(Icons.settings),
                           ),
                           // delete button
                           IconButton(
-                            onPressed: () =>_deleteNoteBox(context, docID),
+                            onPressed: (){},
+                            // onPressed: () =>
+                            //     _deleteCustomerBox(context, docID),
                             icon: const Icon(Icons.delete),
                           ),
                         ],
@@ -168,15 +188,11 @@ class _CurrencyPageState extends State<CurrencyPage> {
                   );
                 });
           } else {
-            return const Center(child: Text('no currency data to display!'));
+            return const Center(child: Text('no customer data to display!'));
           }
         },
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   // open note box dialogue box
-      //   onPressed: () => openNoteBox(null),
-      //   child: const Icon(Icons.add),
-      // ),
     );
   }
+
 }

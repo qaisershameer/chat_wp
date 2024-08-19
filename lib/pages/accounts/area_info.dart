@@ -32,7 +32,7 @@ class AreaInfoState extends State<AreaInfo> {
           // button to save Areas
           ElevatedButton(
             onPressed: () {
-              if (docID == null) {
+              if (docID == null || docID == '') {
                 // add a area to database in area table
                 _areaService.addArea(_textArea.text, userId);
               } else {

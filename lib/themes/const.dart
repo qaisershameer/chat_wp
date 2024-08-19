@@ -9,6 +9,10 @@ final AuthService _authService = AuthService();
 String kUserId = _authService.getCurrentUser()!.uid;
 String? kUserEmail = _authService.getCurrentUser()!.email;
 
+String kCPV = 'CP';
+String kCRV = 'CR';
+String kJV = 'JV';
+
 
 const kSendButtonTextStyle = TextStyle(
   color: Colors.lightBlueAccent,

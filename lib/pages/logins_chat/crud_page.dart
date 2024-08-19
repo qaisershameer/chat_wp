@@ -32,7 +32,7 @@ class CrudPageState extends State<CrudPage> {
           // button to save notes
           ElevatedButton(
             onPressed: () {
-              if (docID == null) {
+              if (docID == null || docID == '') {
                 // add a note to database in notes table
                 _crud.addNote(_textNotes.text, kUserId);
               } else {

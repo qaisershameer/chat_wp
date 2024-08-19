@@ -15,28 +15,28 @@ class BlockedUsersPage extends StatelessWidget {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
-              title: const Text('Unblock User'),
-              content: const Text('Are you sure! want to unblock this user?'),
-              actions: [
-                // cancel button
-                TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel')),
+          title: const Text('Unblock User'),
+          content: const Text('Are you sure! want to unblock this user?'),
+          actions: [
+            // cancel button
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel')),
 
-                // unblock button
-                TextButton(
-                    onPressed: () {
-                      _chatService.unBlockUser(userId);
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('User Unblocked done!'),
-                        ),
-                      );
-                    },
-                    child: const Text('Unblock')),
-              ],
-            ));
+            // unblock button
+            TextButton(
+                onPressed: () {
+                  _chatService.unBlockUser(userId);
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('User Unblocked done!'),
+                    ),
+                  );
+                },
+                child: const Text('Unblock')),
+          ],
+        ));
   }
 
   @override
@@ -81,7 +81,7 @@ class BlockedUsersPage extends StatelessWidget {
 
             // no blocked users...
             if (blockedUsers.isEmpty) {
-              return const Center(child: Text('No Blocked Users'));
+              return const Text('No Blocked Users');
             }
 
             // loading complete...
@@ -91,8 +91,8 @@ class BlockedUsersPage extends StatelessWidget {
                 final user = blockedUsers[index];
                 return UserTile(
                   text: user['email'],
-                  onLongPress: null,
                   onTap: () => _showUnblockBox(context, user['uid']),
+                  onLongPress: null,
                 );
               },
             );

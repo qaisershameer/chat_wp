@@ -1,10 +1,10 @@
+
+import 'package:chat_wp/components/chat_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_wp/components/my_textfield.dart';
 import 'package:chat_wp/services/auth/auth_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chat_wp/services/chat/chat_service.dart';
-import 'package:chat_wp/components/chat_bubble.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatPage extends StatefulWidget {
   final String receiverEmail;
@@ -40,7 +40,7 @@ class _ChatPageState extends State<ChatPage> {
         // then scroll down
         Future.delayed(
           const Duration(microseconds: 500),
-          () => scrollDown(),
+              () => scrollDown(),
         );
       }
     });
@@ -48,7 +48,7 @@ class _ChatPageState extends State<ChatPage> {
     // wait a bit for listview to be build, then scroll to bottom
     Future.delayed(
       const Duration(milliseconds: 500),
-      () => scrollDown(),
+          () => scrollDown(),
     );
   }
 
@@ -80,6 +80,7 @@ class _ChatPageState extends State<ChatPage> {
       // clear text controller
       _messageController.clear();
     }
+
     scrollDown();
   }
 
@@ -127,7 +128,7 @@ class _ChatPageState extends State<ChatPage> {
         return ListView(
           controller: _scrollController,
           children:
-              snapshot.data!.docs.map((doc) => _buildMessageItem(doc)).toList(),
+          snapshot.data!.docs.map((doc) => _buildMessageItem(doc)).toList(),
         );
       },
     );
@@ -142,13 +143,13 @@ class _ChatPageState extends State<ChatPage> {
 
     // align message to the right if sender is the current user, otherwise left
     var alignment =
-        isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
+    isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
 
     return Container(
       alignment: alignment,
       child: Column(
         crossAxisAlignment:
-            isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           ChatBubble(
             message: data['message'],
@@ -170,11 +171,11 @@ class _ChatPageState extends State<ChatPage> {
           // textfield should take up most of the space
           Expanded(
             child: MyTextField(
+              textInputType: TextInputType.text,
               controller: _messageController,
               hintText: 'Type a message',
               obsecureText: false,
               focusNode: myFocusNode,
-              textInputType: TextInputType.text,
             ),
           ),
 
