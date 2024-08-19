@@ -2,18 +2,18 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_wp/themes/const.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:chat_wp/pages/accounts/voucher_cpv_add.dart';
+import 'package:chat_wp/pages/accounts/voucher_jv_add.add.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 import 'package:chat_wp/services/accounts/ac_voucher_service.dart';
 
-class VoucherCpvInfo extends StatefulWidget {
-  const VoucherCpvInfo({super.key});
+class VoucherJvInfo extends StatefulWidget {
+  const VoucherJvInfo({super.key});
 
   @override
-  State<VoucherCpvInfo> createState() => VoucherCpvInfoState();
+  State<VoucherJvInfo> createState() => VoucherJvInfoState();
 }
 
-class VoucherCpvInfoState extends State<VoucherCpvInfo> {
+class VoucherJvInfoState extends State<VoucherJvInfo> {
   final AccountService _accounts = AccountService();
   final AcVoucherService _vouchers = AcVoucherService();
 
@@ -21,8 +21,8 @@ class VoucherCpvInfoState extends State<VoucherCpvInfo> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete CPV'),
-        content: const Text('Are you sure you want to delete this CP Voucher?'),
+        title: const Text('Delete JV'),
+        content: const Text('Are you sure you want to delete this JV Voucher?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -34,11 +34,11 @@ class VoucherCpvInfoState extends State<VoucherCpvInfo> {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('CP Voucher deleted!'),
+                  content: Text('JV Voucher deleted!'),
                 ),
               );
             },
-            child: const Text('Delete CP'),
+            child: const Text('Delete JV'),
           ),
         ],
       ),
@@ -53,7 +53,7 @@ class VoucherCpvInfoState extends State<VoucherCpvInfo> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cash Payment'),
+        title: const Text('Journal Voucher'),
         foregroundColor: Colors.teal,
         elevation: 0,
         actions: [
@@ -70,11 +70,11 @@ class VoucherCpvInfoState extends State<VoucherCpvInfo> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => VoucherCpvAdd(
+                      builder: (context) => VoucherJvAdd(
                         docId: '',
                         type: '',
                         vDate: vDate,
-                        remarks: 'Cash Paid.',
+                        remarks: 'Amount Transferred.',
                         drAcId: '',
                         crAcId: '',
                         debit: pkrAmount,
@@ -95,7 +95,7 @@ class VoucherCpvInfoState extends State<VoucherCpvInfo> {
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _vouchers.getVouchersTypeStream(kUserId, kCPV),
+        stream: _vouchers.getVouchersTypeStream(kUserId, kJV),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<DocumentSnapshot> customerList = snapshot.data!.docs;
@@ -108,7 +108,8 @@ class VoucherCpvInfoState extends State<VoucherCpvInfo> {
 
                 Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-                String acId = data['drAcId'] ?? '';
+                String crAcId = data['crAcId'] ?? '';
+                String drAcId = data['drAcId'] ?? '';
                 DateTime dateText = (data['date'] as Timestamp).toDate(); // Convert Timestamp to DateTime
                 String remarksText = data['remarks'] ?? '';
                 double debitText = (data['debit'] ?? 0.0) as double; // Ensure this is double
@@ -121,7 +122,7 @@ class VoucherCpvInfoState extends State<VoucherCpvInfo> {
 
                 // Use FutureBuilder to fetch the account name asynchronously
                 return FutureBuilder<String?>(
-                  future: _accounts.getAccountName(acId),
+                  future: _accounts.getAccountName(crAcId),
                   builder: (context, futureSnapshot) {
                     if (futureSnapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -138,8 +139,8 @@ class VoucherCpvInfoState extends State<VoucherCpvInfo> {
                         margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
                         padding: const EdgeInsets.all(3),
                         child: ListTile(
-                          title: Text('$acName'),
-                          subtitle: Text('PK: $debitText * SR: $debitSarText\n$remarksText\n$formattedDate'),
+                          title: Text('Dr: $acName\nCr: $acName'),
+                          subtitle: Text('PkDr: $debitText * PkCr: $creditText\nSrDr: $debitSarText * SrCr: $creditSarText\n$remarksText\n$formattedDate'),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -148,13 +149,13 @@ class VoucherCpvInfoState extends State<VoucherCpvInfo> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => VoucherCpvAdd(
+                                      builder: (context) => VoucherJvAdd(
                                         docId: docID,
-                                        type: kCPV,
+                                        type: kJV,
                                         vDate: dateText,
                                         remarks: remarksText,
-                                        drAcId: acId,
-                                        crAcId: '',
+                                        drAcId: drAcId,
+                                        crAcId: crAcId,
                                         debit: debitText,
                                         debitSar: debitSarText,
                                         credit: creditText,
@@ -190,3 +191,4 @@ class VoucherCpvInfoState extends State<VoucherCpvInfo> {
     );
   }
 }
+

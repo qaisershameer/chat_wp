@@ -6,7 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 import 'package:chat_wp/services/accounts/ac_voucher_service.dart';
 
-class VoucherCpvAdd extends StatefulWidget {
+class VoucherJvAdd extends StatefulWidget {
   final String docId;
   final String type;
   final DateTime vDate;
@@ -19,7 +19,7 @@ class VoucherCpvAdd extends StatefulWidget {
   final double credit;
   final double creditSar;
 
-  const VoucherCpvAdd({
+  const VoucherJvAdd({
     super.key,
     required this.docId,
     required this.type,
@@ -34,20 +34,22 @@ class VoucherCpvAdd extends StatefulWidget {
   });
 
   @override
-  State<VoucherCpvAdd> createState() => VoucherCpvAddState();
+  State<VoucherJvAdd> createState() => VoucherJvAddState();
 }
 
-class VoucherCpvAddState extends State<VoucherCpvAdd> {
+class VoucherJvAddState extends State<VoucherJvAdd> {
   final AccountService _accounts = AccountService();
   final AcVoucherService _voucher = AcVoucherService();
 
-  String? _voucherId, _selectedAccount;
+  String? _voucherId, _selectedAccountDr, _selectedAccountCr;
 
   final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
 
   final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _pkrController = TextEditingController();
-  final TextEditingController _sarController = TextEditingController();
+  final TextEditingController _pkrDrController = TextEditingController();
+  final TextEditingController _pkrCrController = TextEditingController();
+  final TextEditingController _sarDrController = TextEditingController();
+  final TextEditingController _sarCrController = TextEditingController();
   final TextEditingController _remarksController = TextEditingController();
 
   Future<void> _selectDate(BuildContext context) async {
@@ -72,9 +74,12 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
     _voucherId = widget.docId;
     _dateController.text = DateFormat('dd-MMM-yyyy').format(widget.vDate);
     _remarksController.text = widget.remarks;
-    _selectedAccount = widget.drAcId;
-    _pkrController.text = widget.debit.toString();
-    _sarController.text = widget.debitSar.toString();
+    _selectedAccountDr = widget.drAcId;
+    _selectedAccountCr = widget.crAcId;
+    _pkrDrController.text = widget.debit.toString();
+    _pkrCrController.text = widget.credit.toString();
+    _sarDrController.text = widget.debitSar.toString();
+    _sarCrController.text = widget.creditSar.toString();
   }
 
   @override
@@ -92,7 +97,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
         title: Container(
           alignment: Alignment.center,
           child: const Text(
-            'Cash Payment',
+            'Journal Voucher',
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -129,7 +134,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
                 hintText: 'Select Date',
                 labelText: 'Date',
                 labelStyle:
-                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -139,9 +144,9 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
               },
             ),
 
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 10.0),
 
-            // Account Data COMBO
+            // Debit Account Data COMBO
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
@@ -169,7 +174,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
                       accountList.map((document) {
                         String docID = document.id;
                         Map<String, dynamic> data =
-                            document.data() as Map<String, dynamic>;
+                        document.data() as Map<String, dynamic>;
                         String areaText = data['accountName'];
 
                         return DropdownMenuItem<String>(
@@ -187,26 +192,29 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
 
                       // Ensure _selectedAccount is valid or fallback to initialAccount
                       String? currentAccount = dropdownItems
-                              .any((item) => item.value == _selectedAccount)
-                          ? _selectedAccount
+                          .any((item) => item.value == _selectedAccountDr)
+                          ? _selectedAccountDr
                           : initialAccount;
 
                       return DropdownButtonFormField<String>(
                         value: currentAccount,
                         items: dropdownItems,
                         hint: const Text(
-                          'Select Account',
+                          'Select Debit Account',
                           style: TextStyle(color: Colors.teal),
                         ),
                         isExpanded: true,
                         onChanged: (accountValue) {
                           setState(() {
-                            _selectedAccount = accountValue;
+                            _selectedAccountDr = accountValue;
                           });
                         },
                         validator: (value) {
                           if (value == null) {
-                            return 'Please select a valid account';
+                            return 'Please select a valid debit account';
+                          }
+                          if (_selectedAccountDr == _selectedAccountCr) {
+                            return 'Please select a different credit account';
                           }
                           return null;
                         },
@@ -217,25 +225,103 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
               ],
             ),
 
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 10.0),
 
-            // PKR Amount Number Text Field
+            // Credit Account Data COMBO
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                const Icon(
+                  FontAwesomeIcons.circleUser,
+                  size: 25.0,
+                  color: Colors.teal,
+                ),
+                const SizedBox(width: 20.0),
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: _accounts.getAccountsStream(kUserId),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      }
+
+                      List<DocumentSnapshot> accountList =
+                          snapshot.data?.docs ?? [];
+                      List<DropdownMenuItem<String>> dropdownItems =
+                      accountList.map((document) {
+                        String docID = document.id;
+                        Map<String, dynamic> data =
+                        document.data() as Map<String, dynamic>;
+                        String areaText = data['accountName'];
+
+                        return DropdownMenuItem<String>(
+                          value: docID,
+                          child: Text(
+                            areaText,
+                            style: const TextStyle(color: Colors.teal),
+                          ),
+                        );
+                      }).toList();
+
+                      String? initialAccount = dropdownItems.isNotEmpty
+                          ? dropdownItems[0].value
+                          : null;
+
+                      // Ensure _selectedAccount is valid or fallback to initialAccount
+                      String? currentAccount = dropdownItems
+                          .any((item) => item.value == _selectedAccountCr)
+                          ? _selectedAccountCr
+                          : initialAccount;
+
+                      return DropdownButtonFormField<String>(
+                        value: currentAccount,
+                        items: dropdownItems,
+                        hint: const Text(
+                          'Select Credit Account',
+                          style: TextStyle(color: Colors.teal),
+                        ),
+                        isExpanded: true,
+                        onChanged: (accountValue) {
+                          setState(() {
+                            _selectedAccountCr = accountValue;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Please select a valid credit account';
+                          }
+                          return null;
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 10.0),
+
+            // PKR Dr Amount Number Text Field
             TextFormField(
-              controller: _pkrController,
+              controller: _pkrDrController,
               decoration: const InputDecoration(
                 icon: Icon(
                   FontAwesomeIcons.moneyBill,
                   color: Colors.teal,
                 ),
-                hintText: 'Enter PKR Amount',
-                labelText: 'PKR Amount',
+                hintText: 'Enter PKR Debit Amount',
+                labelText: 'PKR Debit Amount',
                 labelStyle:
-                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter a valid PKR amount';
+                  return 'Please enter a valid PKR Debit Amount';
                 } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
                   return 'Please enter a valid PKR Amount';
                 }
@@ -243,33 +329,85 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
               },
             ),
 
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 10.0),
 
-            // SAR Number Text Field
+            // PKR Cr Amount Number Text Field
             TextFormField(
-              controller: _sarController,
+              controller: _pkrCrController,
               decoration: const InputDecoration(
                 icon: Icon(
-                  FontAwesomeIcons.moneyBillTransfer,
+                  FontAwesomeIcons.moneyBill,
                   color: Colors.teal,
                 ),
-                hintText: 'Enter SAR amount',
-                labelText: 'SAR Amount',
+                hintText: 'Enter PKR Credit Amount',
+                labelText: 'PKR Credit Amount',
                 labelStyle:
-                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter a valid SAR amount';
+                  return 'Please enter a valid PKR Credit Amount';
                 } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
-                  return 'Please enter a valid SAR amount';
+                  return 'Please enter a valid PKR Credit Amount';
                 }
                 return null;
               },
             ),
 
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 10.0),
+
+            // SAR Debit Number Text Field
+            TextFormField(
+              controller: _sarDrController,
+              decoration: const InputDecoration(
+                icon: Icon(
+                  FontAwesomeIcons.moneyBillTransfer,
+                  color: Colors.teal,
+                ),
+                hintText: 'Enter SAR Debit Amount',
+                labelText: 'SAR Debit Amount',
+                labelStyle:
+                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a valid SAR Debit amount';
+                } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
+                  return 'Please enter a valid SAR Debit Amount';
+                }
+                return null;
+              },
+            ),
+
+            const SizedBox(height: 10.0),
+
+            // SAR Credit Number Text Field
+            TextFormField(
+              controller: _sarCrController,
+              decoration: const InputDecoration(
+                icon: Icon(
+                  FontAwesomeIcons.moneyBillTransfer,
+                  color: Colors.teal,
+                ),
+                hintText: 'Enter SAR Credit Amount',
+                labelText: 'SAR Credit Amount',
+                labelStyle:
+                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a valid SAR Credit amount';
+                } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
+                  return 'Please enter a valid SAR Credit Amount';
+                }
+                return null;
+              },
+            ),
+
+            const SizedBox(height: 10.0),
 
             // Remarks Multi Line Text Field
             TextFormField(
@@ -283,7 +421,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
                 hintText: 'Enter Voucher Remarks',
                 labelText: 'Remarks',
                 labelStyle:
-                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -293,7 +431,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
               },
             ),
 
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 10.0),
 
             // FORM SAVE
             Center(
@@ -305,7 +443,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
                     onPressed: () {
                       if (_formKeyValue.currentState!.validate()) {
                         // print(_voucherId);
-                        // print(kCPV);
+                        // print(kJV);
                         // print(_dateController.text);
                         // print(_remarksController.text);
                         // print(_selectedAccount);
@@ -317,46 +455,51 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
                         DateTime date = DateFormat('dd-MMM-yyyy').parse(_dateController.text);
 
                         // Convert string to double
-                        double pkrAmount = double.tryParse(_pkrController.text) ?? 0.0;
-                        double sarAmount = double.tryParse(_sarController.text) ?? 0.0;
+                        double pkrDrAmount = double.tryParse(_pkrDrController.text) ?? 0.0;
+                        double pkrCrAmount = double.tryParse(_pkrCrController.text) ?? 0.0;
+                        double sarDrAmount = double.tryParse(_sarDrController.text) ?? 0.0;
+                        double sarCrAmount = double.tryParse(_sarCrController.text) ?? 0.0;
 
                         if (_voucherId == null || _voucherId == '') {
                           _voucher.addVoucher(
-                              kCPV,
+                              kJV,
                               date,
                               _remarksController.text,
-                              _selectedAccount!,
-                              '',
-                              pkrAmount,
-                              sarAmount,
-                              0,
-                              0,
+                              _selectedAccountDr!,
+                              _selectedAccountCr!,
+                              pkrDrAmount,
+                              sarDrAmount,
+                              pkrCrAmount,
+                              sarCrAmount,
                               kUserId);
                         } else {
                           _voucher.updateVoucher(
                               _voucherId,
-                              kCPV,
+                              kJV,
                               date,
                               _remarksController.text,
-                              _selectedAccount!,
-                              '',
-                              pkrAmount,
-                              sarAmount,
-                              0,
-                              0,
+                              _selectedAccountDr!,
+                              _selectedAccountCr!,
+                              pkrDrAmount,
+                              sarDrAmount,
+                              pkrCrAmount,
+                              sarCrAmount,
                               kUserId);
                         }
 
                         const snackBar = SnackBar(
                           content: Text(
-                            'Cash Payment saved successfully!',
+                            'Journal Voucher saved successfully!',
                             style: TextStyle(color: Colors.teal),
                           ),
                         );
                         ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
                         _dateController.clear();
-                        _pkrController.clear();
+                        _pkrDrController.clear();
+                        _pkrCrController.clear();
+                        _sarDrController.clear();
+                        _sarCrController.clear();
                         _remarksController.clear();
 
                         Navigator.pop(context);
@@ -376,7 +519,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
               ),
             ),
 
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 10.0),
           ],
         ),
       ),

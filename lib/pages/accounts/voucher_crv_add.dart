@@ -6,7 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 import 'package:chat_wp/services/accounts/ac_voucher_service.dart';
 
-class VoucherCpvAdd extends StatefulWidget {
+class VoucherCrvAdd extends StatefulWidget {
   final String docId;
   final String type;
   final DateTime vDate;
@@ -19,7 +19,7 @@ class VoucherCpvAdd extends StatefulWidget {
   final double credit;
   final double creditSar;
 
-  const VoucherCpvAdd({
+  const VoucherCrvAdd({
     super.key,
     required this.docId,
     required this.type,
@@ -34,10 +34,10 @@ class VoucherCpvAdd extends StatefulWidget {
   });
 
   @override
-  State<VoucherCpvAdd> createState() => VoucherCpvAddState();
+  State<VoucherCrvAdd> createState() => VoucherCrvAddState();
 }
 
-class VoucherCpvAddState extends State<VoucherCpvAdd> {
+class VoucherCrvAddState extends State<VoucherCrvAdd> {
   final AccountService _accounts = AccountService();
   final AcVoucherService _voucher = AcVoucherService();
 
@@ -72,9 +72,9 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
     _voucherId = widget.docId;
     _dateController.text = DateFormat('dd-MMM-yyyy').format(widget.vDate);
     _remarksController.text = widget.remarks;
-    _selectedAccount = widget.drAcId;
-    _pkrController.text = widget.debit.toString();
-    _sarController.text = widget.debitSar.toString();
+    _selectedAccount = widget.crAcId;
+    _pkrController.text = widget.credit.toString();
+    _sarController.text = widget.creditSar.toString();
   }
 
   @override
@@ -92,7 +92,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
         title: Container(
           alignment: Alignment.center,
           child: const Text(
-            'Cash Payment',
+            'Cash Receipt',
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -129,7 +129,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
                 hintText: 'Select Date',
                 labelText: 'Date',
                 labelStyle:
-                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -169,7 +169,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
                       accountList.map((document) {
                         String docID = document.id;
                         Map<String, dynamic> data =
-                            document.data() as Map<String, dynamic>;
+                        document.data() as Map<String, dynamic>;
                         String areaText = data['accountName'];
 
                         return DropdownMenuItem<String>(
@@ -187,7 +187,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
 
                       // Ensure _selectedAccount is valid or fallback to initialAccount
                       String? currentAccount = dropdownItems
-                              .any((item) => item.value == _selectedAccount)
+                          .any((item) => item.value == _selectedAccount)
                           ? _selectedAccount
                           : initialAccount;
 
@@ -230,7 +230,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
                 hintText: 'Enter PKR Amount',
                 labelText: 'PKR Amount',
                 labelStyle:
-                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -256,7 +256,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
                 hintText: 'Enter SAR amount',
                 labelText: 'SAR Amount',
                 labelStyle:
-                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -283,7 +283,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
                 hintText: 'Enter Voucher Remarks',
                 labelText: 'Remarks',
                 labelStyle:
-                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -305,7 +305,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
                     onPressed: () {
                       if (_formKeyValue.currentState!.validate()) {
                         // print(_voucherId);
-                        // print(kCPV);
+                        // print(kCRV);
                         // print(_dateController.text);
                         // print(_remarksController.text);
                         // print(_selectedAccount);
@@ -322,28 +322,28 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
 
                         if (_voucherId == null || _voucherId == '') {
                           _voucher.addVoucher(
-                              kCPV,
+                              kCRV,
                               date,
                               _remarksController.text,
-                              _selectedAccount!,
                               '',
+                              _selectedAccount!,
+                              0,
+                              0,
                               pkrAmount,
                               sarAmount,
-                              0,
-                              0,
                               kUserId);
                         } else {
                           _voucher.updateVoucher(
                               _voucherId,
-                              kCPV,
+                              kCRV,
                               date,
                               _remarksController.text,
-                              _selectedAccount!,
                               '',
+                              _selectedAccount!,
+                              0,
+                              0,
                               pkrAmount,
                               sarAmount,
-                              0,
-                              0,
                               kUserId);
                         }
 

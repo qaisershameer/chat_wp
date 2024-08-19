@@ -1,12 +1,15 @@
-import 'package:chat_wp/services/accounts/search_list.dart';
 import 'package:flutter/material.dart';
 
+import 'package:chat_wp/services/accounts/search_list.dart';
 import 'package:chat_wp/pages/accounts/area_info.dart';
 import 'package:chat_wp/pages/accounts/account_info.dart';
-import 'package:chat_wp/pages/accounts/voucher_cpv_info.dart';
 
 import 'package:chat_wp/pages/inventory/customer_info.dart';
 import 'package:chat_wp/pages/inventory/supplier_info.dart';
+
+import 'package:chat_wp/pages/accounts/voucher_cpv_info.dart';
+import 'package:chat_wp/pages/accounts/voucher_crv_info.dart';
+import 'package:chat_wp/pages/accounts/voucher_jv_info.dart';
 
 import 'package:chat_wp/pages/logins_chat/blocked_users_page.dart';
 import 'package:chat_wp/pages/logins_chat/crud_page.dart';
@@ -38,10 +41,10 @@ class MyListTile extends StatelessWidget {
             MaterialPageRoute(builder: (context) => const VoucherCpvInfo()));
       case 4:
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const CustomerInfo()));
+            MaterialPageRoute(builder: (context) => const VoucherCrvInfo()));
       case 5:
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const CustomerInfo()));
+            MaterialPageRoute(builder: (context) => const VoucherJvInfo()));
       case 6:
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => const CustomerInfo()));
