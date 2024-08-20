@@ -212,22 +212,38 @@ class RptCashBookState extends State<RptCashBook> {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('Cash Book Report', style: const pw.TextStyle(fontSize: 24)),
-              pw.SizedBox(height: 20),
-              pw.TableHelper.fromTextArray(
-                data: _getPdfTableData(customerList, accountNames),
-                headers: [
-                  'Date',
-                  'PK-Dr',
-                  'PK-Cr',
-                  'SR-Dr',
-                  'SR-Cr'
-                  'Account',
-                  'Remarks',
-                ],
-                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                cellStyle: const pw.TextStyle(fontSize: 10),
+              pw.Text('Cash Book Report', style: const pw.TextStyle(fontSize: 20,)),
+              pw.SizedBox(height: 10),
+              pw.Table(
                 border: pw.TableBorder.all(),
+                children: [
+                  // Header row
+                  pw.TableRow(
+                    children: [
+                      _buildHeaderCell('Date'),
+                      _buildHeaderCell('PK-Dr'),
+                      _buildHeaderCell('PK-Cr'),
+                      _buildHeaderCell('SR-Dr'),
+                      _buildHeaderCell('SR-Cr'),
+                      _buildHeaderCell('Account'),
+                      _buildHeaderCell('Remarks'),
+                    ],
+                  ),
+                  // Data rows
+                  ..._getPdfTableData(customerList, accountNames).map((row) {
+                    return pw.TableRow(
+                      children: [
+                        _buildCell(row[0], pw.Alignment.center),
+                        _buildCell(row[1], pw.Alignment.centerRight),
+                        _buildCell(row[2], pw.Alignment.centerRight),
+                        _buildCell(row[3], pw.Alignment.centerRight),
+                        _buildCell(row[4], pw.Alignment.centerRight),
+                        _buildCell(row[5], pw.Alignment.centerLeft),
+                        _buildCell(row[6], pw.Alignment.centerLeft),
+                      ],
+                    );
+                  }),
+                ],
               ),
             ],
           );
@@ -239,6 +255,31 @@ class RptCashBookState extends State<RptCashBook> {
       onLayout: (PdfPageFormat format) async => pdf.save(),
     );
   }
+
+// Helper method to create table headers
+  pw.Widget _buildHeaderCell(String text) {
+    return pw.Align(
+      alignment: pw.Alignment.center,
+      child: pw.Padding(
+        padding: const pw.EdgeInsets.all(5.0),
+        child: pw.Text(
+          text,
+          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+
+// Helper method to create table cells with alignment
+  pw.Widget _buildCell(String text, pw.Alignment alignment) {
+    return pw.Container(
+      alignment: alignment,
+      padding: const pw.EdgeInsets.all(8.0),
+      child: pw.Text(text, style: const pw.TextStyle(fontSize: 10)),
+    );
+  }
+
 
   List<List<String>> _getPdfTableData(
       List<DocumentSnapshot> customerList, Map<String, String?> accountNames) {
@@ -301,7 +342,7 @@ class RptCashBookState extends State<RptCashBook> {
       '',
     ]);
     data.add([
-      'B/F Balance',
+      'Balance',
       '',
       _numberFormat.format(bfBalancePK),
       '',
