@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chat_wp/services/auth/auth_service.dart';
 import 'package:chat_wp/services/accounts/area_service.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
-import 'package:chat_wp/services/accounts/currency_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class CustomerAdd extends StatefulWidget {
@@ -17,7 +16,6 @@ class CustomerAddState extends State<CustomerAdd> {
   final AuthService _authService = AuthService();
   final AreaService _areaService = AreaService();
   final AccountService _accountService = AccountService();
-  final CurrencyService _currencyService = CurrencyService();
 
   final CollectionReference _currency =
   FirebaseFirestore.instance.collection('currency');

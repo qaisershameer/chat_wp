@@ -3,14 +3,16 @@ import 'package:chat_wp/models/area.dart';
 import 'package:chat_wp/services/accounts/area_service.dart';
 
 class AreaDropdown extends StatefulWidget {
+  const AreaDropdown({super.key});
+
   @override
-  _AreaDropdownState createState() => _AreaDropdownState();
+  AreaDropdownState createState() => AreaDropdownState();
 }
 
-class _AreaDropdownState extends State<AreaDropdown> {
+class AreaDropdownState extends State<AreaDropdown> {
   final AreaService _areaService = AreaService();
 
-  List<Area> _areas = [];
+  final List<Area> _areas = [];
   Area? _selectedArea;
 
   @override

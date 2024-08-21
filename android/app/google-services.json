@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "880776645949",
+    "project_id": "chatpk-7861",
+    "storage_bucket": "chatpk-7861.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:880776645949:android:02dda9cef0faf2d26e8954",
+        "android_client_info": {
+          "package_name": "com.qrdpro.chat_wp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwySCFn3-iQL7eVkNe54C6lpaOR8rB6ig"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

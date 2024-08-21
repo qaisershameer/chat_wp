@@ -50,7 +50,7 @@ class BlockedUsersPage extends StatelessWidget {
         appBar: AppBar(
           title: const Text('BLOCKED USERS'),
           centerTitle: true,
-          actions: [],
+          actions: const [],
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.grey,
           elevation: 0,

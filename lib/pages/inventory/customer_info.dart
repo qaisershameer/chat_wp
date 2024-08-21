@@ -1,4 +1,3 @@
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chat_wp/services/auth/auth_service.dart';
@@ -138,7 +137,7 @@ class _CustomerInfoState extends State<CustomerInfo> {
                 itemBuilder: (context, index) {
                   // get each individual doc
                   DocumentSnapshot document = customerList[index];
-                  String docID = document.id;
+                  // String docID = document.id;
 
                   // get customer from each doc
                   Map<String, dynamic> data =
@@ -148,10 +147,9 @@ class _CustomerInfoState extends State<CustomerInfo> {
                   String phoneText = data['phone'];
                   String emailText = data['email'];
 
-                  Timestamp timeStamp = data['timestamp'] as Timestamp;
-                  DateTime date = timeStamp.toDate();
-                  String formatedDT =
-                  DateFormat('dd MMM yyyy hh:mm:ss a').format(date);
+                  // Timestamp timeStamp = data['timestamp'] as Timestamp;
+                  // DateTime date = timeStamp.toDate();
+                  // String formatedDT = DateFormat('dd MMM yyyy hh:mm:ss a').format(date);
 
                   // display as a list title
                   return Container(

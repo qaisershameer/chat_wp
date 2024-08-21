@@ -36,7 +36,7 @@ class AcVoucherService {
   Stream<QuerySnapshot> getVouchersStream(String userId) {
     final accountsStream = _vouchers
         .where('uid', isEqualTo: userId)
-        .orderBy("date", descending: true)
+        .orderBy("date", descending: false)
         .snapshots();
     return accountsStream;
   }
@@ -91,6 +91,18 @@ class AcVoucherService {
     final query = _vouchers
         .where('uid', isEqualTo: userId)
         .where('type', whereIn: types)
+        .orderBy('date', descending: true);
+
+    return query.snapshots();
+  }
+
+  // READ: getting Account Ledger Report Query
+  Stream<QuerySnapshot> getAcLedgerStream(String userId, String accId) {
+    // print('AC LEDGER REPORT FUNCTION IN');
+    final query = _vouchers
+        .where('uid', isEqualTo: userId)
+        .where('drAcId', isEqualTo: accId)
+        // .where('crAcId', isEqualTo: accId)
         .orderBy('date', descending: true);
 
     return query.snapshots();

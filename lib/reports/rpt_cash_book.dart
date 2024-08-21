@@ -89,10 +89,10 @@ class RptCashBookState extends State<RptCashBook> {
                           columnSpacing: constraints.maxWidth / 15, // Adjust column spacing
                           columns: const [
                             DataColumn(label: Text('Date')),
-                            DataColumn(headingRowAlignment: MainAxisAlignment.end, label: Text('PK-Dr')),
-                            DataColumn(headingRowAlignment: MainAxisAlignment.end, label: Text('PK-Cr')),
-                            DataColumn(headingRowAlignment: MainAxisAlignment.end, label: Text('SR-Dr')),
-                            DataColumn(headingRowAlignment: MainAxisAlignment.end, label: Text('SR-Cr')),
+                            DataColumn(label: Text('PK-Dr')),
+                            DataColumn(label: Text('PK-Cr')),
+                            DataColumn(label: Text('SR-Dr')),
+                            DataColumn(label: Text('SR-Cr')),
                             DataColumn(label: Text('Account')), // Combined DR & CR Account
                             DataColumn(label: Text('Remarks')),
 
@@ -198,65 +198,93 @@ class RptCashBookState extends State<RptCashBook> {
   }
 
   void _printPdf() async {
-    final snapshot = await _vouchers.getCashBookStream(kUserId, [kCRV, kCPV]).first;
-    final customerList = snapshot.docs;
-
-    final futureAccountNames = _getAccountNames(customerList);
-    final accountNames = await futureAccountNames;
-
-    final pdf = pw.Document();
-
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Text('Cash Book Report', style: const pw.TextStyle(fontSize: 20,)),
-              pw.SizedBox(height: 10),
-              pw.Table(
-                border: pw.TableBorder.all(),
-                children: [
-                  // Header row
-                  pw.TableRow(
-                    children: [
-                      _buildHeaderCell('Date'),
-                      _buildHeaderCell('PK-Dr'),
-                      _buildHeaderCell('PK-Cr'),
-                      _buildHeaderCell('SR-Dr'),
-                      _buildHeaderCell('SR-Cr'),
-                      _buildHeaderCell('Account'),
-                      _buildHeaderCell('Remarks'),
-                    ],
-                  ),
-                  // Data rows
-                  ..._getPdfTableData(customerList, accountNames).map((row) {
-                    return pw.TableRow(
-                      children: [
-                        _buildCell(row[0], pw.Alignment.center),
-                        _buildCell(row[1], pw.Alignment.centerRight),
-                        _buildCell(row[2], pw.Alignment.centerRight),
-                        _buildCell(row[3], pw.Alignment.centerRight),
-                        _buildCell(row[4], pw.Alignment.centerRight),
-                        _buildCell(row[5], pw.Alignment.centerLeft),
-                        _buildCell(row[6], pw.Alignment.centerLeft),
-                      ],
-                    );
-                  }),
-                ],
-              ),
+    // Show progress dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          title: Text('Generating PDF'),
+          content: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Text('Please wait...'),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
 
-    await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async => pdf.save(),
-    );
+    try {
+      final snapshot = await _vouchers.getCashBookStream(kUserId, [kCRV, kCPV]).first;
+      final customerList = snapshot.docs;
+
+      final futureAccountNames = _getAccountNames(customerList);
+      final accountNames = await futureAccountNames;
+
+      final pdf = pw.Document();
+
+      pdf.addPage(
+        pw.Page(
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text('Cash Book Report', style: const pw.TextStyle(fontSize: 20,)),
+                pw.SizedBox(height: 10),
+                pw.Table(
+                  border: pw.TableBorder.all(),
+                  children: [
+                    // Header row
+                    pw.TableRow(
+                      children: [
+                        _buildHeaderCell('Date'),
+                        _buildHeaderCell('PK-Dr'),
+                        _buildHeaderCell('PK-Cr'),
+                        _buildHeaderCell('SR-Dr'),
+                        _buildHeaderCell('SR-Cr'),
+                        _buildHeaderCell('Account'),
+                        _buildHeaderCell('Remarks'),
+                      ],
+                    ),
+                    // Data rows
+                    ..._getPdfTableData(customerList, accountNames).map((row) {
+                      return pw.TableRow(
+                        children: [
+                          _buildCell(row[0], pw.Alignment.center),
+                          _buildCell(row[1], pw.Alignment.centerRight),
+                          _buildCell(row[2], pw.Alignment.centerRight),
+                          _buildCell(row[3], pw.Alignment.centerRight),
+                          _buildCell(row[4], pw.Alignment.centerRight),
+                          _buildCell(row[5], pw.Alignment.centerLeft),
+                          _buildCell(row[6], pw.Alignment.centerLeft),
+                        ],
+                      );
+                    }),
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
+      );
+
+      await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => pdf.save(),
+      );
+
+    } catch (e) {
+      // Handle any errors
+      // print('Error generating PDF: $e');
+    } finally {
+      // Dismiss the progress dialog
+      Navigator.of(context).pop();
+    }
   }
 
-// Helper method to create table headers
+  // Helper method to create table headers
   pw.Widget _buildHeaderCell(String text) {
     return pw.Align(
       alignment: pw.Alignment.center,
@@ -270,8 +298,7 @@ class RptCashBookState extends State<RptCashBook> {
     );
   }
 
-
-// Helper method to create table cells with alignment
+  // Helper method to create table cells with alignment
   pw.Widget _buildCell(String text, pw.Alignment alignment) {
     return pw.Container(
       alignment: alignment,
@@ -279,7 +306,6 @@ class RptCashBookState extends State<RptCashBook> {
       child: pw.Text(text, style: const pw.TextStyle(fontSize: 10)),
     );
   }
-
 
   List<List<String>> _getPdfTableData(
       List<DocumentSnapshot> customerList, Map<String, String?> accountNames) {
