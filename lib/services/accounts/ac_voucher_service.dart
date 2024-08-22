@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:rxdart/rxdart.dart';
 
 class AcVoucherService {
   // get collection of vouchers
@@ -97,15 +98,30 @@ class AcVoucherService {
   }
 
   // READ: getting Account Ledger Report Query
-  Stream<QuerySnapshot> getAcLedgerStream(String userId, String accId) {
-    // print('AC LEDGER REPORT FUNCTION IN');
-    final query = _vouchers
+  Stream<List<QueryDocumentSnapshot>> getAcLedgerStream(String userId, String accId) {
+
+    final query1 = _vouchers
         .where('uid', isEqualTo: userId)
         .where('drAcId', isEqualTo: accId)
-        // .where('crAcId', isEqualTo: accId)
         .orderBy('date', descending: true);
 
-    return query.snapshots();
+    final query2 = _vouchers
+        .where('uid', isEqualTo: userId)
+        .where('crAcId', isEqualTo: accId)
+        .orderBy('date', descending: true);
+
+    final stream1 = query1.snapshots().map((snapshot) => snapshot.docs);
+    final stream2 = query2.snapshots().map((snapshot) => snapshot.docs);
+
+    return Rx.combineLatest2(stream1, stream2, (docs1, docs2) {
+      final combinedDocs = <QueryDocumentSnapshot>[]
+        ..addAll(docs1)
+        ..addAll(docs2);
+
+      combinedDocs.sort((a, b) => b['date'].compareTo(a['date']));
+
+      return combinedDocs;
+    });
   }
 
 }

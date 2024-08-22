@@ -48,7 +48,8 @@ class RptCashBookState extends State<RptCashBook> {
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _vouchers.getCashBookStream(kUserId, [kCRV, kCPV]), // Pass the list of types
+        stream: _vouchers
+            .getCashBookStream(kUserId, [kCRV, kCPV]), // Pass the list of types
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<DocumentSnapshot> customerList = snapshot.data!.docs;
@@ -70,7 +71,8 @@ class RptCashBookState extends State<RptCashBook> {
                   double totalCreditSR = 0;
 
                   for (var document in customerList) {
-                    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                    Map<String, dynamic> data =
+                        document.data() as Map<String, dynamic>;
                     totalDebitPK += (data['credit'] ?? 0.0) as double;
                     totalCreditPK += (data['debit'] ?? 0.0) as double;
                     totalDebitSR += (data['creditsar'] ?? 0.0) as double;
@@ -86,64 +88,133 @@ class RptCashBookState extends State<RptCashBook> {
                       return SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
-                          columnSpacing: constraints.maxWidth / 15, // Adjust column spacing
+                          columnSpacing: constraints.maxWidth /
+                              15, // Adjust column spacing
                           columns: const [
                             DataColumn(label: Text('Date')),
                             DataColumn(label: Text('PK-Dr')),
                             DataColumn(label: Text('PK-Cr')),
                             DataColumn(label: Text('SR-Dr')),
                             DataColumn(label: Text('SR-Cr')),
-                            DataColumn(label: Text('Account')), // Combined DR & CR Account
+                            DataColumn(label: Text('Account')),
                             DataColumn(label: Text('Remarks')),
-
                           ],
                           rows: [
                             ...customerList.map((document) {
-                              Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                              Map<String, dynamic> data =
+                                  document.data() as Map<String, dynamic>;
 
                               String drAcId = data['drAcId'] ?? '';
                               String crAcId = data['crAcId'] ?? '';
-                              DateTime dateText = (data['date'] as Timestamp).toDate();
-                              String formattedDate = DateFormat('dd MM yy').format(dateText);
+                              DateTime dateText =
+                                  (data['date'] as Timestamp).toDate();
+                              String formattedDate =
+                                  DateFormat('dd MM yy').format(dateText);
                               String remarksText = data['remarks'] ?? '';
-                              double creditText = (data['credit'] ?? 0.0) as double;
-                              double debitText = (data['debit'] ?? 0.0) as double;
-                              double creditSarText = (data['creditsar'] ?? 0.0) as double;
-                              double debitSarText = (data['debitsar'] ?? 0.0) as double;
+                              double creditText =
+                                  (data['credit'] ?? 0.0) as double;
+                              double debitText =
+                                  (data['debit'] ?? 0.0) as double;
+                              double creditSarText =
+                                  (data['creditsar'] ?? 0.0) as double;
+                              double debitSarText =
+                                  (data['debitsar'] ?? 0.0) as double;
 
                               String? drAcName = accountNames[drAcId] ?? '';
                               String? crAcName = accountNames[crAcId] ?? '';
 
                               // Display DR Account if available, otherwise display CR Account
-                              String accountDisplayName = drAcId.isNotEmpty ? drAcName : crAcName;
+                              String accountDisplayName =
+                                  drAcId.isNotEmpty ? drAcName : crAcName;
 
                               return DataRow(cells: [
                                 DataCell(Text(formattedDate)),
-                                DataCell(Container(alignment: Alignment.centerRight, child: Text(_numberFormat.format(creditText), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)))),
-                                DataCell(Container(alignment: Alignment.centerRight,child: Text(_numberFormat.format(debitText), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)))),
-                                DataCell(Container(alignment: Alignment.centerRight,child: Text(_numberFormat.format(creditSarText), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)))),
-                                DataCell(Container(alignment: Alignment.centerRight,child: Text(_numberFormat.format(debitSarText), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)))),
+                                DataCell(Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                        _numberFormat.format(creditText),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.green)))),
+                                DataCell(Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(_numberFormat.format(debitText),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.green)))),
+                                DataCell(Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                        _numberFormat.format(creditSarText),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue)))),
+                                DataCell(Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                        _numberFormat.format(debitSarText),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue)))),
                                 DataCell(Text(accountDisplayName)),
                                 DataCell(Text(remarksText)),
                               ]);
                             }),
                             // Add the totals row
                             DataRow(cells: [
-                              const DataCell(Text('Totals', style: TextStyle(fontWeight: FontWeight.bold))),
-                              DataCell(Container(alignment: Alignment.centerRight,child: Text(_numberFormat.format(totalDebitPK), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)))),
-                              DataCell(Container(alignment: Alignment.centerRight,child: Text(_numberFormat.format(totalCreditPK), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)))),
-                              DataCell(Container(alignment: Alignment.centerRight,child: Text(_numberFormat.format(totalDebitSR), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)))),
-                              DataCell(Container(alignment: Alignment.centerRight,child: Text(_numberFormat.format(totalCreditSR), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)))),
+                              const DataCell(Text('Totals',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                              DataCell(Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                      _numberFormat.format(totalDebitPK),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.green)))),
+                              DataCell(Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                      _numberFormat.format(totalCreditPK),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.green)))),
+                              DataCell(Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                      _numberFormat.format(totalDebitSR),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blue)))),
+                              DataCell(Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                      _numberFormat.format(totalCreditSR),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blue)))),
                               const DataCell(Text('')),
                               const DataCell(Text('')),
                             ]),
                             // Add the B/F Balance row
                             DataRow(cells: [
-                              const DataCell(Text('B/F Balance', style: TextStyle(fontWeight: FontWeight.bold))),
+                              const DataCell(Text('B/F Balance',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
                               const DataCell(Text('')),
-                              DataCell(Container(alignment: Alignment.centerRight,child: Text(_numberFormat.format(bfBalancePK), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)))),
+                              DataCell(Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(_numberFormat.format(bfBalancePK),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.green)))),
                               const DataCell(Text('')),
-                              DataCell(Container(alignment: Alignment.centerRight,child: Text(_numberFormat.format(bfBalanceSR), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)))),
+                              DataCell(Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(_numberFormat.format(bfBalanceSR),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blue)))),
                               const DataCell(Text('')),
                               const DataCell(Text('')),
                             ]),
@@ -153,7 +224,8 @@ class RptCashBookState extends State<RptCashBook> {
                     },
                   );
                 } else {
-                  return const Center(child: Text('No account data to display!'));
+                  return const Center(
+                      child: Text('No account data to display!'));
                 }
               },
             );
@@ -167,7 +239,8 @@ class RptCashBookState extends State<RptCashBook> {
     );
   }
 
-  Future<Map<String, String?>> _getAccountNames(List<DocumentSnapshot> customerList) async {
+  Future<Map<String, String?>> _getAccountNames(
+      List<DocumentSnapshot> customerList) async {
     Map<String, String?> accountNames = {};
     Set<String> accountIds = {}; // Use a Set to avoid duplicates
 
@@ -218,7 +291,8 @@ class RptCashBookState extends State<RptCashBook> {
     );
 
     try {
-      final snapshot = await _vouchers.getCashBookStream(kUserId, [kCRV, kCPV]).first;
+      final snapshot =
+          await _vouchers.getCashBookStream(kUserId, [kCRV, kCPV]).first;
       final customerList = snapshot.docs;
 
       final futureAccountNames = _getAccountNames(customerList);
@@ -232,7 +306,10 @@ class RptCashBookState extends State<RptCashBook> {
             return pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text('Cash Book Report', style: const pw.TextStyle(fontSize: 20,)),
+                pw.Text('Cash Book Report',
+                    style: const pw.TextStyle(
+                      fontSize: 20,
+                    )),
                 pw.SizedBox(height: 10),
                 pw.Table(
                   border: pw.TableBorder.all(),
@@ -274,7 +351,6 @@ class RptCashBookState extends State<RptCashBook> {
       await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => pdf.save(),
       );
-
     } catch (e) {
       // Handle any errors
       // print('Error generating PDF: $e');
