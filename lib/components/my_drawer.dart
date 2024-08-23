@@ -1,9 +1,11 @@
-import 'package:chat_wp/home_screen.dart';
-import 'package:chat_wp/pages/accounts/acc_dashboard.dart';
-import 'package:chat_wp/pages/logins_chat/home_page.dart';
+import 'package:chat_wp/themes/const.dart';
 import 'package:flutter/material.dart';
-import '../pages/logins_chat/settings_page.dart';
+import 'package:chat_wp/home_screen.dart';
 import '../services/auth/auth_service.dart';
+import '../pages/logins_chat/settings_page.dart';
+import 'package:chat_wp/pages/accounts/acc_dashboard.dart';
+import 'package:chat_wp/pages/inventory/a_inv_dashboard.dart';
+import 'package:chat_wp/pages/logins_chat/home_page.dart';
 
 class MyDrawer extends StatelessWidget {
   const MyDrawer({super.key});
@@ -83,6 +85,30 @@ class MyDrawer extends StatelessWidget {
                 ),
               ),
 
+              // inventory list tile
+              Padding(
+                padding: const EdgeInsets.only(left: 15.0),
+                child: ListTile(
+                  title: const Text('I N V E N T O R Y'),
+                  leading: Icon(
+                    Icons.inventory,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  onTap: () {
+                    // pop the drawer
+                    Navigator.pop(context);
+
+                    // navigate to settings page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const InventoryDashboard(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
               // settings list tile
               Padding(
                 padding: const EdgeInsets.only(left: 15.0),
@@ -109,7 +135,7 @@ class MyDrawer extends StatelessWidget {
 
               // WhatsApp UI/UX list tile
               Padding(
-                padding: const EdgeInsets.only(left: 15.0, bottom: 25.0),
+                padding: const EdgeInsets.only(left: 15.0, bottom: 15.0),
                 child: ListTile(
                   title: const Text('WHATS APP UI/UX'),
                   leading: Icon(
@@ -132,6 +158,20 @@ class MyDrawer extends StatelessWidget {
               ),
             ],
           ),
+
+          // current user name tile
+          Padding(
+            padding: const EdgeInsets.only(left: 15.0, bottom: 5.0),
+            child: ListTile(
+              title: Text(kUserEmail!),
+              leading: Icon(
+                Icons.person,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onTap: (){},
+            ),
+          ),
+
           // logout list tile
           Padding(
             padding: const EdgeInsets.only(left: 25.0, bottom: 25.0),

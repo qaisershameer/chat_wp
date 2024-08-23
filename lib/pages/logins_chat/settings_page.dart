@@ -69,16 +69,16 @@ class SettingsPage extends StatelessWidget {
               ),
 
               // blocked users
-              const MyListTile(pageNo: 12, text: 'Blocked Users', icon: Icons.person),
+              const MyListTile(pageNo: 31, text: 'Blocked Users', icon: Icons.person),
 
               // user notes
-              const MyListTile(pageNo: 13, text: 'User Notes', icon: Icons.receipt_long_rounded),
+              const MyListTile(pageNo: 32, text: 'User Notes', icon: Icons.receipt_long_rounded),
 
-              // users currency list
-              const MyListTile(pageNo: 14, text: 'Currency List', icon: Icons.currency_pound),
+              // // users currency list
+              // const MyListTile(pageNo: 33, text: 'Currency List', icon: Icons.currency_pound),
 
               // search list example
-              const MyListTile(pageNo: 15, text: 'Search List Example', icon: Icons.search_sharp),
+              const MyListTile(pageNo: 33, text: 'Search List Example', icon: Icons.search_sharp),
 
             ],
           ),

@@ -1,7 +1,7 @@
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:chat_wp/themes/const.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
@@ -24,6 +24,19 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
   String? _selectedAccount;
   // bool _showData = false;
+  // Numeric Fields Double Variables
+  double debitText = 0;
+  double creditText = 0;
+  double debitSRText = 0;
+  double creditSRText = 0;
+
+  double totalDebitPK = 0;
+  double totalCreditPK = 0;
+  double totalDebitSR = 0;
+  double totalCreditSR = 0;
+
+  double bfBalancePK = 0;
+  double bfBalanceSR = 0;
 
   // Create a NumberFormat instance for comma-separated numbers
   final NumberFormat _numberFormat = NumberFormat('#,##0');
@@ -46,6 +59,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
           IconButton(
             icon: const Icon(Icons.print),
             onPressed: _printPdf,
+            // onPressed: (){},
           ),
           Padding(
             padding: const EdgeInsets.only(right: 25.0, bottom: 16.0),
@@ -155,22 +169,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
   }
 
   Widget rptLedger() {
-
-    // Numeric Fields Double Variables
-    double debitText = 0;
-    double creditText = 0;
-    double debitSRText = 0;
-    double creditSRText = 0;
-
-    double totalDebitPK = 0;
-    double totalCreditPK = 0;
-    double totalDebitSR = 0;
-    double totalCreditSR = 0;
-
-    double bfBalancePK = 0;
-    double bfBalanceSR = 0;
-
-
     return StreamBuilder<List<QueryDocumentSnapshot>>(
       stream: _vouchers.getAcLedgerStream(kUserId, _selectedAccount ?? ''),
       builder: (context, snapshot) {
@@ -183,8 +181,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
         }
 
         final documents = snapshot.data ?? [];
-        List<DocumentSnapshot> customerList =
-            documents.cast<DocumentSnapshot>();
+        List<DocumentSnapshot> customerList = documents.cast<DocumentSnapshot>();
 
         return FutureBuilder<Map<String, String?>>(
           future: _getAccountNames(customerList),
@@ -194,27 +191,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
             } else if (futureSnapshot.hasError) {
               return Center(child: Text('Error: ${futureSnapshot.error}'));
             } else if (futureSnapshot.hasData) {
-              // Map<String, String?> accountNames = futureSnapshot.data!;
-
-              // // Calculate totals
-              // double totalDebitPK = 0;
-              // double totalCreditPK = 0;
-              // double totalDebitSR = 0;
-              // double totalCreditSR = 0;
-
-              // for (var document in customerList) {
-              //   Map<String, dynamic> data =
-              //       document.data() as Map<String, dynamic>;
-              //
-              //   totalDebitPK += (data['debit'] ?? 0.0) as double;
-              //   totalCreditPK += (data['credit'] ?? 0.0) as double;
-              //   totalDebitSR += (data['debitsar'] ?? 0.0) as double;
-              //   totalCreditSR += (data['creditsar'] ?? 0.0) as double;
-              // }
-              //
-              // // Calculate B/F Balance
-              // double bfBalancePK = totalDebitPK - totalCreditPK;
-              // double bfBalanceSR = totalDebitSR - totalCreditSR;
 
               return LayoutBuilder(
                 builder: (context, constraints) {
@@ -232,12 +208,14 @@ class RptAcLedgerState extends State<RptAcLedger> {
                       ],
                       rows: [
                         ...customerList.map((document) {
-                          Map<String, dynamic> data =
-                              document.data() as Map<String, dynamic>;
+                          Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
                           String drAcId = data['drAcId'] ?? '';
                           String crAcId = data['crAcId'] ?? '';
                           String type = data['type'] ?? '';
+                          DateTime dateText = (data['date'] as Timestamp).toDate();
+                          String formattedDate = DateFormat('dd MM yy').format(dateText);
+                          String remarksText = data['remarks'] ?? '';
 
                           if (type == 'JV') {
                             if (_selectedAccount == drAcId) {
@@ -264,33 +242,17 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
                             debitSRText = (data['creditsar'] ?? 0.0);
                             creditSRText = (data['debitsar'] ?? 0.0);
-
-
                           }
 
-                            totalDebitPK += creditText;
-                            totalCreditPK += debitText;
-                            totalDebitSR += creditSRText;
-                            totalCreditSR += debitSRText;
+                          // Calculate Totals
+                          totalDebitPK += creditText;
+                          totalCreditPK += debitText;
+                          totalDebitSR += creditSRText;
+                          totalCreditSR += debitSRText;
 
                           // Calculate B/F Balance
                           bfBalancePK = totalDebitPK - totalCreditPK;
                           bfBalanceSR = totalDebitSR - totalCreditSR;
-
-                          DateTime dateText =
-                              (data['date'] as Timestamp).toDate();
-                          String formattedDate =
-                              DateFormat('dd MM yy').format(dateText);
-                          String remarksText = data['remarks'] ?? '';
-                          // double debitText = (data['credit'] ?? 0.0) as double;
-                          // double creditText = (data['debit'] ?? 0.0) as double;
-                          // double debitSarText = (data['creditsar'] ?? 0.0) as double;
-                          // double creditSarText = (data['debitsar'] ?? 0.0) as double;
-
-                          // String? drAcName = accountNames[drAcId] ?? '';
-
-                          // Display DR Account if available, otherwise display CR Account
-                          // String accountDisplayName = drAcId.isNotEmpty ? drAcName : 'N/A';
 
                           return DataRow(cells: [
                             DataCell(Text(formattedDate)),
@@ -423,7 +385,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
                 },
               );
             }
-
             return const Center(child: Text('No data available'));
           },
         );
@@ -434,14 +395,31 @@ class RptAcLedgerState extends State<RptAcLedger> {
   Future<Map<String, String?>> _getAccountNames(
       List<DocumentSnapshot> customerList) async {
     Map<String, String?> accountNames = {};
-    for (var document in customerList) {
-      String drAcId = (document.data() as Map<String, dynamic>)['drAcId'] ?? '';
+    Set<String> accountIds = {}; // Use a Set to avoid duplicates
+
+    // Collect all unique account IDs
+    for (DocumentSnapshot document in customerList) {
+      Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+      // Check and add DR Account ID
+      String drAcId = data['drAcId'] ?? '';
       if (drAcId.isNotEmpty) {
-        // DocumentSnapshot accountDoc = await _accounts.getAccountById(drAcId);
-        // accountNames[drAcId] = accountDoc.get('accountName');
-        accountNames[drAcId] = 'QAISER SHAMEER';
+        accountIds.add(drAcId);
+      }
+
+      // Check and add CR Account ID
+      String crAcId = data['crAcId'] ?? '';
+      if (crAcId.isNotEmpty) {
+        accountIds.add(crAcId);
       }
     }
+
+    // Fetch account names for all unique IDs
+    for (String acId in accountIds) {
+      String? acName = await _accounts.getAccountName(acId);
+      accountNames[acId] = acName;
+    }
+
     return accountNames;
   }
 
@@ -466,11 +444,16 @@ class RptAcLedgerState extends State<RptAcLedger> {
     );
 
     try {
-      final snapshot =
-          await _vouchers.getCashBookStream(kUserId, [kCRV, kCPV]).first;
-      final customerList = snapshot.docs;
+      // Assuming _vouchers.getAcLedgerStream returns a Stream<QuerySnapshot>
+      final snapshot = await _vouchers.getAcLedgerStream(kUserId, _selectedAccount!).first;
 
-      final futureAccountNames = _getAccountNames(customerList);
+      // Use the snapshot.docs property
+      final customerList = snapshot.docs; // This is a List<DocumentSnapshot>
+
+      // Convert DocumentSnapshot to Map<String, dynamic> for processing
+      final documents = customerList.map((doc) => doc.data() as Map<String, dynamic>).toList();
+
+      final futureAccountNames = _getAccountNames(documents);
       final accountNames = await futureAccountNames;
 
       final pdf = pw.Document();
@@ -481,7 +464,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
             return pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text('Cash Book Report',
+                pw.Text('Account Ledger Report',
                     style: const pw.TextStyle(
                       fontSize: 20,
                     )),
@@ -497,12 +480,11 @@ class RptAcLedgerState extends State<RptAcLedger> {
                         _buildHeaderCell('PK-Cr'),
                         _buildHeaderCell('SR-Dr'),
                         _buildHeaderCell('SR-Cr'),
-                        _buildHeaderCell('Account'),
                         _buildHeaderCell('Remarks'),
                       ],
                     ),
                     // Data rows
-                    ..._getPdfTableData(customerList, accountNames).map((row) {
+                    ..._getPdfTableData(documents, accountNames).map((row) {
                       return pw.TableRow(
                         children: [
                           _buildCell(row[0], pw.Alignment.center),
@@ -511,7 +493,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           _buildCell(row[3], pw.Alignment.centerRight),
                           _buildCell(row[4], pw.Alignment.centerRight),
                           _buildCell(row[5], pw.Alignment.centerLeft),
-                          _buildCell(row[6], pw.Alignment.centerLeft),
                         ],
                       );
                     }),
@@ -570,11 +551,11 @@ class RptAcLedgerState extends State<RptAcLedger> {
       String crAcId = dataRow['crAcId'] ?? '';
       DateTime dateText = (dataRow['date'] as Timestamp).toDate();
       String formattedDate = DateFormat('dd MM yy').format(dateText);
-      double debitText = (dataRow['debit'] ?? 0.0) as double;
-      double creditText = (dataRow['credit'] ?? 0.0) as double;
-      double debitSarText = (dataRow['debitsar'] ?? 0.0) as double;
-      double creditSarText = (dataRow['creditsar'] ?? 0.0) as double;
       String remarksText = dataRow['remarks'] ?? '';
+      double creditText = (dataRow['credit'] ?? 0.0) as double;
+      double debitText = (dataRow['debit'] ?? 0.0) as double;
+      double creditSarText = (dataRow['creditsar'] ?? 0.0) as double;
+      double debitSarText = (dataRow['debitsar'] ?? 0.0) as double;
 
       String? drAcName = accountNames[drAcId] ?? '';
       String? crAcName = accountNames[crAcId] ?? '';
@@ -583,10 +564,11 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
       data.add([
         formattedDate,
-        _numberFormat.format(debitText),
         _numberFormat.format(creditText),
-        _numberFormat.format(debitSarText),
+        _numberFormat.format(debitText),
         _numberFormat.format(creditSarText),
+        _numberFormat.format(debitSarText),
+        // accountDisplayName,
         remarksText,
       ]);
     }
@@ -599,10 +581,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
     for (var document in customerList) {
       Map<String, dynamic> dataRow = document.data() as Map<String, dynamic>;
-      totalDebitPK += (dataRow['debit'] ?? 0.0) as double;
-      totalCreditPK += (dataRow['credit'] ?? 0.0) as double;
-      totalDebitSR += (dataRow['debitsar'] ?? 0.0) as double;
-      totalCreditSR += (dataRow['creditsar'] ?? 0.0) as double;
+      totalDebitPK += (dataRow['credit'] ?? 0.0) as double;
+      totalCreditPK += (dataRow['debit'] ?? 0.0) as double;
+      totalDebitSR += (dataRow['creditsar'] ?? 0.0) as double;
+      totalCreditSR += (dataRow['debitsar'] ?? 0.0) as double;
     }
 
     double bfBalancePK = totalDebitPK - totalCreditPK;
@@ -615,7 +597,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
       _numberFormat.format(totalDebitSR),
       _numberFormat.format(totalCreditSR),
       '',
-      '',
     ]);
     data.add([
       'Balance',
@@ -624,9 +605,24 @@ class RptAcLedgerState extends State<RptAcLedger> {
       '',
       _numberFormat.format(bfBalanceSR),
       '',
-      '',
     ]);
 
     return data;
   }
 }
+
+extension on List<QueryDocumentSnapshot<Object?>> {
+   // get docs => null;
+
+  get docs => null;
+
+   // final snapshot = await _vouchers.getAcLedgerStream(kUserId, _selectedAccount!).first;
+   //
+   // // Use the snapshot.docs property
+   // final customerList = snapshot.docs; // This is a List<DocumentSnapshot>
+   //
+   // // Convert DocumentSnapshot to Map<String, dynamic> for processing
+   // final documents = customerList.map((doc) => doc.data() as Map<String, dynamic>).toList();
+
+}
+

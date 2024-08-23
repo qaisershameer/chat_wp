@@ -134,27 +134,27 @@ class RptCashBookState extends State<RptCashBook> {
                                     child: Text(
                                         _numberFormat.format(creditText),
                                         style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            // fontWeight: FontWeight.bold,
                                             color: Colors.green)))),
                                 DataCell(Container(
                                     alignment: Alignment.centerRight,
                                     child: Text(_numberFormat.format(debitText),
                                         style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            // fontWeight: FontWeight.bold,
                                             color: Colors.green)))),
                                 DataCell(Container(
                                     alignment: Alignment.centerRight,
                                     child: Text(
                                         _numberFormat.format(creditSarText),
                                         style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            // fontWeight: FontWeight.bold,
                                             color: Colors.blue)))),
                                 DataCell(Container(
                                     alignment: Alignment.centerRight,
                                     child: Text(
                                         _numberFormat.format(debitSarText),
                                         style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            // fontWeight: FontWeight.bold,
                                             color: Colors.blue)))),
                                 DataCell(Text(accountDisplayName)),
                                 DataCell(Text(remarksText)),
@@ -164,7 +164,8 @@ class RptCashBookState extends State<RptCashBook> {
                             DataRow(cells: [
                               const DataCell(Text('Totals',
                                   style:
-                                      TextStyle(fontWeight: FontWeight.bold))),
+                                      TextStyle(fontWeight: FontWeight.bold, color: Colors.red,
+                                      ))),
                               DataCell(Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
@@ -198,9 +199,9 @@ class RptCashBookState extends State<RptCashBook> {
                             ]),
                             // Add the B/F Balance row
                             DataRow(cells: [
-                              const DataCell(Text('B/F Balance',
+                              const DataCell(Text('Balance',
                                   style:
-                                      TextStyle(fontWeight: FontWeight.bold))),
+                                      TextStyle(fontWeight: FontWeight.bold, color: Colors.teal))),
                               const DataCell(Text('')),
                               DataCell(Container(
                                   alignment: Alignment.centerRight,

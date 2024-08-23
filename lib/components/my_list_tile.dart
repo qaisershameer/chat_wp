@@ -30,6 +30,8 @@ class MyListTile extends StatelessWidget {
     // print (pageNum);
 
     switch (pageNum) {
+
+    // ACCOUNTS MENU
       case 1:
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => const CurrencyPage()));
@@ -54,30 +56,67 @@ class MyListTile extends StatelessWidget {
       case 8:
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => const RptAcLedger()));
-      case 9:
-        // Navigator.push(context,
-        //     MaterialPageRoute(builder: (context) => const CustomerInfo()));
-      case 10:
-        // Navigator.push(context,
-        //     MaterialPageRoute(builder: (context) => const CurrencyPage()));
-      case 11:
-        // Navigator.push(
-        //     context, MaterialPageRoute(builder: (context) => const CrudPage()));
-      case 12:
+      // case 9:
+      //   // Navigator.push(context,
+      //   //     MaterialPageRoute(builder: (context) => const TrialBalance()));
+      // case 10:
+      //   // Navigator.push(context,
+      //   //     MaterialPageRoute(builder: (context) => const ProfitLoss()));
+      // case 11:
+      //   // Navigator.push(
+      //   //     context, MaterialPageRoute(builder: (context) => const BalanceSheet()));
+
+      // INVENTORY MENU
+      // case 16:
+      // // Navigator.push(
+      // //     context, MaterialPageRoute(builder: (context) => const GroupInfo()));
+      // case 17:
+      // // Navigator.push(
+      // //     context, MaterialPageRoute(builder: (context) => const GroupInfo()));
+      // case 18:
+      // // Navigator.push(
+      // //     context, MaterialPageRoute(builder: (context) => const ItemsInfo()));
+      // case 19:
+      // // Navigator.push(
+      // //     context, MaterialPageRoute(builder: (context) => const CustomerInfo()));
+      // case 20:
+      // // Navigator.push(
+      // //     context, MaterialPageRoute(builder: (context) => const SupplierInfo()));
+      // case 21:
+      // // Navigator.push(
+      // //     context, MaterialPageRoute(builder: (context) => const PurchaseInvoice()));
+      // case 22:
+      // // Navigator.push(
+      // //     context, MaterialPageRoute(builder: (context) => const SaleInvoice()));
+      // case 23:
+      // // Navigator.push(
+      // //     context, MaterialPageRoute(builder: (context) => const PartyLedger()));
+      // case 24:
+      // // Navigator.push(
+      // //     context, MaterialPageRoute(builder: (context) => const PartyBalances()));
+      // case 25:
+      // // Navigator.push(
+      // //     context, MaterialPageRoute(builder: (context) => const PurchaseReport()));
+      // case 26:
+      // // Navigator.push(
+      // //     context, MaterialPageRoute(builder: (context) => const SaleReport()));
+      // case 27:
+      // // Navigator.push(
+      // //     context, MaterialPageRoute(builder: (context) => const ItemLedger()));
+      // case 28:
+      // // Navigator.push(
+      // //     context, MaterialPageRoute(builder: (context) => const StockReport()));
+
+      // SETTINGS MENU
+      case 31:
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => BlockedUsersPage()));
-      case 13:
+      case 32:
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => const CrudPage()));
-      case 14:
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const CurrencyPage()));
-      case 15:
+      case 33:
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => const SearchList()));
-      case 16:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const CrudPage()));
         return;
     }
   }
