@@ -122,8 +122,7 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
               controller: _dateController,
               keyboardType: TextInputType.none, // Disable keyboard input
               onTap: () {
-                FocusScope.of(context)
-                    .requestFocus(FocusNode()); // Hide keyboard
+                FocusScope.of(context).requestFocus(FocusNode()); // Hide keyboard
                 _selectDate(context); // Show date picker
               },
               decoration: const InputDecoration(
@@ -133,8 +132,7 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
                 ),
                 hintText: 'Select Date',
                 labelText: 'Date',
-                labelStyle:
-                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                labelStyle: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -146,93 +144,12 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
 
             const SizedBox(height: 10.0),
 
-            // Debit Account Data COMBO
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                const Icon(
-                  FontAwesomeIcons.circleUser,
-                  size: 25.0,
-                  color: Colors.teal,
-                ),
-                const SizedBox(width: 20.0),
-                Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: _accounts.getAccountsStream(kUserId),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      }
-
-                      List<DocumentSnapshot> accountList =
-                          snapshot.data?.docs ?? [];
-                      List<DropdownMenuItem<String>> dropdownItems =
-                      accountList.map((document) {
-                        String docID = document.id;
-                        Map<String, dynamic> data =
-                        document.data() as Map<String, dynamic>;
-                        String areaText = data['accountName'];
-
-                        return DropdownMenuItem<String>(
-                          value: docID,
-                          child: Text(
-                            areaText,
-                            style: const TextStyle(color: Colors.teal),
-                          ),
-                        );
-                      }).toList();
-
-                      String? initialAccount = dropdownItems.isNotEmpty
-                          ? dropdownItems[0].value
-                          : null;
-
-                      // Ensure _selectedAccount is valid or fallback to initialAccount
-                      String? currentAccount = dropdownItems
-                          .any((item) => item.value == _selectedAccountDr)
-                          ? _selectedAccountDr
-                          : initialAccount;
-
-                      return DropdownButtonFormField<String>(
-                        value: currentAccount,
-                        items: dropdownItems,
-                        hint: const Text(
-                          'Select Debit Account',
-                          style: TextStyle(color: Colors.teal),
-                        ),
-                        isExpanded: true,
-                        onChanged: (accountValue) {
-                          setState(() {
-                            _selectedAccountDr = accountValue;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null || value == '') {
-                            return 'Please select a valid debit account';
-                          }
-                          if (_selectedAccountDr == null || _selectedAccountDr == '') {
-                            return 'Please select a valid debit account';
-                          }
-                          return null;
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 10.0),
-
             // Credit Account Data COMBO
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 const Icon(
-                  FontAwesomeIcons.circleUser,
+                  FontAwesomeIcons.copyright,
                   size: 25.0,
                   color: Colors.teal,
                 ),
@@ -249,13 +166,10 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
                         return Center(child: Text('Error: ${snapshot.error}'));
                       }
 
-                      List<DocumentSnapshot> accountList =
-                          snapshot.data?.docs ?? [];
-                      List<DropdownMenuItem<String>> dropdownItems =
-                      accountList.map((document) {
+                      List<DocumentSnapshot> accountList = snapshot.data?.docs ?? [];
+                      List<DropdownMenuItem<String>> dropdownItems = accountList.map((document) {
                         String docID = document.id;
-                        Map<String, dynamic> data =
-                        document.data() as Map<String, dynamic>;
+                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
                         String areaText = data['accountName'];
 
                         return DropdownMenuItem<String>(
@@ -267,15 +181,10 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
                         );
                       }).toList();
 
-                      String? initialAccount = dropdownItems.isNotEmpty
-                          ? dropdownItems[0].value
-                          : null;
+                      String? initialAccount = dropdownItems.isNotEmpty ? dropdownItems[0].value : null;
 
                       // Ensure _selectedAccount is valid or fallback to initialAccount
-                      String? currentAccount = dropdownItems
-                          .any((item) => item.value == _selectedAccountCr)
-                          ? _selectedAccountCr
-                          : initialAccount;
+                      String? currentAccount = dropdownItems.any((item) => item.value == _selectedAccountCr) ? _selectedAccountCr : initialAccount;
 
                       return DropdownButtonFormField<String>(
                         value: currentAccount,
@@ -311,106 +220,198 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
 
             const SizedBox(height: 10.0),
 
-            // PKR Dr Amount Number Text Field
-            TextFormField(
-              controller: _pkrDrController,
-              decoration: const InputDecoration(
-                icon: Icon(
-                  FontAwesomeIcons.moneyBill,
+            // Debit Account Data COMBO
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                const Icon(
+                  FontAwesomeIcons.circleUser,
+                  size: 25.0,
                   color: Colors.teal,
                 ),
-                hintText: 'Enter PKR Debit Amount',
-                labelText: 'PKR Debit Amount',
-                labelStyle:
-                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a valid PKR Debit Amount';
-                } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
-                  return 'Please enter a valid PKR Amount';
-                }
-                return null;
-              },
+                const SizedBox(width: 20.0),
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: _accounts.getAccountsStream(kUserId),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      }
+
+                      List<DocumentSnapshot> accountList = snapshot.data?.docs ?? [];
+                      List<DropdownMenuItem<String>> dropdownItems = accountList.map((document) {
+                        String docID = document.id;
+                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                        String areaText = data['accountName'];
+
+                        return DropdownMenuItem<String>(
+                          value: docID,
+                          child: Text(
+                            areaText,
+                            style: const TextStyle(color: Colors.teal),
+                          ),
+                        );
+                      }).toList();
+
+                      String? initialAccount = dropdownItems.isNotEmpty ? dropdownItems[0].value : null;
+
+                      // Ensure _selectedAccount is valid or fallback to initialAccount
+                      String? currentAccount = dropdownItems.any((item) => item.value == _selectedAccountDr) ? _selectedAccountDr : initialAccount;
+
+                      return DropdownButtonFormField<String>(
+                        value: currentAccount,
+                        items: dropdownItems,
+                        hint: const Text(
+                          'Select Debit Account',
+                          style: TextStyle(color: Colors.teal),
+                        ),
+                        isExpanded: true,
+                        onChanged: (accountValue) {
+                          setState(() {
+                            _selectedAccountDr = accountValue;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value == '') {
+                            return 'Please select a valid debit account';
+                          }
+                          if (_selectedAccountDr == null || _selectedAccountDr == '') {
+                            return 'Please select a valid debit account';
+                          }
+                          return null;
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
 
             const SizedBox(height: 10.0),
 
-            // PKR Cr Amount Number Text Field
-            TextFormField(
-              controller: _pkrCrController,
-              decoration: const InputDecoration(
-                icon: Icon(
-                  FontAwesomeIcons.moneyBill,
-                  color: Colors.teal,
+            // SAR Debit and Credit Amounts Row
+            Row(
+              children: [
+
+                Expanded(
+                  child: TextFormField(
+                    controller: _sarCrController,
+                    onTap: () => _sarCrController.selection = TextSelection(baseOffset: 0, extentOffset: _sarCrController.value.text.length),
+                    decoration: const InputDecoration(
+                      icon: Icon(
+                        FontAwesomeIcons.moneyBillTransfer,
+                        color: Colors.teal,
+                      ),
+                      hintText: 'Enter SAR Credit',
+                      labelText: 'SAR Credit',
+                      labelStyle: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a valid SAR Credit';
+                      } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
+                        return 'Please enter a valid SAR Credit';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
-                hintText: 'Enter PKR Credit Amount',
-                labelText: 'PKR Credit Amount',
-                labelStyle:
-                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a valid PKR Credit Amount';
-                } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
-                  return 'Please enter a valid PKR Credit Amount';
-                }
-                return null;
-              },
+
+                const SizedBox(width: 10.0),
+
+                Expanded(
+                  child: TextFormField(
+                    controller: _sarDrController,
+                    onTap: () => _sarDrController.selection = TextSelection(baseOffset: 0, extentOffset: _sarDrController.value.text.length),
+                    decoration: const InputDecoration(
+                      icon: Icon(
+                        FontAwesomeIcons.moneyBillTransfer,
+                        color: Colors.teal,
+                      ),
+                      hintText: 'Enter SAR Debit',
+                      labelText: 'SAR Debit',
+                      labelStyle: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a valid SAR Debit';
+                      } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
+                        return 'Please enter a valid SAR Debit';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+
+              ],
             ),
 
             const SizedBox(height: 10.0),
 
-            // SAR Debit Number Text Field
-            TextFormField(
-              controller: _sarDrController,
-              decoration: const InputDecoration(
-                icon: Icon(
-                  FontAwesomeIcons.moneyBillTransfer,
-                  color: Colors.teal,
-                ),
-                hintText: 'Enter SAR Debit Amount',
-                labelText: 'SAR Debit Amount',
-                labelStyle:
-                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a valid SAR Debit amount';
-                } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
-                  return 'Please enter a valid SAR Debit Amount';
-                }
-                return null;
-              },
-            ),
+            // PKR Debit and Credit Amounts Row
+            Row(
+              children: [
 
-            const SizedBox(height: 10.0),
-
-            // SAR Credit Number Text Field
-            TextFormField(
-              controller: _sarCrController,
-              decoration: const InputDecoration(
-                icon: Icon(
-                  FontAwesomeIcons.moneyBillTransfer,
-                  color: Colors.teal,
+                Expanded(
+                  child: TextFormField(
+                    controller: _pkrCrController,
+                    onTap: () => _pkrCrController.selection = TextSelection(baseOffset: 0, extentOffset: _pkrCrController.value.text.length),
+                    decoration: const InputDecoration(
+                      icon: Icon(
+                        FontAwesomeIcons.moneyBill,
+                        color: Colors.teal,
+                      ),
+                      hintText: 'Enter PKR Credit',
+                      labelText: 'PKR Credit',
+                      labelStyle: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a valid PKR Credit';
+                      } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
+                        return 'Please enter a valid PKR Credit100';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
-                hintText: 'Enter SAR Credit Amount',
-                labelText: 'SAR Credit Amount',
-                labelStyle:
-                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a valid SAR Credit amount';
-                } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
-                  return 'Please enter a valid SAR Credit Amount';
-                }
-                return null;
-              },
+
+                const SizedBox(width: 10.0),
+
+                Expanded(
+                  child: TextFormField(
+                    controller: _pkrDrController,
+                    onTap: () => _pkrDrController.selection = TextSelection(baseOffset: 0, extentOffset: _pkrDrController.value.text.length),
+                    decoration: const InputDecoration(
+                      icon: Icon(
+                        FontAwesomeIcons.moneyBill,
+                        color: Colors.teal,
+                      ),
+                      hintText: 'Enter PKR Debit',
+                      labelText: 'PKR Debit',
+                      labelStyle: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a valid PKR Debit';
+                      } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
+                        return 'Please enter a valid PKR';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+
+
+              ],
             ),
 
             const SizedBox(height: 10.0),
@@ -418,6 +419,7 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
             // Remarks Multi Line Text Field
             TextFormField(
               controller: _remarksController,
+              onTap: () => _remarksController.selection = TextSelection(baseOffset: 0, extentOffset: _remarksController.value.text.length),
               keyboardType: TextInputType.text,
               decoration: const InputDecoration(
                 icon: Icon(
@@ -426,8 +428,7 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
                 ),
                 hintText: 'Enter Voucher Remarks',
                 labelText: 'Remarks',
-                labelStyle:
-                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                labelStyle: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -448,15 +449,6 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
                   ElevatedButton(
                     onPressed: () {
                       if (_formKeyValue.currentState!.validate()) {
-                        // print(_voucherId);
-                        // print(kJV);
-                        // print(_dateController.text);
-                        // print(_remarksController.text);
-                        // print(_selectedAccount);
-                        // print(_pkrController.text);
-                        // print(_sarController.text);
-                        // print(kUserId);
-
                         // Convert date string to DateTime
                         DateTime date = DateFormat('dd-MMM-yyyy').parse(_dateController.text);
 
@@ -468,29 +460,31 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
 
                         if (_voucherId == null || _voucherId == '') {
                           _voucher.addVoucher(
-                              kJV,
-                              date,
-                              _remarksController.text,
-                              _selectedAccountDr!,
-                              _selectedAccountCr!,
-                              pkrDrAmount,
-                              sarDrAmount,
-                              pkrCrAmount,
-                              sarCrAmount,
-                              kUserId);
+                            kJV,
+                            date,
+                            _remarksController.text,
+                            _selectedAccountDr!,
+                            _selectedAccountCr!,
+                            pkrDrAmount,
+                            sarDrAmount,
+                            pkrCrAmount,
+                            sarCrAmount,
+                            kUserId,
+                          );
                         } else {
                           _voucher.updateVoucher(
-                              _voucherId,
-                              kJV,
-                              date,
-                              _remarksController.text,
-                              _selectedAccountDr!,
-                              _selectedAccountCr!,
-                              pkrDrAmount,
-                              sarDrAmount,
-                              pkrCrAmount,
-                              sarCrAmount,
-                              kUserId);
+                            _voucherId,
+                            kJV,
+                            date,
+                            _remarksController.text,
+                            _selectedAccountDr!,
+                            _selectedAccountCr!,
+                            pkrDrAmount,
+                            sarDrAmount,
+                            pkrCrAmount,
+                            sarCrAmount,
+                            kUserId,
+                          );
                         }
 
                         const snackBar = SnackBar(
@@ -529,6 +523,7 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
           ],
         ),
       ),
+
     );
   }
 }

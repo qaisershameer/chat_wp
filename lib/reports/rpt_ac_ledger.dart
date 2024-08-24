@@ -1,7 +1,7 @@
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:chat_wp/themes/const.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
@@ -22,13 +22,17 @@ class RptAcLedgerState extends State<RptAcLedger> {
   final AcVoucherService _vouchers = AcVoucherService();
   // final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
 
-  String? _selectedAccount;
+  String? _selectedAcId;
+  String? _selectedAcText;
   // bool _showData = false;
+
+  // Create a NumberFormat instance for comma-separated numbers
+  final NumberFormat _numberFormat = NumberFormat('#,##0');
   // Numeric Fields Double Variables
   double debitText = 0;
   double creditText = 0;
-  double debitSRText = 0;
-  double creditSRText = 0;
+  double debitSrText = 0;
+  double creditSrText = 0;
 
   double totalDebitPK = 0;
   double totalCreditPK = 0;
@@ -38,9 +42,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
   double bfBalancePK = 0;
   double bfBalanceSR = 0;
 
-  // Create a NumberFormat instance for comma-separated numbers
-  final NumberFormat _numberFormat = NumberFormat('#,##0');
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,17 +50,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
         foregroundColor: Colors.teal,
         elevation: 0,
         actions: [
-          // IconButton(
-          //   icon: const Icon(Icons.remove_red_eye_sharp),
-          //   onPressed: () {
-          //     // print(_selectedAccount);
-          //     // rpt_ledger();
-          //   },
-          // ),
           IconButton(
             icon: const Icon(Icons.print),
-            onPressed: _printPdf,
-            // onPressed: (){},
+            // onPressed: _printPdf,
+            onPressed: (){},
           ),
           Padding(
             padding: const EdgeInsets.only(right: 25.0, bottom: 16.0),
@@ -107,26 +101,23 @@ class RptAcLedgerState extends State<RptAcLedger> {
                         String docID = document.id;
                         Map<String, dynamic> data =
                             document.data() as Map<String, dynamic>;
-                        String areaText = data['accountName'];
+                        _selectedAcText = data['accountName'];
 
                         return DropdownMenuItem<String>(
                           value: docID,
                           child: Text(
-                            areaText,
+                            _selectedAcText!,
                             style: const TextStyle(color: Colors.teal),
                           ),
                         );
                       }).toList();
 
-                      String? initialAccount = dropdownItems.isNotEmpty
-                          ? dropdownItems[0].value
-                          : null;
+                      String? initialAccount = dropdownItems.isNotEmpty ? dropdownItems[0].value : null;
 
                       // Ensure _selectedAccount is valid or fallback to initialAccount
                       String? currentAccount = dropdownItems
-                              .any((item) => item.value == _selectedAccount)
-                          ? _selectedAccount
-                          : initialAccount;
+                              .any((item) => item.value == _selectedAcId)
+                          ? _selectedAcId: initialAccount;
 
                       return DropdownButtonFormField<String>(
                         value: currentAccount,
@@ -138,7 +129,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                         isExpanded: true,
                         onChanged: (accountValue) {
                           setState(() {
-                            _selectedAccount = accountValue;
+                            _selectedAcId = accountValue;
                             // _showData = true;
                           });
                         },
@@ -146,8 +137,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           if (value == null || value == '') {
                             return 'Please select a valid account';
                           }
-                          if (_selectedAccount == null ||
-                              _selectedAccount == '') {
+                          if (_selectedAcId == null ||
+                              _selectedAcId == '') {
                             return 'Please select a valid account';
                           }
                           return null;
@@ -161,7 +152,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
             const SizedBox(height: 20.0),
 
-            if (_selectedAccount != null) rptLedger()
+            if (_selectedAcId != null) rptLedger()
           ],
         ),
       ),
@@ -169,8 +160,15 @@ class RptAcLedgerState extends State<RptAcLedger> {
   }
 
   Widget rptLedger() {
+    totalDebitPK = 0;
+    totalCreditPK = 0;
+    totalDebitSR = 0;
+    totalCreditSR = 0;
+    bfBalancePK = 0;
+    bfBalanceSR = 0;
+
     return StreamBuilder<List<QueryDocumentSnapshot>>(
-      stream: _vouchers.getAcLedgerStream(kUserId, _selectedAccount ?? ''),
+      stream: _vouchers.getAcLedgerStream(kUserId, _selectedAcId ?? ''),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -181,7 +179,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
         }
 
         final documents = snapshot.data ?? [];
-        List<DocumentSnapshot> customerList = documents.cast<DocumentSnapshot>();
+        List<DocumentSnapshot> customerList =
+            documents.cast<DocumentSnapshot>();
 
         return FutureBuilder<Map<String, String?>>(
           future: _getAccountNames(customerList),
@@ -191,6 +190,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
             } else if (futureSnapshot.hasError) {
               return Center(child: Text('Error: ${futureSnapshot.error}'));
             } else if (futureSnapshot.hasData) {
+              // Map<String, String?> accountNames = futureSnapshot.data!;
 
               return LayoutBuilder(
                 builder: (context, constraints) {
@@ -199,40 +199,46 @@ class RptAcLedgerState extends State<RptAcLedger> {
                     child: DataTable(
                       columnSpacing: constraints.maxWidth / 15,
                       columns: const [
-                        DataColumn(label: Text('Date')),
-                        DataColumn(label: Text('PK-Dr')),
-                        DataColumn(label: Text('PK-Cr')),
                         DataColumn(label: Text('SR-Dr')),
                         DataColumn(label: Text('SR-Cr')),
+                        DataColumn(label: Text('PK-Dr')),
+                        DataColumn(label: Text('PK-Cr')),
+                        DataColumn(label: Text('Date')),
                         DataColumn(label: Text('Remarks')),
                       ],
                       rows: [
                         ...customerList.map((document) {
-                          Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                          Map<String, dynamic> data =
+                              document.data() as Map<String, dynamic>;
 
                           String drAcId = data['drAcId'] ?? '';
                           String crAcId = data['crAcId'] ?? '';
                           String type = data['type'] ?? '';
-                          DateTime dateText = (data['date'] as Timestamp).toDate();
+                          DateTime dateText =(data['date'] as Timestamp).toDate();
                           String formattedDate = DateFormat('dd MM yy').format(dateText);
                           String remarksText = data['remarks'] ?? '';
 
+                          // String? drAcName = accountNames[drAcId] ?? '';
+
+                          // Display DR Account if available, otherwise display CR Account
+                          // String accountDisplayName = drAcId.isNotEmpty ? drAcName : 'N/A';
+
                           if (type == 'JV') {
-                            if (_selectedAccount == drAcId) {
+                            if (_selectedAcId == drAcId) {
 
                               debitText = (data['credit'] ?? 0.0);
                               creditText = 0.0;
 
-                              debitSRText = (data['creditsar'] ?? 0.0);
-                              creditSRText = 0.0;
+                              debitSrText = (data['creditsar'] ?? 0.0);
+                              creditSrText = 0.0;
 
                             } else {
 
                               debitText = 0.0;
                               creditText = (data['debit'] ?? 0.0);
 
-                              debitSRText = 0.0;
-                              creditSRText = (data['debitsar'] ?? 0.0);
+                              debitSrText = 0.0;
+                              creditSrText = (data['debitsar'] ?? 0.0);
 
                             }
                           } else  {
@@ -240,22 +246,41 @@ class RptAcLedgerState extends State<RptAcLedger> {
                             debitText = (data['credit'] ?? 0.0);
                             creditText = (data['debit'] ?? 0.0);
 
-                            debitSRText = (data['creditsar'] ?? 0.0);
-                            creditSRText = (data['debitsar'] ?? 0.0);
+                            debitSrText = (data['creditsar'] ?? 0.0);
+                            creditSrText = (data['debitsar'] ?? 0.0);
+
                           }
 
-                          // Calculate Totals
-                          totalDebitPK += creditText;
-                          totalCreditPK += debitText;
-                          totalDebitSR += creditSRText;
-                          totalCreditSR += debitSRText;
+                            totalDebitPK += creditText;
+                            totalCreditPK += debitText;
+                            totalDebitSR += creditSrText;
+                            totalCreditSR += debitSrText;
 
                           // Calculate B/F Balance
                           bfBalancePK = totalDebitPK - totalCreditPK;
                           bfBalanceSR = totalDebitSR - totalCreditSR;
 
                           return DataRow(cells: [
-                            DataCell(Text(formattedDate)),
+                            DataCell(Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                _numberFormat.format(creditSrText),
+                                style: const TextStyle(
+                                  // fontWeight: FontWeight.bold,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            )),
+                            DataCell(Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                _numberFormat.format(debitSrText),
+                                style: const TextStyle(
+                                  // fontWeight: FontWeight.bold,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            )),
                             DataCell(Container(
                               alignment: Alignment.centerRight,
                               child: Text(
@@ -276,35 +301,31 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                 ),
                               ),
                             )),
-                            DataCell(Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat.format(creditSRText),
-                                style: const TextStyle(
-                                  // fontWeight: FontWeight.bold,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            )),
-                            DataCell(Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat.format(debitSRText),
-                                style: const TextStyle(
-                                  // fontWeight: FontWeight.bold,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            )),
+                            DataCell(Text(formattedDate)),
                             DataCell(Text(remarksText)),
                           ]);
                         }),
                         // Add the totals row
                         DataRow(cells: [
-                          const DataCell(Text(
-                            'Totals',
-                            style: TextStyle(fontWeight: FontWeight.bold,
-                              color: Colors.red,),
+                          DataCell(Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              _numberFormat.format(totalDebitSR),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          )),
+                          DataCell(Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              _numberFormat.format(totalCreditSR),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                              ),
+                            ),
                           )),
                           DataCell(Container(
                             alignment: Alignment.centerRight,
@@ -326,46 +347,15 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           )),
-                          DataCell(Container(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              _numberFormat.format(totalDebitSR),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            ),
-                          )),
-                          DataCell(Container(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              _numberFormat.format(totalCreditSR),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            ),
+                          const DataCell(Text(
+                            'Totals',
+                            style: TextStyle(fontWeight: FontWeight.bold,
+                              color: Colors.red,),
                           )),
                           const DataCell(Text('')),
                         ]),
                         // Add the B/F Balance row
                         DataRow(cells: [
-                          const DataCell(Text(
-                            'B/F Balance',
-                            style: TextStyle(fontWeight: FontWeight.bold,
-                                color: Colors.teal),
-                          )),
-                          const DataCell(Text('')),
-                          DataCell(Container(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              _numberFormat.format(bfBalancePK),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                              ),
-                            ),
-                          )),
                           const DataCell(Text('')),
                           DataCell(Container(
                             alignment: Alignment.centerRight,
@@ -378,6 +368,18 @@ class RptAcLedgerState extends State<RptAcLedger> {
                             ),
                           )),
                           const DataCell(Text('')),
+                          DataCell(Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              _numberFormat.format(bfBalancePK),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                            ),
+                          )),
+                          const DataCell(Text('B/F Balance',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.teal),)),
+                          const DataCell(Text('')),
                         ]),
                       ],
                     ),
@@ -385,6 +387,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                 },
               );
             }
+
             return const Center(child: Text('No data available'));
           },
         );
@@ -395,31 +398,14 @@ class RptAcLedgerState extends State<RptAcLedger> {
   Future<Map<String, String?>> _getAccountNames(
       List<DocumentSnapshot> customerList) async {
     Map<String, String?> accountNames = {};
-    Set<String> accountIds = {}; // Use a Set to avoid duplicates
-
-    // Collect all unique account IDs
-    for (DocumentSnapshot document in customerList) {
-      Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-      // Check and add DR Account ID
-      String drAcId = data['drAcId'] ?? '';
+    for (var document in customerList) {
+      String drAcId = (document.data() as Map<String, dynamic>)['drAcId'] ?? '';
       if (drAcId.isNotEmpty) {
-        accountIds.add(drAcId);
-      }
-
-      // Check and add CR Account ID
-      String crAcId = data['crAcId'] ?? '';
-      if (crAcId.isNotEmpty) {
-        accountIds.add(crAcId);
+        // DocumentSnapshot accountDoc = await _accounts.getAccountById(drAcId);
+        // accountNames[drAcId] = accountDoc.get('accountName');
+        accountNames[drAcId] = 'QAISER SHAMEER';
       }
     }
-
-    // Fetch account names for all unique IDs
-    for (String acId in accountIds) {
-      String? acName = await _accounts.getAccountName(acId);
-      accountNames[acId] = acName;
-    }
-
     return accountNames;
   }
 
@@ -444,16 +430,12 @@ class RptAcLedgerState extends State<RptAcLedger> {
     );
 
     try {
-      // Assuming _vouchers.getAcLedgerStream returns a Stream<QuerySnapshot>
-      final snapshot = await _vouchers.getAcLedgerStream(kUserId, _selectedAccount!).first;
+      final snapshot = await _vouchers
+          .getCashBookStream(kUserId, [kCRV, kCPV])
+          .first;
+      final customerList = snapshot.docs;
 
-      // Use the snapshot.docs property
-      final customerList = snapshot.docs; // This is a List<DocumentSnapshot>
-
-      // Convert DocumentSnapshot to Map<String, dynamic> for processing
-      final documents = customerList.map((doc) => doc.data() as Map<String, dynamic>).toList();
-
-      final futureAccountNames = _getAccountNames(documents);
+      final futureAccountNames = _getAccountNames(customerList);
       final accountNames = await futureAccountNames;
 
       final pdf = pw.Document();
@@ -464,7 +446,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
             return pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text('Account Ledger Report',
+                // pw.Text('Ledger: $_selectedAcText',
+                pw.Text('Account Ledger',
                     style: const pw.TextStyle(
                       fontSize: 20,
                     )),
@@ -476,15 +459,16 @@ class RptAcLedgerState extends State<RptAcLedger> {
                     pw.TableRow(
                       children: [
                         _buildHeaderCell('Date'),
-                        _buildHeaderCell('PK-Dr'),
-                        _buildHeaderCell('PK-Cr'),
-                        _buildHeaderCell('SR-Dr'),
                         _buildHeaderCell('SR-Cr'),
+                        _buildHeaderCell('SR-Dr'),
+                        _buildHeaderCell('PK-Cr'),
+                        _buildHeaderCell('PK-Dr'),
+                        // _buildHeaderCell('AccountName'),
                         _buildHeaderCell('Remarks'),
                       ],
                     ),
                     // Data rows
-                    ..._getPdfTableData(documents, accountNames).map((row) {
+                    ..._getPdfTableData(customerList, accountNames).map((row) {
                       return pw.TableRow(
                         children: [
                           _buildCell(row[0], pw.Alignment.center),
@@ -493,9 +477,33 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           _buildCell(row[3], pw.Alignment.centerRight),
                           _buildCell(row[4], pw.Alignment.centerRight),
                           _buildCell(row[5], pw.Alignment.centerLeft),
+                          // _buildCell(row[6], pw.Alignment.centerLeft),
                         ],
                       );
                     }),
+                    // Totals and Balance rows with bold font
+                    pw.TableRow(
+                      children: [
+                        _buildBoldCell('Totals', pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(totalDebitSR), pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(totalCreditSR), pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(totalDebitPK), pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(totalCreditPK), pw.Alignment.centerRight),
+                        pw.SizedBox(), // Empty cell
+                        // pw.SizedBox(), // Empty cell
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        _buildBoldCell('Balance', pw.Alignment.centerRight),
+                        pw.SizedBox(), // Empty cell
+                        _buildBoldCell(_numberFormat.format(bfBalanceSR), pw.Alignment.centerRight),
+                        pw.SizedBox(), // Empty cell
+                        _buildBoldCell(_numberFormat.format(bfBalancePK), pw.Alignment.centerRight),
+                        pw.SizedBox(), // Empty cell
+                        // pw.SizedBox(), // Empty cell
+                      ],
+                    ),
                   ],
                 ),
               ],
@@ -516,7 +524,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
     }
   }
 
-  // Helper method to create table headers
+// Helper method to create table headers
   pw.Widget _buildHeaderCell(String text) {
     return pw.Align(
       alignment: pw.Alignment.center,
@@ -530,7 +538,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
     );
   }
 
-  // Helper method to create table cells with alignment
+// Helper method to create table cells with alignment
   pw.Widget _buildCell(String text, pw.Alignment alignment) {
     return pw.Container(
       alignment: alignment,
@@ -539,8 +547,19 @@ class RptAcLedgerState extends State<RptAcLedger> {
     );
   }
 
-  List<List<String>> _getPdfTableData(
-      List<DocumentSnapshot> customerList, Map<String, String?> accountNames) {
+// Helper method to create bold table cells
+  pw.Widget _buildBoldCell(String text, pw.Alignment alignment) {
+    return pw.Container(
+        alignment: alignment,padding: const pw.EdgeInsets.all(8.0),
+      child: pw.Text(text,
+        style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  List<List<String>> _getPdfTableData(List<DocumentSnapshot> customerList,
+      Map<String, String?> accountNames) {
     final data = <List<String>>[];
 
     // Adding table rows
@@ -552,10 +571,12 @@ class RptAcLedgerState extends State<RptAcLedger> {
       DateTime dateText = (dataRow['date'] as Timestamp).toDate();
       String formattedDate = DateFormat('dd MM yy').format(dateText);
       String remarksText = dataRow['remarks'] ?? '';
-      double creditText = (dataRow['credit'] ?? 0.0) as double;
-      double debitText = (dataRow['debit'] ?? 0.0) as double;
-      double creditSarText = (dataRow['creditsar'] ?? 0.0) as double;
-      double debitSarText = (dataRow['debitsar'] ?? 0.0) as double;
+      String type = dataRow['type'] ?? '';
+
+      creditText = (dataRow['credit'] ?? 0.0);
+      debitText = (dataRow['debit'] ?? 0.0);
+      creditSrText = (dataRow['creditsar'] ?? 0.0);
+      debitSrText = (dataRow['debitsar'] ?? 0.0);
 
       String? drAcName = accountNames[drAcId] ?? '';
       String? crAcName = accountNames[crAcId] ?? '';
@@ -564,65 +585,60 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
       data.add([
         formattedDate,
+        _numberFormat.format(creditSrText),
+        _numberFormat.format(debitSrText),
         _numberFormat.format(creditText),
         _numberFormat.format(debitText),
-        _numberFormat.format(creditSarText),
-        _numberFormat.format(debitSarText),
         // accountDisplayName,
         remarksText,
       ]);
+
+      totalDebitPK = 0;
+      totalCreditPK = 0;
+      totalDebitSR = 0;
+      totalCreditSR = 0;
+      bfBalancePK = 0;
+      bfBalanceSR = 0;
+
+      if (type == 'JV') {
+        if (_selectedAcId == drAcId) {
+
+          debitText = debitText;
+          creditText = 0.0;
+
+          debitSrText = debitSrText;
+          creditSrText = 0.0;
+
+        } else {
+
+          debitText = 0.0;
+          creditText = creditText;
+
+          debitSrText = 0.0;
+          creditSrText = creditSrText;
+
+        }
+      } else  {
+
+        debitText = debitText;
+        creditText = creditText;
+
+        debitSrText = debitSrText;
+        creditSrText = creditSrText;
+
+      }
+
+      totalDebitPK += creditText;
+      totalCreditPK += debitText;
+      totalDebitSR += creditSrText;
+      totalCreditSR += debitSrText;
+
+      // Calculate B/F Balance
+      bfBalancePK = totalDebitPK - totalCreditPK;
+      bfBalanceSR = totalDebitSR - totalCreditSR;
+
     }
-
-    // Add totals and B/F Balance rows
-    double totalDebitPK = 0;
-    double totalCreditPK = 0;
-    double totalDebitSR = 0;
-    double totalCreditSR = 0;
-
-    for (var document in customerList) {
-      Map<String, dynamic> dataRow = document.data() as Map<String, dynamic>;
-      totalDebitPK += (dataRow['credit'] ?? 0.0) as double;
-      totalCreditPK += (dataRow['debit'] ?? 0.0) as double;
-      totalDebitSR += (dataRow['creditsar'] ?? 0.0) as double;
-      totalCreditSR += (dataRow['debitsar'] ?? 0.0) as double;
-    }
-
-    double bfBalancePK = totalDebitPK - totalCreditPK;
-    double bfBalanceSR = totalDebitSR - totalCreditSR;
-
-    data.add([
-      'Totals',
-      _numberFormat.format(totalDebitPK),
-      _numberFormat.format(totalCreditPK),
-      _numberFormat.format(totalDebitSR),
-      _numberFormat.format(totalCreditSR),
-      '',
-    ]);
-    data.add([
-      'Balance',
-      '',
-      _numberFormat.format(bfBalancePK),
-      '',
-      _numberFormat.format(bfBalanceSR),
-      '',
-    ]);
 
     return data;
   }
 }
-
-extension on List<QueryDocumentSnapshot<Object?>> {
-   // get docs => null;
-
-  get docs => null;
-
-   // final snapshot = await _vouchers.getAcLedgerStream(kUserId, _selectedAccount!).first;
-   //
-   // // Use the snapshot.docs property
-   // final customerList = snapshot.docs; // This is a List<DocumentSnapshot>
-   //
-   // // Convert DocumentSnapshot to Map<String, dynamic> for processing
-   // final documents = customerList.map((doc) => doc.data() as Map<String, dynamic>).toList();
-
-}
-

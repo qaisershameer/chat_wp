@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'WhatsApp',
+      title: 'Qaiser Shameer',
       // theme: ThemeData(primarySwatch: Colors.teal,),
       theme: Provider.of<ThemeProvider>(context).themeData,
       // home: LoginPage(),

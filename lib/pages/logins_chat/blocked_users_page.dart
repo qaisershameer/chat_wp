@@ -81,7 +81,7 @@ class BlockedUsersPage extends StatelessWidget {
 
             // no blocked users...
             if (blockedUsers.isEmpty) {
-              return const Text('No Blocked Users');
+              return const Center(child: Text('No Blocked Users'));
             }
 
             // loading complete...

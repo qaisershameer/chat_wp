@@ -166,8 +166,8 @@ class VoucherJvInfoState extends State<VoucherJvInfo> {
                         margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
                         padding: const EdgeInsets.all(3),
                         child: ListTile(
-                          title: Text('Dr: ${drAccountName ?? 'NA'}\nCr: ${crAccountName ?? 'NA'}'),
-                          subtitle: Text('PKR ==> Dr: $debitText * Cr: $creditText\nSAR ==> Dr: $debitSarText * Cr: $creditSarText\n$remarksText\n$formattedDate'),
+                          title: Text('Cr: ${crAccountName ?? 'NA'}\nDr: ${drAccountName ?? 'NA'}'),
+                          subtitle: Text('SAR ==> Dr: $debitSarText * Cr: $creditSarText\nPKR ==> Dr: $debitText * Cr: $creditText\n$remarksText\n$formattedDate'),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
