@@ -10,21 +10,30 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-class RptAcLedger extends StatefulWidget {
-  const RptAcLedger({super.key});
+class RptTrialBal extends StatefulWidget {
+  const RptTrialBal({super.key});
 
   @override
-  State<RptAcLedger> createState() => RptAcLedgerState();
+  State<RptTrialBal> createState() => RptTrialBalState();
 }
 
-class RptAcLedgerState extends State<RptAcLedger> {
+class RptTrialBalState extends State<RptTrialBal> {
   final AccountService _accounts = AccountService();
   final AcVoucherService _vouchers = AcVoucherService();
   // final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
 
-  String? _selectedAcId;
-  String? _selectedAcText;
+  String? _selectedAcId, _selectedAcText, _selectedType;
   // bool _showData = false;
+
+  final List<String> _accountType = <String>[
+    'PARTY',
+    'PARTY B',
+    'ASSETS',
+    'LIABILITY',
+    'CAPITAL',
+    'REVENUE',
+    'EXPENSE',
+  ];
 
   // Create a NumberFormat instance for comma-separated numbers
   final NumberFormat _numberFormat = NumberFormat('#,##0');
@@ -46,7 +55,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Account Ledger'),
+        title: const Text('Trial Balance'),
         foregroundColor: Colors.teal,
         elevation: 0,
         actions: [
@@ -72,96 +81,62 @@ class RptAcLedgerState extends State<RptAcLedger> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           children: <Widget>[
-            // Account Data COMBO
+            // ACCOUNT TYPE Data COMBO
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 const Icon(
-                  FontAwesomeIcons.circleUser,
+                  FontAwesomeIcons.moneyBill,
                   size: 25.0,
                   color: Colors.teal,
                 ),
                 const SizedBox(width: 20.0),
-                Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: _accounts.getAccountsStream(kUserId),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      }
-
-                      List<DocumentSnapshot> accountList =
-                          snapshot.data?.docs ?? [];
-                      List<DropdownMenuItem<String>> dropdownItems =
-                          accountList.map((document) {
-                        String docID = document.id;
-                        Map<String, dynamic> data =
-                            document.data() as Map<String, dynamic>;
-                        _selectedAcText = data['accountName'];
-
-                        return DropdownMenuItem<String>(
-                          value: docID,
-                          child: Text(
-                            _selectedAcText!,
-                            style: const TextStyle(color: Colors.teal),
-                          ),
-                        );
-                      }).toList();
-
-                      String? initialAccount = dropdownItems.isNotEmpty
-                          ? dropdownItems[0].value
-                          : null;
-
-                      // Ensure _selectedAccount is valid or fallback to initialAccount
-                      String? currentAccount = dropdownItems
-                              .any((item) => item.value == _selectedAcId)
-                          ? _selectedAcId
-                          : initialAccount;
-
-                      return DropdownButtonFormField<String>(
-                        value: currentAccount,
-                        items: dropdownItems,
-                        hint: const Text(
-                          'Select Account',
-                          style: TextStyle(color: Colors.teal),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width / 1.25,
+                  child: DropdownButtonFormField<String>(
+                    isExpanded: true,
+                    items: _accountType
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(
+                          value,
+                          style: const TextStyle(color: Colors.teal),
                         ),
-                        isExpanded: true,
-                        onChanged: (accountValue) {
-                          setState(() {
-                            _selectedAcId = accountValue;
-                            // _showData = true;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null || value == '') {
-                            return 'Please select a valid account';
-                          }
-                          if (_selectedAcId == null || _selectedAcId == '') {
-                            return 'Please select a valid account';
-                          }
-                          return null;
-                        },
                       );
+                    }).toList(),
+                    onChanged: (typeValue) {
+                      setState(() {
+                        if (_selectedType != typeValue) {
+                          _selectedType = typeValue;
+                        }
+                      });
+                    },
+                    value: _selectedType,
+                    hint: const Text(
+                      'Select Type',
+                      style: TextStyle(color: Colors.teal),
+                    ),
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Please select an account type';
+                      }
+                      return null;
                     },
                   ),
                 ),
               ],
             ),
-
             const SizedBox(height: 20.0),
 
-            if (_selectedAcId != null) rptLedger()
+            if (_selectedType != null) rptTrial()
           ],
         ),
       ),
     );
   }
 
-  Widget rptLedger() {
+  Widget rptTrial() {
     totalDebitPK = 0;
     totalCreditPK = 0;
     totalDebitSR = 0;
@@ -182,7 +157,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
         final documents = snapshot.data ?? [];
         List<DocumentSnapshot> customerList =
-            documents.cast<DocumentSnapshot>();
+        documents.cast<DocumentSnapshot>();
 
         return FutureBuilder<Map<String, String?>>(
           future: _getAccountNames(customerList),
@@ -206,7 +181,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           color: Colors.black,
                           width: 1,
                         ),
-                        columns: [
+                        columns: const [
                           DataColumn(
                             label: Center(child: Text('SR-Dr')),
                           ),
@@ -447,7 +422,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
     try {
       final snapshot =
-          await _vouchers.getCashBookStream(kUserId, [kCRV, kCPV]).first;
+      await _vouchers.getCashBookStream(kUserId, [kCRV, kCPV]).first;
       final customerList = snapshot.docs;
 
       final futureAccountNames = _getAccountNames(customerList);
@@ -462,7 +437,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 // pw.Text('Ledger: $_selectedAcText',
-                pw.Text('Account Ledger',
+                pw.Text('Trial Balance',
                     style: const pw.TextStyle(
                       fontSize: 20,
                     )),

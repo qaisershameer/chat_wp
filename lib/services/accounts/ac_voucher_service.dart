@@ -124,4 +124,33 @@ class AcVoucherService {
     });
   }
 
+// READ: getting Account Ledger Report Query
+  Stream<List<QueryDocumentSnapshot>> getTrialStream(String userId, String accId, List<String> types) {
+
+    final query1 = _vouchers
+        .where('uid', isEqualTo: userId)
+        .where('type', whereIn: types)
+        .where('drAcId', isEqualTo: accId)
+        .orderBy('drAcId', descending: true);
+
+    final query2 = _vouchers
+        .where('uid', isEqualTo: userId)
+        .where('type', whereIn: types)
+        .where('crAcId', isEqualTo: accId)
+        .orderBy('crAcId', descending: true);
+
+    final stream1 = query1.snapshots().map((snapshot) => snapshot.docs);
+    final stream2 = query2.snapshots().map((snapshot) => snapshot.docs);
+
+    return Rx.combineLatest2(stream1, stream2, (docs1, docs2) {
+      final combinedDocs = <QueryDocumentSnapshot>[]
+        ..addAll(docs1)
+        ..addAll(docs2);
+
+      combinedDocs.sort((a, b) => b['date'].compareTo(a['date']));
+
+      return combinedDocs;
+    });
+  }
+
 }
