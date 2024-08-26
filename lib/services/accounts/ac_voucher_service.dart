@@ -88,14 +88,41 @@ class AcVoucherService {
   }
 
   // READ: getting Cash Book Report Query
-  Stream<QuerySnapshot> getCashBookStream(String userId, List<String> types) {
-    final query = _vouchers
+  // Stream<QuerySnapshot> getCashBookStream(String userId, List<String> types) {
+  //   final query = _vouchers
+  //       .where('uid', isEqualTo: userId)
+  //       .where('type', whereIn: types)
+  //       .orderBy('date', descending: true);
+  //
+  //   return query.snapshots();
+  // }
+  Stream<QuerySnapshot> getCashBookStream(
+      String userId,
+      List<String> types,
+      DateTime? startDate, // Optional: can be null if not filtering by start date
+      DateTime? endDate    // Optional: can be null if not filtering by end date
+      ) {
+    // Start with the base query
+    var query = _vouchers
         .where('uid', isEqualTo: userId)
         .where('type', whereIn: types)
         .orderBy('date', descending: true);
 
+    // print(startDate);
+    // print(endDate);
+
+    // Apply date range filter if startDate and endDate are provided
+    if (startDate != null) {
+      query = query.where('date', isGreaterThanOrEqualTo: startDate);
+    }
+    if (endDate != null) {
+      query = query.where('date', isLessThanOrEqualTo: endDate);
+    }
+
     return query.snapshots();
   }
+
+
 
   // READ: getting Account Ledger Report Query
   Stream<List<QueryDocumentSnapshot>> getAcLedgerStream(String userId, String accId) {
@@ -109,35 +136,6 @@ class AcVoucherService {
         .where('uid', isEqualTo: userId)
         .where('crAcId', isEqualTo: accId)
         .orderBy('date', descending: true);
-
-    final stream1 = query1.snapshots().map((snapshot) => snapshot.docs);
-    final stream2 = query2.snapshots().map((snapshot) => snapshot.docs);
-
-    return Rx.combineLatest2(stream1, stream2, (docs1, docs2) {
-      final combinedDocs = <QueryDocumentSnapshot>[]
-        ..addAll(docs1)
-        ..addAll(docs2);
-
-      combinedDocs.sort((a, b) => b['date'].compareTo(a['date']));
-
-      return combinedDocs;
-    });
-  }
-
-// READ: getting Account Ledger Report Query
-  Stream<List<QueryDocumentSnapshot>> getTrialStream(String userId, String accId, List<String> types) {
-
-    final query1 = _vouchers
-        .where('uid', isEqualTo: userId)
-        .where('type', whereIn: types)
-        .where('drAcId', isEqualTo: accId)
-        .orderBy('drAcId', descending: true);
-
-    final query2 = _vouchers
-        .where('uid', isEqualTo: userId)
-        .where('type', whereIn: types)
-        .where('crAcId', isEqualTo: accId)
-        .orderBy('crAcId', descending: true);
 
     final stream1 = query1.snapshots().map((snapshot) => snapshot.docs);
     final stream2 = query2.snapshots().map((snapshot) => snapshot.docs);

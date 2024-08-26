@@ -1,3 +1,4 @@
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
@@ -20,10 +21,24 @@ class RptCashBookState extends State<RptCashBook> {
   final AccountService _accounts = AccountService();
   final AcVoucherService _vouchers = AcVoucherService();
 
+  final TextEditingController _dateFromController = TextEditingController();
+  final TextEditingController _dateToController = TextEditingController();
+  DateTime? _selectedDateFrom=DateTime.now();
+  DateTime? _selectedDateTo=DateTime.now();
+
   // Create a NumberFormat instance for comma-separated numbers
   final NumberFormat _numberFormat = NumberFormat('#,##0');
 
-// Calculate totals
+  String? _selectedReport;
+  // bool _showData = false;
+
+  final List<String> _accountType = <String>[
+    'ALL',
+    'SAR',
+    'PKR',
+  ];
+
+  // field variables
   double debitText = 0;
   double creditText = 0;
   double debitSrText = 0;
@@ -38,6 +53,49 @@ class RptCashBookState extends State<RptCashBook> {
   // Calculate b/f balances
   double bfBalancePK = 0;
   double bfBalanceSR = 0;
+
+  Future<void> _selectDate(BuildContext context, String type) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      currentDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    getDate(pickedDate, type);
+  }
+
+  void getDate(DateTime? pickedDate, String type) {
+    if (pickedDate != null) {
+      setState(() {
+        if (type == 'from') {
+          _selectedDateFrom = pickedDate;
+          print(pickedDate);
+          _dateFromController.text = DateFormat('dd-MMM-yyyy').format(pickedDate);
+        } else if (type == 'to') {
+          _selectedDateTo = pickedDate;
+          _dateToController.text = DateFormat('dd-MMM-yyyy').format(pickedDate);
+        }
+      });
+    }else{
+      _dateFromController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
+      _dateToController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // _selectedDateFrom = DateFormat('dd-MMM-yyyy').format(DateTime.now());
+    // _selectedDateTo =DateTime.now();
+    // Initialize the text controllers with data from the previous screen
+    // _voucherId = widget.docId;
+    _dateFromController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
+    _dateToController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
+    DateTime now = DateTime.now();
+    getDate(DateTime(now.year, now.month, now.day), 'from');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,190 +124,401 @@ class RptCashBookState extends State<RptCashBook> {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _vouchers
-            .getCashBookStream(kUserId, [kCRV, kCPV]), // Pass the list of types
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            List<DocumentSnapshot> customerList = snapshot.data!.docs;
+      body: Form(
+        // key: _formKeyValue,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+          children: <Widget>[
+            // Row for ACCOUNT TYPE Data COMBO and DATE FROM
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                // ACCOUNT TYPE Data COMBO
+                const Icon(
+                  FontAwesomeIcons.database,
+                  size: 25.0,
+                  color: Colors.teal,
+                ),
+                const SizedBox(width: 10.0),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width / 7.0, // Adjusted width
+                  child: DropdownButtonFormField<String>(
+                    isExpanded: true,
+                    items: _accountType.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(
+                          value,
+                          style: const TextStyle(color: Colors.teal,fontSize: 12.0,),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (typeValue) {
+                      setState(() {
+                        if (_selectedReport != typeValue) {
+                          _selectedReport = typeValue;
+                        }
+                      });
+                    },
+                    value: _selectedReport,
+                    hint: const Text(
+                      'Style',
+                      style: TextStyle(color: Colors.teal, fontSize: 12.0),
+                    ),
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Please select a valid report style';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10.0),
+                // Date FROM Text Field
 
-            return FutureBuilder<Map<String, String?>>(
-              future: _getAccountNames(customerList),
-              builder: (context, futureSnapshot) {
-                if (futureSnapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (futureSnapshot.hasError) {
-                  return Center(child: Text('Error: ${futureSnapshot.error}'));
-                } else if (futureSnapshot.hasData) {
-                  Map<String, String?> accountNames = futureSnapshot.data!;
+                Expanded(
+                  child: TextFormField(
+                    controller: _dateFromController,
+                    keyboardType: TextInputType.none, // Disable// keyboard input
+                    onTap: () {
+                      FocusScope.of(context)
+                          .requestFocus(FocusNode()); // Hide keyboard
+                      _selectDate(context, 'from'); // Show date picker
+                    },
+                    style: const TextStyle(fontSize: 12.0,), // Set font size to 12.0
+                    decoration: const InputDecoration(
+                      icon: Icon(
+                        Icons.calendar_month, // Changed to a Flutter icon
+                        color: Colors.teal,
+                      ),
+                      hintText: 'Date From',
+                      labelText: 'From',
+                      labelStyle: TextStyle(color: Colors.teal),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Invalid Date From';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10.0),
+                // Date To Text Field
+                Expanded(
+                  child: TextFormField(
+                    controller: _dateToController,
+                    keyboardType: TextInputType.none, // Disable keyboard input
+                    onTap: () {
+                      FocusScope.of(context)
+                          .requestFocus(FocusNode()); // Hide keyboard
+                      _selectDate(context, 'to'); // Show date picker
+                    },
+                    style: const TextStyle(fontSize: 12.0,), // Set font size to 12.0
+                    decoration: const InputDecoration(
+                      icon: Icon(
+                        Icons.calendar_month, // Changed to a Flutter icon
+                        color: Colors.teal,
+                      ),
+                      hintText: 'Date To',
+                      labelText: 'To',
+                      labelStyle: TextStyle(color: Colors.teal),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Invalid Date To';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20.0),
+            if (_selectedReport != null) _rptCashBook(),
+          ],
+        ),
 
-                  for (var document in customerList) {
-                    Map<String, dynamic> data =
-                    document.data() as Map<String, dynamic>;
-                    totalDebitPK += (data['credit'] ?? 0.0);
-                    totalCreditPK += (data['debit'] ?? 0.0);
-                    totalDebitSR += (data['creditsar'] ?? 0.0);
-                    totalCreditSR += (data['debitsar'] ?? 0.0);
-                  }
+      ),
 
-                  // Calculate B/F Balance
-                  bfBalancePK = totalDebitPK - totalCreditPK;
-                  bfBalanceSR = totalDebitSR - totalCreditSR;
+    );
+  }
 
-                  return LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
+  StreamBuilder<QuerySnapshot<Object?>> _rptCashBook() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: _vouchers.getCashBookStream(kUserId, [kCRV, kCPV], _selectedDateFrom, _selectedDateTo), // Pass the list of types
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          List<DocumentSnapshot> customerList = snapshot.data!.docs;
+
+          return FutureBuilder<Map<String, String?>>(
+            future: _getAccountNames(customerList),
+            builder: (context, futureSnapshot) {
+              if (futureSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (futureSnapshot.hasError) {
+                return Center(child: Text('Error: ${futureSnapshot.error}'));
+              } else if (futureSnapshot.hasData) {
+                Map<String, String?> accountNames = futureSnapshot.data!;
+
+                // Initialize totals
+                double totalDebitPK = 0.0;
+                double totalCreditPK = 0.0;
+                double totalDebitSR = 0.0;
+                double totalCreditSR = 0.0;
+
+                // Calculate totals
+                for (var document in customerList) {
+                  Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                  totalDebitPK += (data['credit'] ?? 0.0);
+                  totalCreditPK += (data['debit'] ?? 0.0);
+                  totalDebitSR += (data['creditsar'] ?? 0.0);
+                  totalCreditSR += (data['debitsar'] ?? 0.0);
+                }
+
+                // Calculate B/F Balance
+                double bfBalancePK = totalDebitPK - totalCreditPK;
+                double bfBalanceSR = totalDebitSR - totalCreditSR;
+
+                // Determine columns to display based on _selectedReport
+                List<DataColumn> columns = [];
+                List<int> visibleColumns = [];
+
+                switch (_selectedReport) {
+                  case 'ALL':
+                    columns = const [
+                      DataColumn(label: Text('SR-Dr')),
+                      DataColumn(label: Text('SR-Cr')),
+                      DataColumn(label: Text('PK-Dr')),
+                      DataColumn(label: Text('PK-Cr')),
+                      DataColumn(label: Text('Account')),
+                      DataColumn(label: Text('Date')),
+                      DataColumn(label: Text('Remarks')),
+                    ];
+                    visibleColumns = [0, 1, 2, 3, 4, 5, 6];
+                    break;
+                  case 'SAR':
+                    columns = const [
+                      DataColumn(label: Text('SR-Dr')),
+                      DataColumn(label: Text('SR-Cr')),
+                      DataColumn(label: Text('Account')),
+                      DataColumn(label: Text('Date')),
+                      DataColumn(label: Text('Remarks')),
+                    ];
+                    visibleColumns = [0, 1, 4, 5, 6];
+                    break;
+                  case 'PKR':
+                    columns = const [
+                      DataColumn(label: Text('PK-Dr')),
+                      DataColumn(label: Text('PK-Cr')),
+                      DataColumn(label: Text('Account')),
+                      DataColumn(label: Text('Date')),
+                      DataColumn(label: Text('Remarks')),
+                    ];
+                    visibleColumns = [2, 3, 4, 5, 6];
+                    break;
+                  default:
+                    columns = const [];
+                    visibleColumns = [];
+                    break;
+                }
+
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
-                          columnSpacing: constraints.maxWidth /
-                              15, // Adjust column spacing
-                          columns: const [
-                            DataColumn(label: Text('SR-Dr')),
-                            DataColumn(label: Text('SR-Cr')),
-                            DataColumn(label: Text('PK-Dr')),
-                            DataColumn(label: Text('PK-Cr')),
-                            DataColumn(label: Text('Account')),
-                            DataColumn(label: Text('Date')),
-                            DataColumn(label: Text('Remarks')),
-                          ],
+                          columnSpacing: constraints.maxWidth / 15, // Adjust column spacing
+                          columns: columns,
                           rows: [
                             ...customerList.map((document) {
-                              Map<String, dynamic> data =
-                              document.data() as Map<String, dynamic>;
+                              Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-                              creditSrText = (data['creditsar'] ?? 0.0);
-                              debitSrText = (data['debitsar'] ?? 0.0);
-                              creditText = (data['credit'] ?? 0.0);
-                              debitText = (data['debit'] ?? 0.0);
+                              final creditSrText = (data['creditsar'] ?? 0.0);
+                              final debitSrText = (data['debitsar'] ?? 0.0);
+                              final creditText = (data['credit'] ?? 0.0);
+                              final debitText = (data['debit'] ?? 0.0);
 
-                              String drAcId = data['drAcId'] ?? '';
-                              String crAcId = data['crAcId'] ?? '';
-                              DateTime dateText = (data['date'] as Timestamp)
-                                  .toDate();
-                              String formattedDate = DateFormat('dd MM yy')
-                                  .format(dateText);
-                              String remarksText = data['remarks'] ?? '';
+                              final drAcId = data['drAcId'] ?? '';
+                              final crAcId = data['crAcId'] ?? '';
+                              final dateText = (data['date'] as Timestamp).toDate();
+                              final formattedDate = DateFormat('dd MM yy').format(dateText);
+                              final remarksText = data['remarks'] ?? '';
 
-                              String? drAcName = accountNames[drAcId] ?? '';
-                              String? crAcName = accountNames[crAcId] ?? '';
+                              final drAcName = accountNames[drAcId] ?? '';
+                              final crAcName = accountNames[crAcId] ?? '';
 
-                              // Display DR Account if available, otherwise display CR Account
-                              String accountDisplayName =
-                              drAcId.isNotEmpty ? drAcName : crAcName;
+                              final accountDisplayName = drAcId.isNotEmpty ? drAcName : crAcName;
 
                               return DataRow(cells: [
-                                DataCell(Container(
+                                if (visibleColumns.contains(0))
+                                  DataCell(Container(
                                     alignment: Alignment.centerRight,
                                     child: Text(
-                                        _numberFormat.format(creditSrText),
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blue)))),
-                                DataCell(Container(
+                                      _numberFormat.format(creditSrText),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue,
+                                      ),
+                                    ),
+                                  )),
+                                if (visibleColumns.contains(1))
+                                  DataCell(Container(
                                     alignment: Alignment.centerRight,
                                     child: Text(
-                                        _numberFormat.format(debitSrText),
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.blue)))),
-                                DataCell(Container(
+                                      _numberFormat.format(debitSrText),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue,
+                                      ),
+                                    ),
+                                  )),
+                                if (visibleColumns.contains(2))
+                                  DataCell(Container(
                                     alignment: Alignment.centerRight,
                                     child: Text(
-                                        _numberFormat.format(creditText),
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.green)))),
-                                DataCell(Container(
+                                      _numberFormat.format(creditText),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                  )),
+                                if (visibleColumns.contains(3))
+                                  DataCell(Container(
                                     alignment: Alignment.centerRight,
-                                    child: Text(_numberFormat.format(debitText),
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.green)))),
-                                DataCell(Text(accountDisplayName)),
-                                DataCell(Text(formattedDate)),
-                                DataCell(Text(remarksText)),
+                                    child: Text(
+                                      _numberFormat.format(debitText),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                  )),
+                                if (visibleColumns.contains(4))
+                                  DataCell(Text(accountDisplayName)),
+                                if (visibleColumns.contains(5))
+                                  DataCell(Text(formattedDate)),
+                                if (visibleColumns.contains(6))
+                                  DataCell(Text(remarksText)),
                               ]);
                             }),
                             // Add the totals row
                             DataRow(cells: [
-                              DataCell(Container(
+                              if (visibleColumns.contains(0))
+                                DataCell(Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                      _numberFormat.format(totalDebitSR),
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.blue)))),
-                              DataCell(Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                      _numberFormat.format(totalCreditSR),
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.blue)))),
-                              DataCell(Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                      _numberFormat.format(totalDebitPK),
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.green)))),
-                              DataCell(Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                      _numberFormat.format(totalCreditPK),
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.green)))),
-                              const DataCell(Text('Totals',
-                                  style: TextStyle(
+                                    _numberFormat.format(totalDebitSR),
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.red))),
-                              const DataCell(Text('')),
-                              const DataCell(Text('')),
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                )),
+                              if (visibleColumns.contains(1))
+                                DataCell(Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat.format(totalCreditSR),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                )),
+                              if (visibleColumns.contains(2))
+                                DataCell(Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat.format(totalDebitPK),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                )),
+                              if (visibleColumns.contains(3))
+                                DataCell(Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat.format(totalCreditPK),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                )),
+                              if (visibleColumns.contains(4))
+                                const DataCell(Text(
+                                  'Totals',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                  ),
+                                )),
+                              if (visibleColumns.contains(5)) const DataCell(Text('')),
+                              if (visibleColumns.contains(6)) const DataCell(Text('')),
                             ]),
                             // Add the B/F Balance row
                             DataRow(cells: [
-                              const DataCell(Text('')),
-                              DataCell(Container(
+                              if (visibleColumns.contains(0)) const DataCell(Text('')),
+                              if (visibleColumns.contains(1))
+                                DataCell(Container(
                                   alignment: Alignment.centerRight,
-                                  child: Text(_numberFormat.format(bfBalanceSR),
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.blue)))),
-                              const DataCell(Text('')),
-                              DataCell(Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(_numberFormat.format(bfBalancePK),
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.green)))),
-                              const DataCell(Text('Balance',
-                                  style: TextStyle(
+                                  child: Text(
+                                    _numberFormat.format(bfBalanceSR),
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.teal))),
-                              const DataCell(Text('')),
-                              const DataCell(Text('')),
+                                      color: Colors.teal,
+                                    ),
+                                  ),
+                                )),
+                              if (visibleColumns.contains(2)) const DataCell(Text('')),
+                              if (visibleColumns.contains(3))
+                                DataCell(Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat.format(bfBalancePK),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.teal,
+                                    ),
+                                  ),
+                                )),
+                              if (visibleColumns.contains(4))
+                                const DataCell(Text(
+                                  'Balance',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.teal,
+                                  ),
+                                )),
+                              if (visibleColumns.contains(5)) const DataCell(Text('')),
+                              if (visibleColumns.contains(6)) const DataCell(Text('')),
                             ]),
                           ],
                         ),
-                      );
-                    },
-                  );
-                } else {
-                  return const Center(
-                      child: Text('No account data to display!'));
-                }
-              },
-            );
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            return const Center(child: Text('No account data to display!'));
-          }
-        },
-      ),
+                      ),
+                    );
+                  },
+                );
+              } else {
+                return const Center(child: Text('No account data to display!'));
+              }
+            },
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else {
+          return const Center(child: Text('No account data to display!'));
+        }
+      },
     );
   }
+
 
   Future<Map<String, String?>> _getAccountNames(
       List<DocumentSnapshot> customerList) async {
@@ -304,7 +573,7 @@ class RptCashBookState extends State<RptCashBook> {
 
     try {
       final snapshot = await _vouchers
-          .getCashBookStream(kUserId, [kCRV, kCPV])
+          .getCashBookStream(kUserId, [kCRV, kCPV], _selectedDateFrom, _selectedDateTo)
           .first;
       final customerList = snapshot.docs;
 

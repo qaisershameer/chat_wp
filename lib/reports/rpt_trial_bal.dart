@@ -127,6 +127,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                 ),
               ],
             ),
+
             const SizedBox(height: 20.0),
 
             if (_selectedType != null) rptTrial()
@@ -422,7 +423,7 @@ class RptTrialBalState extends State<RptTrialBal> {
 
     try {
       final snapshot =
-      await _vouchers.getCashBookStream(kUserId, [kCRV, kCPV]).first;
+      await _vouchers.getCashBookStream(kUserId, [kCRV, kCPV], null, null).first;
       final customerList = snapshot.docs;
 
       final futureAccountNames = _getAccountNames(customerList);

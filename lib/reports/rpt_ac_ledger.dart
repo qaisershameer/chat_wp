@@ -53,7 +53,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
           IconButton(
             icon: const Icon(Icons.print),
             // onPressed: _printPdf,
-            onPressed: () {},
+            onPressed: (){},
           ),
           Padding(
             padding: const EdgeInsets.only(right: 25.0, bottom: 16.0),
@@ -112,15 +112,12 @@ class RptAcLedgerState extends State<RptAcLedger> {
                         );
                       }).toList();
 
-                      String? initialAccount = dropdownItems.isNotEmpty
-                          ? dropdownItems[0].value
-                          : null;
+                      String? initialAccount = dropdownItems.isNotEmpty ? dropdownItems[0].value : null;
 
                       // Ensure _selectedAccount is valid or fallback to initialAccount
                       String? currentAccount = dropdownItems
                               .any((item) => item.value == _selectedAcId)
-                          ? _selectedAcId
-                          : initialAccount;
+                          ? _selectedAcId: initialAccount;
 
                       return DropdownButtonFormField<String>(
                         value: currentAccount,
@@ -140,7 +137,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           if (value == null || value == '') {
                             return 'Please select a valid account';
                           }
-                          if (_selectedAcId == null || _selectedAcId == '') {
+                          if (_selectedAcId == null ||
+                              _selectedAcId == '') {
                             return 'Please select a valid account';
                           }
                           return null;
@@ -197,127 +195,78 @@ class RptAcLedgerState extends State<RptAcLedger> {
               return LayoutBuilder(
                 builder: (context, constraints) {
                   return SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        columnSpacing: constraints.maxWidth / 15,
-                        border: TableBorder.all(
-                          color: Colors.black,
-                          width: 1,
-                        ),
-                        columns: [
-                          DataColumn(
-                            label: Center(child: Text('SR-Dr')),
-                          ),
-                          DataColumn(
-                            label: Center(child: Text('SR-Cr')),
-                          ),
-                          DataColumn(
-                            label: Center(child: Text('PK-Dr')),
-                          ),
-                          DataColumn(
-                            label: Center(child: Text('PK-Cr')),
-                          ),
-                          DataColumn(
-                            label: Center(child: Text('Date')),
-                          ),
-                          DataColumn(
-                            label: Center(child: Text('Remarks')),
-                          ),
-                        ],
-                        rows: [
-                          ...customerList.map((document) {
-                            Map<String, dynamic> data =
-                            document.data() as Map<String, dynamic>;
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columnSpacing: constraints.maxWidth / 15,
+                      columns: const [
+                        DataColumn(label: Text('SR-Dr')),
+                        DataColumn(label: Text('SR-Cr')),
+                        DataColumn(label: Text('PK-Dr')),
+                        DataColumn(label: Text('PK-Cr')),
+                        DataColumn(label: Text('Date')),
+                        DataColumn(label: Text('Remarks')),
+                      ],
+                      rows: [
+                        ...customerList.map((document) {
+                          Map<String, dynamic> data =
+                              document.data() as Map<String, dynamic>;
 
-                            String drAcId = data['drAcId'] ?? '';
-                            String crAcId = data['crAcId'] ?? '';
-                            String type = data['type'] ?? '';
-                            DateTime dateText =
-                            (data['date'] as Timestamp).toDate();
-                            String formattedDate =
-                            DateFormat('dd MM yy').format(dateText);
-                            String remarksText = data['remarks'] ?? '';
+                          String drAcId = data['drAcId'] ?? '';
+                          String crAcId = data['crAcId'] ?? '';
+                          String type = data['type'] ?? '';
+                          DateTime dateText =(data['date'] as Timestamp).toDate();
+                          String formattedDate = DateFormat('dd MM yy').format(dateText);
+                          String remarksText = data['remarks'] ?? '';
 
-                            if (type == 'JV') {
-                              if (_selectedAcId == drAcId) {
-                                debitText = (data['credit'] ?? 0.0);
-                                creditText = 0.0;
-                                debitSrText = (data['creditsar'] ?? 0.0);
-                                creditSrText = 0.0;
-                              } else {
-                                debitText = 0.0;
-                                creditText = (data['debit'] ?? 0.0);
-                                debitSrText = 0.0;
-                                creditSrText = (data['debitsar'] ?? 0.0);
-                              }
-                            } else {
+                          // String? drAcName = accountNames[drAcId] ?? '';
+
+                          // Display DR Account if available, otherwise display CR Account
+                          // String accountDisplayName = drAcId.isNotEmpty ? drAcName : 'N/A';
+
+                          if (type == 'JV') {
+                            if (_selectedAcId == drAcId) {
+
                               debitText = (data['credit'] ?? 0.0);
-                              creditText = (data['debit'] ?? 0.0);
-                              debitSrText = (data['creditsar'] ?? 0.0);
-                              creditSrText = (data['debitsar'] ?? 0.0);
-                            }
+                              creditText = 0.0;
 
-                            // Calculate Totals
+                              debitSrText = (data['creditsar'] ?? 0.0);
+                              creditSrText = 0.0;
+
+                            } else {
+
+                              debitText = 0.0;
+                              creditText = (data['debit'] ?? 0.0);
+
+                              debitSrText = 0.0;
+                              creditSrText = (data['debitsar'] ?? 0.0);
+
+                            }
+                          } else  {
+
+                            debitText = (data['credit'] ?? 0.0);
+                            creditText = (data['debit'] ?? 0.0);
+
+                            debitSrText = (data['creditsar'] ?? 0.0);
+                            creditSrText = (data['debitsar'] ?? 0.0);
+
+                          }
+
                             totalDebitPK += creditText;
                             totalCreditPK += debitText;
                             totalDebitSR += creditSrText;
                             totalCreditSR += debitSrText;
 
-                            // Calculate B/F Balances
-                            bfBalancePK = totalDebitPK - totalCreditPK;
-                            bfBalanceSR = totalDebitSR - totalCreditSR;
+                          // Calculate B/F Balance
+                          bfBalancePK = totalDebitPK - totalCreditPK;
+                          bfBalanceSR = totalDebitSR - totalCreditSR;
 
-                            return DataRow(cells: [
-                              DataCell(Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat.format(creditSrText),
-                                  style: const TextStyle(
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              )),
-                              DataCell(Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat.format(debitSrText),
-                                  style: const TextStyle(
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              )),
-                              DataCell(Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat.format(creditText),
-                                  style: const TextStyle(
-                                    color: Colors.green,
-                                  ),
-                                ),
-                              )),
-                              DataCell(Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat.format(debitText),
-                                  style: const TextStyle(
-                                    color: Colors.green,
-                                  ),
-                                ),
-                              )),
-                              DataCell(Text(formattedDate)),
-                              DataCell(Text(remarksText)),
-                            ]);
-                          }),
-                          // Add the totals row
-                          DataRow(cells: [
+                          return DataRow(cells: [
                             DataCell(Container(
                               alignment: Alignment.centerRight,
                               child: Text(
-                                _numberFormat.format(totalDebitSR),
+                                _numberFormat.format(creditSrText),
                                 style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
+                                  // fontWeight: FontWeight.bold,
                                   color: Colors.blue,
                                 ),
                               ),
@@ -325,9 +274,9 @@ class RptAcLedgerState extends State<RptAcLedger> {
                             DataCell(Container(
                               alignment: Alignment.centerRight,
                               child: Text(
-                                _numberFormat.format(totalCreditSR),
+                                _numberFormat.format(debitSrText),
                                 style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
+                                  // fontWeight: FontWeight.bold,
                                   color: Colors.blue,
                                 ),
                               ),
@@ -335,9 +284,9 @@ class RptAcLedgerState extends State<RptAcLedger> {
                             DataCell(Container(
                               alignment: Alignment.centerRight,
                               child: Text(
-                                _numberFormat.format(totalDebitPK),
+                                _numberFormat.format(creditText),
                                 style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
+                                  // fontWeight: FontWeight.bold,
                                   color: Colors.green,
                                 ),
                               ),
@@ -345,63 +294,98 @@ class RptAcLedgerState extends State<RptAcLedger> {
                             DataCell(Container(
                               alignment: Alignment.centerRight,
                               child: Text(
-                                _numberFormat.format(totalCreditPK),
+                                _numberFormat.format(debitText),
                                 style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
+                                  // fontWeight: FontWeight.bold,
                                   color: Colors.green,
                                 ),
                               ),
                             )),
-                            const DataCell(Text(
-                              'Totals',
-                              style: TextStyle(
+                            DataCell(Text(formattedDate)),
+                            DataCell(Text(remarksText)),
+                          ]);
+                        }),
+                        // Add the totals row
+                        DataRow(cells: [
+                          DataCell(Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              _numberFormat.format(totalDebitSR),
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.red,
+                                color: Colors.blue,
                               ),
-                            )),
-                            const DataCell(Text('')),
-                          ]),
-                          // Add the B/F Balance row
-                          DataRow(cells: [
-                            const DataCell(Text('')),
-                            DataCell(Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat.format(bfBalanceSR),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            )),
-                            const DataCell(Text('')),
-                            DataCell(Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat.format(bfBalancePK),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                              ),
-                            )),
-                            const DataCell(Text(
-                              'Balance',
-                              style: TextStyle(
+                            ),
+                          )),
+                          DataCell(Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              _numberFormat.format(totalCreditSR),
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.teal,
+                                color: Colors.blue,
                               ),
-                            )),
-                            const DataCell(Text('')),
-                          ]),
-                        ],
-                      ),
+                            ),
+                          )),
+                          DataCell(Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              _numberFormat.format(totalDebitPK),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                            ),
+                          )),
+                          DataCell(Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              _numberFormat.format(totalCreditPK),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                            ),
+                          )),
+                          const DataCell(Text(
+                            'Totals',
+                            style: TextStyle(fontWeight: FontWeight.bold,
+                              color: Colors.red,),
+                          )),
+                          const DataCell(Text('')),
+                        ]),
+                        // Add the B/F Balance row
+                        DataRow(cells: [
+                          const DataCell(Text('')),
+                          DataCell(Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              _numberFormat.format(bfBalanceSR),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          )),
+                          const DataCell(Text('')),
+                          DataCell(Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              _numberFormat.format(bfBalancePK),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                            ),
+                          )),
+                          const DataCell(Text('B/F Balance',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.teal),)),
+                          const DataCell(Text('')),
+                        ]),
+                      ],
                     ),
                   );
                 },
               );
-
-
             }
 
             return const Center(child: Text('No data available'));
@@ -446,8 +430,9 @@ class RptAcLedgerState extends State<RptAcLedger> {
     );
 
     try {
-      final snapshot =
-          await _vouchers.getCashBookStream(kUserId, [kCRV, kCPV]).first;
+      final snapshot = await _vouchers
+          .getCashBookStream(kUserId, [kCRV, kCPV], null, null)
+          .first;
       final customerList = snapshot.docs;
 
       final futureAccountNames = _getAccountNames(customerList);
@@ -500,14 +485,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
                     pw.TableRow(
                       children: [
                         _buildBoldCell('Totals', pw.Alignment.centerRight),
-                        _buildBoldCell(_numberFormat.format(totalDebitSR),
-                            pw.Alignment.centerRight),
-                        _buildBoldCell(_numberFormat.format(totalCreditSR),
-                            pw.Alignment.centerRight),
-                        _buildBoldCell(_numberFormat.format(totalDebitPK),
-                            pw.Alignment.centerRight),
-                        _buildBoldCell(_numberFormat.format(totalCreditPK),
-                            pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(totalDebitSR), pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(totalCreditSR), pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(totalDebitPK), pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(totalCreditPK), pw.Alignment.centerRight),
                         pw.SizedBox(), // Empty cell
                         // pw.SizedBox(), // Empty cell
                       ],
@@ -516,11 +497,9 @@ class RptAcLedgerState extends State<RptAcLedger> {
                       children: [
                         _buildBoldCell('Balance', pw.Alignment.centerRight),
                         pw.SizedBox(), // Empty cell
-                        _buildBoldCell(_numberFormat.format(bfBalanceSR),
-                            pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(bfBalanceSR), pw.Alignment.centerRight),
                         pw.SizedBox(), // Empty cell
-                        _buildBoldCell(_numberFormat.format(bfBalancePK),
-                            pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(bfBalancePK), pw.Alignment.centerRight),
                         pw.SizedBox(), // Empty cell
                         // pw.SizedBox(), // Empty cell
                       ],
@@ -571,20 +550,16 @@ class RptAcLedgerState extends State<RptAcLedger> {
 // Helper method to create bold table cells
   pw.Widget _buildBoldCell(String text, pw.Alignment alignment) {
     return pw.Container(
-      alignment: alignment,
-      padding: const pw.EdgeInsets.all(8.0),
-      child: pw.Text(
-        text,
-        style: pw.TextStyle(
-          fontSize: 10,
-          fontWeight: pw.FontWeight.bold,
+        alignment: alignment,padding: const pw.EdgeInsets.all(8.0),
+      child: pw.Text(text,
+        style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold,
         ),
       ),
     );
   }
 
-  List<List<String>> _getPdfTableData(
-      List<DocumentSnapshot> customerList, Map<String, String?> accountNames) {
+  List<List<String>> _getPdfTableData(List<DocumentSnapshot> customerList,
+      Map<String, String?> accountNames) {
     final data = <List<String>>[];
 
     // Adding table rows
@@ -627,24 +602,30 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
       if (type == 'JV') {
         if (_selectedAcId == drAcId) {
+
           debitText = debitText;
           creditText = 0.0;
 
           debitSrText = debitSrText;
           creditSrText = 0.0;
+
         } else {
+
           debitText = 0.0;
           creditText = creditText;
 
           debitSrText = 0.0;
           creditSrText = creditSrText;
+
         }
-      } else {
+      } else  {
+
         debitText = debitText;
         creditText = creditText;
 
         debitSrText = debitSrText;
         creditSrText = creditSrText;
+
       }
 
       totalDebitPK += creditText;
@@ -655,6 +636,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
       // Calculate B/F Balance
       bfBalancePK = totalDebitPK - totalCreditPK;
       bfBalanceSR = totalDebitSR - totalCreditSR;
+
     }
 
     return data;
