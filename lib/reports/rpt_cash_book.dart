@@ -1,6 +1,7 @@
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -23,11 +24,11 @@ class RptCashBookState extends State<RptCashBook> {
 
   final TextEditingController _dateFromController = TextEditingController();
   final TextEditingController _dateToController = TextEditingController();
-  DateTime? _selectedDateFrom=DateTime.now();
-  DateTime? _selectedDateTo=DateTime.now();
+  DateTime? _selectedDateFrom = DateTime.now();
+  DateTime? _selectedDateTo = DateTime.now();
 
   // Create a NumberFormat instance for comma-separated numbers
-  final NumberFormat _numberFormat = NumberFormat('#,##0');
+  final NumberFormat _numberFormat = NumberFormat('#,##0.00');
 
   String? _selectedReport;
   // bool _showData = false;
@@ -71,7 +72,7 @@ class RptCashBookState extends State<RptCashBook> {
       setState(() {
         if (type == 'from') {
           _selectedDateFrom = pickedDate;
-          print(pickedDate);
+          // print(pickedDate);
           _dateFromController.text = DateFormat('dd-MMM-yyyy').format(pickedDate);
         } else if (type == 'to') {
           _selectedDateTo = pickedDate;
@@ -87,8 +88,6 @@ class RptCashBookState extends State<RptCashBook> {
   @override
   void initState() {
     super.initState();
-    // _selectedDateFrom = DateFormat('dd-MMM-yyyy').format(DateTime.now());
-    // _selectedDateTo =DateTime.now();
     // Initialize the text controllers with data from the previous screen
     // _voucherId = widget.docId;
     _dateFromController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
@@ -262,10 +261,10 @@ class RptCashBookState extends State<RptCashBook> {
                 Map<String, String?> accountNames = futureSnapshot.data!;
 
                 // Initialize totals
-                double totalDebitPK = 0.0;
-                double totalCreditPK = 0.0;
-                double totalDebitSR = 0.0;
-                double totalCreditSR = 0.0;
+                totalDebitPK = 0.0;
+                totalCreditPK = 0.0;
+                totalDebitSR = 0.0;
+                totalCreditSR = 0.0;
 
                 // Calculate totals
                 for (var document in customerList) {
@@ -277,8 +276,8 @@ class RptCashBookState extends State<RptCashBook> {
                 }
 
                 // Calculate B/F Balance
-                double bfBalancePK = totalDebitPK - totalCreditPK;
-                double bfBalanceSR = totalDebitSR - totalCreditSR;
+                bfBalancePK = totalDebitPK - totalCreditPK;
+                bfBalanceSR = totalDebitSR - totalCreditSR;
 
                 // Determine columns to display based on _selectedReport
                 List<DataColumn> columns = [];

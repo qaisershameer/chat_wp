@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
+import 'dart:async';
 
 class AcVoucherService {
   // get collection of vouchers
@@ -37,7 +38,8 @@ class AcVoucherService {
   Stream<QuerySnapshot> getVouchersStream(String userId) {
     final accountsStream = _vouchers
         .where('uid', isEqualTo: userId)
-        .orderBy("date", descending: false)
+        .orderBy("date", descending: true)
+        .orderBy('timestamp', descending: true)
         .snapshots();
     return accountsStream;
   }
@@ -48,6 +50,7 @@ class AcVoucherService {
         .where('uid', isEqualTo: userId)
         .where('type', isEqualTo: type)
         .orderBy("date", descending: true)
+        .orderBy('timestamp', descending: true)
         .snapshots();
     return accountsStream;
   }
@@ -96,17 +99,15 @@ class AcVoucherService {
   //
   //   return query.snapshots();
   // }
-  Stream<QuerySnapshot> getCashBookStream(
-      String userId,
-      List<String> types,
-      DateTime? startDate, // Optional: can be null if not filtering by start date
-      DateTime? endDate    // Optional: can be null if not filtering by end date
-      ) {
+
+  Stream<QuerySnapshot> getCashBookStream(String userId, List<String> types,
+      DateTime? startDate, DateTime? endDate) {
     // Start with the base query
     var query = _vouchers
         .where('uid', isEqualTo: userId)
         .where('type', whereIn: types)
-        .orderBy('date', descending: true);
+        .orderBy('date', descending: true)
+        .orderBy('timestamp', descending: true);
 
     // print(startDate);
     // print(endDate);
@@ -122,20 +123,49 @@ class AcVoucherService {
     return query.snapshots();
   }
 
-
-
   // READ: getting Account Ledger Report Query
-  Stream<List<QueryDocumentSnapshot>> getAcLedgerStream(String userId, String accId) {
+  Stream<List<QueryDocumentSnapshot>> getAcLedgerStream(
+      String userId, String accId, DateTime? startDate, DateTime? endDate) {
 
-    final query1 = _vouchers
+    var query1 = _vouchers
         .where('uid', isEqualTo: userId)
-        .where('drAcId', isEqualTo: accId)
-        .orderBy('date', descending: true);
+        .where('drAcId', isEqualTo: accId);
 
-    final query2 = _vouchers
+        // Add date filters conditionally
+        if (startDate != null) {
+          query1 = query1.where('date', isGreaterThanOrEqualTo: startDate);
+        }
+        if (endDate != null) {
+          query1 = query1.where('date', isLessThanOrEqualTo: endDate);
+        }
+
+        // Add ordering
+        query1 = query1
+            .orderBy('date', descending: true)
+            .orderBy('timestamp', descending: true);
+
+    var query2 = _vouchers
         .where('uid', isEqualTo: userId)
-        .where('crAcId', isEqualTo: accId)
-        .orderBy('date', descending: true);
+        .where('drAcId', isEqualTo: accId);
+
+        // Add date filters conditionally
+        if (startDate != null) {
+          query2 = query2.where('date', isGreaterThanOrEqualTo: startDate);
+        }
+        if (endDate != null) {
+          query2 = query2.where('date', isLessThanOrEqualTo: endDate);
+        }
+
+        // Add ordering
+        query2 = query2
+            .orderBy('date', descending: true)
+            .orderBy('timestamp', descending: true);
+
+    // final query2 = _vouchers
+    //     .where('uid', isEqualTo: userId)
+    //     .where('crAcId', isEqualTo: accId)
+    //     .orderBy('date', descending: true)
+    //     .orderBy('timestamp', descending: true);
 
     final stream1 = query1.snapshots().map((snapshot) => snapshot.docs);
     final stream2 = query2.snapshots().map((snapshot) => snapshot.docs);
@@ -151,4 +181,69 @@ class AcVoucherService {
     });
   }
 
+  // READ: getting Trial Balance Report Query
+  // Stream<List<QueryDocumentSnapshot>> getTrialBalanceStream(String userId, String type, String accId) {
+  //   final query1 = _vouchers
+  //       .where('uid', isEqualTo: userId)
+  //       .snapshots();
+  //
+  //   final stream1 = query1.map((querySnapshot) {
+  //     final result = <String, Map<String, double>>{};
+  //
+  //     for (var doc in querySnapshot.docs) {
+  //       final data = doc.data() as Map<String, dynamic>;
+  //
+  //       final drAcid = data['drAcId'] as String;
+  //       final debitSar = (data['debitsar'] as num?)?.toDouble() ?? 0.0;
+  //       final creditSar = (data['creditsar'] as num?)?.toDouble() ?? 0.0;
+  //       final debit = (data['debit'] as num?)?.toDouble() ?? 0.0;
+  //       final credit = (data['credit'] as num?)?.toDouble() ?? 0.0;
+  //
+  //       final key = '${userId}_$drAcid';
+  //
+  //       if (!result.containsKey(key)) {
+  //         result[key] = {
+  //           'SUM_debitSar': 0.0,
+  //           'SUM_creditSar': 0.0,
+  //           'SUM_debit': 0.0,
+  //           'SUM_credit': 0.0,
+  //         };
+  //       }
+  //
+  //       result[key]!['SUM_debitSar'] = result[key]!['SUM_debitSar']! + debitSar;
+  //       result[key]!['SUM_creditSar'] = result[key]!['SUM_creditSar']! + creditSar;
+  //       result[key]!['SUM_debit'] = result[key]!['SUM_debit']! + debit;
+  //       result[key]!['SUM_credit'] = result[key]!['SUM_credit']! + credit;
+  //     }
+  //     return result;
+  //   });
+  // }
+
+  Stream<List<QueryDocumentSnapshot>> getTrialBalanceStream(
+      String userId, String accId) {
+    final query1 = _vouchers
+        .where('uid', isEqualTo: userId)
+        .where('drAcId', isEqualTo: accId)
+        .orderBy('date', descending: true)
+        .orderBy('timestamp', descending: true);
+
+    final query2 = _vouchers
+        .where('uid', isEqualTo: userId)
+        .where('crAcId', isEqualTo: accId)
+        .orderBy('date', descending: true)
+        .orderBy('timestamp', descending: true);
+
+    final stream1 = query1.snapshots().map((snapshot) => snapshot.docs);
+    final stream2 = query2.snapshots().map((snapshot) => snapshot.docs);
+
+    return Rx.combineLatest2(stream1, stream2, (docs1, docs2) {
+      final combinedDocs = <QueryDocumentSnapshot>[]
+        ..addAll(docs1)
+        ..addAll(docs2);
+
+      combinedDocs.sort((a, b) => b['date'].compareTo(a['date']));
+
+      return combinedDocs;
+    });
+  }
 }

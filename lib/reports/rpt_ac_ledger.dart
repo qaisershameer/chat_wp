@@ -22,12 +22,53 @@ class RptAcLedgerState extends State<RptAcLedger> {
   final AcVoucherService _vouchers = AcVoucherService();
   // final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
 
-  String? _selectedAcId;
-  String? _selectedAcText;
+  String? _selectedAcId, _selectedAcText, _selectedReport;
   // bool _showData = false;
 
+  final TextEditingController _dateFromController = TextEditingController();
+  final TextEditingController _dateToController = TextEditingController();
+  DateTime? _selectedDateFrom = DateTime.now();
+  DateTime? _selectedDateTo = DateTime.now();
+
   // Create a NumberFormat instance for comma-separated numbers
-  final NumberFormat _numberFormat = NumberFormat('#,##0');
+  final NumberFormat _numberFormat = NumberFormat('#,##0.00');
+
+  final List<String> _accountType = <String>[
+    'ALL',
+    'SAR',
+    'PKR',
+  ];
+
+  Future<void> _selectDate(BuildContext context, String type) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      currentDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    getDate(pickedDate, type);
+  }
+
+  void getDate(DateTime? pickedDate, String type) {
+    if (pickedDate != null) {
+      setState(() {
+        if (type == 'from') {
+          _selectedDateFrom = pickedDate;
+          // print(pickedDate);
+          _dateFromController.text = DateFormat('dd-MMM-yyyy').format(pickedDate);
+        } else if (type == 'to') {
+          _selectedDateTo = pickedDate;
+          _dateToController.text = DateFormat('dd-MMM-yyyy').format(pickedDate);
+        }
+      });
+    }else{
+      _dateFromController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
+      _dateToController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
+    }
+  }
+
   // Numeric Fields Double Variables
   double debitText = 0;
   double creditText = 0;
@@ -41,6 +82,17 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
   double bfBalancePK = 0;
   double bfBalanceSR = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the text controllers with data from the previous screen
+    // _voucherId = widget.docId;
+    _dateFromController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
+    _dateToController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
+    DateTime now = DateTime.now();
+    getDate(DateTime(now.year, now.month, now.day), 'from');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +124,116 @@ class RptAcLedgerState extends State<RptAcLedger> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           children: <Widget>[
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                // ACCOUNT TYPE Data COMBO
+                const Icon(
+                  FontAwesomeIcons.database,
+                  size: 25.0,
+                  color: Colors.teal,
+                ),
+                const SizedBox(width: 10.0),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width / 7.0, // Adjusted width
+                  child: DropdownButtonFormField<String>(
+                    isExpanded: true,
+                    items: _accountType.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(
+                          value,
+                          style: const TextStyle(color: Colors.teal,fontSize: 12.0,),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (typeValue) {
+                      setState(() {
+                        if (_selectedReport != typeValue) {
+                          _selectedReport = typeValue;
+                        }
+                      });
+                    },
+                    value: _selectedReport,
+                    hint: const Text(
+                      'Style',
+                      style: TextStyle(color: Colors.teal, fontSize: 12.0),
+                    ),
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Please select a valid report style';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10.0),
+                // Date FROM Text Field
+
+                Expanded(
+                  child: TextFormField(
+                    controller: _dateFromController,
+                    keyboardType: TextInputType.none, // Disable// keyboard input
+                    onTap: () {
+                      FocusScope.of(context)
+                          .requestFocus(FocusNode()); // Hide keyboard
+                      _selectDate(context, 'from'); // Show date picker
+                    },
+                    style: const TextStyle(fontSize: 12.0,), // Set font size to 12.0
+                    decoration: const InputDecoration(
+                      icon: Icon(
+                        Icons.calendar_month, // Changed to a Flutter icon
+                        color: Colors.teal,
+                      ),
+                      hintText: 'Date From',
+                      labelText: 'From',
+                      labelStyle: TextStyle(color: Colors.teal),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Invalid Date From';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+
+                const SizedBox(width: 10.0),
+
+                // Date To Text Field
+                Expanded(
+                  child: TextFormField(
+                    controller: _dateToController,
+                    keyboardType: TextInputType.none, // Disable keyboard input
+                    onTap: () {
+                      FocusScope.of(context)
+                          .requestFocus(FocusNode()); // Hide keyboard
+                      _selectDate(context, 'to'); // Show date picker
+                    },
+                    style: const TextStyle(fontSize: 12.0,), // Set font size to 12.0
+                    decoration: const InputDecoration(
+                      icon: Icon(
+                        Icons.calendar_month, // Changed to a Flutter icon
+                        color: Colors.teal,
+                      ),
+                      hintText: 'Date To',
+                      labelText: 'To',
+                      labelStyle: TextStyle(color: Colors.teal),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Invalid Date To';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 5.0),
+
             // Account Data COMBO
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -150,7 +312,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
               ],
             ),
 
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 5.0),
 
             if (_selectedAcId != null) rptLedger()
           ],
@@ -168,7 +330,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
     bfBalanceSR = 0;
 
     return StreamBuilder<List<QueryDocumentSnapshot>>(
-      stream: _vouchers.getAcLedgerStream(kUserId, _selectedAcId ?? ''),
+      stream: _vouchers.getAcLedgerStream(kUserId, _selectedAcId ?? '', _selectedDateFrom, _selectedDateTo),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());

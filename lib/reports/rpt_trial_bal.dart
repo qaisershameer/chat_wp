@@ -36,7 +36,8 @@ class RptTrialBalState extends State<RptTrialBal> {
   ];
 
   // Create a NumberFormat instance for comma-separated numbers
-  final NumberFormat _numberFormat = NumberFormat('#,##0');
+  final NumberFormat _numberFormat = NumberFormat('#,##0.00');
+
   // Numeric Fields Double Variables
   double debitText = 0;
   double creditText = 0;
@@ -146,7 +147,7 @@ class RptTrialBalState extends State<RptTrialBal> {
     bfBalanceSR = 0;
 
     return StreamBuilder<List<QueryDocumentSnapshot>>(
-      stream: _vouchers.getAcLedgerStream(kUserId, _selectedAcId ?? ''),
+      stream: _vouchers.getTrialBalanceStream(kUserId, _selectedAcId ?? ''),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -183,24 +184,12 @@ class RptTrialBalState extends State<RptTrialBal> {
                           width: 1,
                         ),
                         columns: const [
-                          DataColumn(
-                            label: Center(child: Text('SR-Dr')),
-                          ),
-                          DataColumn(
-                            label: Center(child: Text('SR-Cr')),
-                          ),
-                          DataColumn(
-                            label: Center(child: Text('PK-Dr')),
-                          ),
-                          DataColumn(
-                            label: Center(child: Text('PK-Cr')),
-                          ),
-                          DataColumn(
-                            label: Center(child: Text('Date')),
-                          ),
-                          DataColumn(
-                            label: Center(child: Text('Remarks')),
-                          ),
+                          DataColumn(label: Center(child: Text('SR-Dr')),),
+                          DataColumn(label: Center(child: Text('SR-Cr')),),
+                          DataColumn(label: Center(child: Text('PK-Dr')),),
+                          DataColumn(label: Center(child: Text('PK-Cr')),),
+                          // DataColumn(label: Center(child: Text('Date')),),
+                          // DataColumn(label: Center(child: Text('Remarks')),),
                         ],
                         rows: [
                           ...customerList.map((document) {
@@ -246,8 +235,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                             bfBalanceSR = totalDebitSR - totalCreditSR;
 
                             return DataRow(cells: [
-                              DataCell(Container(
-                                alignment: Alignment.centerRight,
+                              DataCell(Container(alignment: Alignment.centerRight,
                                 child: Text(
                                   _numberFormat.format(creditSrText),
                                   style: const TextStyle(
@@ -285,6 +273,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                               DataCell(Text(formattedDate)),
                               DataCell(Text(remarksText)),
                             ]);
+
                           }),
                           // Add the totals row
                           DataRow(cells: [
