@@ -7,6 +7,7 @@ final AuthService _authService = AuthService();
 
 // GET CURRENT USER ID
 String kUserId = _authService.getCurrentUser()!.uid;
+// String kUserId = 'CAKf9wMH4IfA58EmzDVJlMjLuRh2';
 String? kUserEmail = _authService.getCurrentUser()!.email;
 
 String kCPV = 'CP';

@@ -1,7 +1,7 @@
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:chat_wp/themes/const.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
@@ -168,6 +168,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                     },
                   ),
                 ),
+
                 const SizedBox(width: 10.0),
                 // Date FROM Text Field
 
@@ -259,10 +260,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
                       List<DocumentSnapshot> accountList =
                           snapshot.data?.docs ?? [];
                       List<DropdownMenuItem<String>> dropdownItems =
-                          accountList.map((document) {
+                      accountList.map((document) {
                         String docID = document.id;
                         Map<String, dynamic> data =
-                            document.data() as Map<String, dynamic>;
+                        document.data() as Map<String, dynamic>;
                         _selectedAcText = data['accountName'];
 
                         return DropdownMenuItem<String>(
@@ -278,7 +279,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
                       // Ensure _selectedAccount is valid or fallback to initialAccount
                       String? currentAccount = dropdownItems
-                              .any((item) => item.value == _selectedAcId)
+                          .any((item) => item.value == _selectedAcId)
                           ? _selectedAcId: initialAccount;
 
                       return DropdownButtonFormField<String>(
@@ -342,7 +343,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
         final documents = snapshot.data ?? [];
         List<DocumentSnapshot> customerList =
-            documents.cast<DocumentSnapshot>();
+        documents.cast<DocumentSnapshot>();
 
         return FutureBuilder<Map<String, String?>>(
           future: _getAccountNames(customerList),
@@ -371,7 +372,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                       rows: [
                         ...customerList.map((document) {
                           Map<String, dynamic> data =
-                              document.data() as Map<String, dynamic>;
+                          document.data() as Map<String, dynamic>;
 
                           String drAcId = data['drAcId'] ?? '';
                           String crAcId = data['crAcId'] ?? '';
@@ -413,10 +414,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
                           }
 
-                            totalDebitPK += creditText;
-                            totalCreditPK += debitText;
-                            totalDebitSR += creditSrText;
-                            totalCreditSR += debitSrText;
+                          totalDebitPK += creditText;
+                          totalCreditPK += debitText;
+                          totalDebitSR += creditSrText;
+                          totalCreditSR += debitSrText;
 
                           // Calculate B/F Balance
                           bfBalancePK = totalDebitPK - totalCreditPK;
@@ -712,7 +713,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
 // Helper method to create bold table cells
   pw.Widget _buildBoldCell(String text, pw.Alignment alignment) {
     return pw.Container(
-        alignment: alignment,padding: const pw.EdgeInsets.all(8.0),
+      alignment: alignment,padding: const pw.EdgeInsets.all(8.0),
       child: pw.Text(text,
         style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold,
         ),
