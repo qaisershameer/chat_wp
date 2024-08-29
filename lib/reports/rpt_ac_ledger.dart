@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'package:dropdown_search/dropdown_search.dart';
+
 import 'package:chat_wp/themes/const.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 import 'package:chat_wp/services/accounts/ac_voucher_service.dart';
@@ -168,7 +170,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
                     },
                   ),
                 ),
-
                 const SizedBox(width: 10.0),
                 // Date FROM Text Field
 
@@ -239,12 +240,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                const Icon(
-                  FontAwesomeIcons.circleUser,
-                  size: 25.0,
-                  color: Colors.teal,
-                ),
-                const SizedBox(width: 20.0),
+
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
                     stream: _accounts.getAccountsStream(kUserId),
@@ -257,13 +253,35 @@ class RptAcLedgerState extends State<RptAcLedger> {
                         return Center(child: Text('Error: ${snapshot.error}'));
                       }
 
-                      List<DocumentSnapshot> accountList =
-                          snapshot.data?.docs ?? [];
+                      List<DocumentSnapshot> accountList = snapshot.data?.docs ?? [];
+
+                      return DropdownSearch<DocumentSnapshot>(
+                        items: accountList,
+                        itemAsString: (DocumentSnapshot document) {
+                          Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                          return data['accountName']; // or any other field you want to display
+                        },
+                        popupProps: const PopupProps.menu(
+                          showSearchBox: true,
+                          fit: FlexFit.loose,
+                          constraints: BoxConstraints.tightFor(),
+                        ),
+                        onChanged: (DocumentSnapshot? document) {
+                          if (document != null) {
+                            setState(() {
+                              _selectedAcId = document.id;
+                              _selectedAcText = (document.data() as Map<String, dynamic>)['accountName'];
+                            });
+                          }
+                        },
+                      );
+
+
+
                       List<DropdownMenuItem<String>> dropdownItems =
-                      accountList.map((document) {
-                        String docID = document.id;
-                        Map<String, dynamic> data =
-                        document.data() as Map<String, dynamic>;
+                        accountList.map((document) {String docID = document.id;
+                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
                         _selectedAcText = data['accountName'];
 
                         return DropdownMenuItem<String>(
@@ -279,34 +297,36 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
                       // Ensure _selectedAccount is valid or fallback to initialAccount
                       String? currentAccount = dropdownItems
-                          .any((item) => item.value == _selectedAcId)
+                              .any((item) => item.value == _selectedAcId)
                           ? _selectedAcId: initialAccount;
 
-                      return DropdownButtonFormField<String>(
-                        value: currentAccount,
-                        items: dropdownItems,
-                        hint: const Text(
-                          'Select Account',
-                          style: TextStyle(color: Colors.teal),
-                        ),
-                        isExpanded: true,
-                        onChanged: (accountValue) {
-                          setState(() {
-                            _selectedAcId = accountValue;
-                            // _showData = true;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null || value == '') {
-                            return 'Please select a valid account';
-                          }
-                          if (_selectedAcId == null ||
-                              _selectedAcId == '') {
-                            return 'Please select a valid account';
-                          }
-                          return null;
-                        },
-                      );
+
+                      // return DropdownButtonFormField<String>(
+                      //   value: currentAccount,
+                      //   items: dropdownItems,
+                      //   hint: const Text(
+                      //     'Select Account',
+                      //     style: TextStyle(color: Colors.teal),
+                      //   ),
+                      //   isExpanded: true,
+                      //   onChanged: (accountValue) {
+                      //     setState(() {
+                      //       _selectedAcId = accountValue;
+                      //       // _showData = true;
+                      //     });
+                      //   },
+                      //   validator: (value) {
+                      //     if (value == null || value == '') {
+                      //       return 'Please select a valid account';
+                      //     }
+                      //     if (_selectedAcId == null ||
+                      //         _selectedAcId == '') {
+                      //       return 'Please select a valid account';
+                      //     }
+                      //     return null;
+                      //   },
+                      // );
+
                     },
                   ),
                 ),
@@ -342,8 +362,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
         }
 
         final documents = snapshot.data ?? [];
-        List<DocumentSnapshot> customerList =
-        documents.cast<DocumentSnapshot>();
+        List<DocumentSnapshot> customerList = documents.cast<DocumentSnapshot>();
 
         return FutureBuilder<Map<String, String?>>(
           future: _getAccountNames(customerList),
@@ -372,7 +391,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                       rows: [
                         ...customerList.map((document) {
                           Map<String, dynamic> data =
-                          document.data() as Map<String, dynamic>;
+                              document.data() as Map<String, dynamic>;
 
                           String drAcId = data['drAcId'] ?? '';
                           String crAcId = data['crAcId'] ?? '';
@@ -414,10 +433,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
                           }
 
-                          totalDebitPK += creditText;
-                          totalCreditPK += debitText;
-                          totalDebitSR += creditSrText;
-                          totalCreditSR += debitSrText;
+                            totalDebitPK += creditText;
+                            totalCreditPK += debitText;
+                            totalDebitSR += creditSrText;
+                            totalCreditSR += debitSrText;
 
                           // Calculate B/F Balance
                           bfBalancePK = totalDebitPK - totalCreditPK;
@@ -476,7 +495,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               _numberFormat.format(totalDebitSR),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue,
+                                color: Colors.red,
                               ),
                             ),
                           )),
@@ -486,7 +505,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               _numberFormat.format(totalCreditSR),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue,
+                                color: Colors.red,
                               ),
                             ),
                           )),
@@ -496,7 +515,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               _numberFormat.format(totalDebitPK),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.green,
+                                color: Colors.red,
                               ),
                             ),
                           )),
@@ -506,7 +525,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               _numberFormat.format(totalCreditPK),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.green,
+                                color: Colors.red,
                               ),
                             ),
                           )),
@@ -517,6 +536,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           )),
                           const DataCell(Text('')),
                         ]),
+
                         // Add the B/F Balance row
                         DataRow(cells: [
                           const DataCell(Text('')),
@@ -526,7 +546,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               _numberFormat.format(bfBalanceSR),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue,
+                                color: Colors.teal,
                               ),
                             ),
                           )),
@@ -537,11 +557,11 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               _numberFormat.format(bfBalancePK),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.green,
+                                color: Colors.teal,
                               ),
                             ),
                           )),
-                          const DataCell(Text('B/F Balance',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.teal),)),
+                          const DataCell(Text('Balance',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.teal),)),
                           const DataCell(Text('')),
                         ]),
                       ],
@@ -569,6 +589,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
         accountNames[drAcId] = 'QAISER SHAMEER';
       }
     }
+    // accountNames['drAcId'] = 'QAISER SHAMEER';  // FOR UN-COMMIT ABOVE THEN REMOVE THIS LINE
     return accountNames;
   }
 
@@ -713,7 +734,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
 // Helper method to create bold table cells
   pw.Widget _buildBoldCell(String text, pw.Alignment alignment) {
     return pw.Container(
-      alignment: alignment,padding: const pw.EdgeInsets.all(8.0),
+        alignment: alignment,padding: const pw.EdgeInsets.all(8.0),
       child: pw.Text(text,
         style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold,
         ),

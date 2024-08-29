@@ -262,7 +262,6 @@ class AccountAddState extends State<AccountAdd> {
 
                         return DropdownMenuItem<String>(
                           value: docID,
-
                           child: Text(
                             currencyText,
                             style: const TextStyle(color: Colors.teal),

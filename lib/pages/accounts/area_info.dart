@@ -1,7 +1,7 @@
-import 'package:chat_wp/themes/const.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:chat_wp/services/auth/auth_service.dart';
 import 'package:chat_wp/services/accounts/area_service.dart';
 
 class AreaInfo extends StatefulWidget {
@@ -13,6 +13,7 @@ class AreaInfo extends StatefulWidget {
 
 class AreaInfoState extends State<AreaInfo> {
   // area services
+  final AuthService _authService = AuthService();
   final AreaService _areaService = AreaService();
 
   // text controller
@@ -83,6 +84,9 @@ class AreaInfoState extends State<AreaInfo> {
 
   @override
   Widget build(BuildContext context) {
+    // GET CURRENT USER ID
+    String userId = _authService.getCurrentUser()!.uid;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Areas'),
@@ -103,7 +107,7 @@ class AreaInfoState extends State<AreaInfo> {
                   right: 10.0,
                 ),
                 child: IconButton(
-                    onPressed: () => openAreaBox(null, '', kUserId),
+                    onPressed: () => openAreaBox(null, '', userId),
                     icon: const Icon(
                       Icons.add,
                       color: Colors.white,
@@ -112,7 +116,7 @@ class AreaInfoState extends State<AreaInfo> {
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _areaService.getAreasStream(kUserId),
+        stream: _areaService.getAreasStream(userId),
         builder: (context, snapshot) {
           // if we have data, get all the docs.
           if (snapshot.hasData) {
@@ -155,7 +159,7 @@ class AreaInfoState extends State<AreaInfo> {
                           // update button
                           IconButton(
                             onPressed: () =>
-                                openAreaBox(docID, areaText, kUserId),
+                                openAreaBox(docID, areaText, userId),
                             icon: const Icon(Icons.settings),
                           ),
                           // delete button

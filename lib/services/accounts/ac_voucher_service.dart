@@ -144,6 +144,8 @@ class AcVoucherService {
             .orderBy('date', descending: true)
             .orderBy('timestamp', descending: true);
 
+    // print(query1);
+
     var query2 = _vouchers
         .where('uid', isEqualTo: userId)
         .where('drAcId', isEqualTo: accId);

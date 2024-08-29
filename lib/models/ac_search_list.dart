@@ -25,7 +25,7 @@ class AccSearchState extends State<AccSearch> {
           .where('string_id_array', arrayContains: query)
           .get();
 
-        print(result);
+      print(result);
 
       setState(() {
         searchResult = result.docs.map((e) => e.data() as Map<String, dynamic>).toList();
