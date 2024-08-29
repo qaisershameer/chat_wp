@@ -261,10 +261,9 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           Map<String, dynamic> data = document.data() as Map<String, dynamic>;
                           return data['accountName']; // or any other field you want to display
                         },
-                        selectedItem: accountList.firstWhere(
-                              (document) => document.id == _selectedAcId,
-                          // orElse: () => {},
-                        ),
+                        selectedItem: accountList.isNotEmpty && accountList.any((document) => document.id == _selectedAcId)
+                            ? accountList.firstWhere((document) => document.id == _selectedAcId)
+                            : null,
                         popupProps: const PopupProps.menu(
                           showSearchBox: true,
                           fit: FlexFit.loose,
@@ -279,7 +278,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           }
                         },
                       );
-
 
                       List<DropdownMenuItem<String>> dropdownItems =
                         accountList.map((document) {String docID = document.id;
