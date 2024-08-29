@@ -148,7 +148,7 @@ class AcVoucherService {
 
     var query2 = _vouchers
         .where('uid', isEqualTo: userId)
-        .where('drAcId', isEqualTo: accId);
+        .where('crAcId', isEqualTo: accId);
 
         // Add date filters conditionally
         if (startDate != null) {
