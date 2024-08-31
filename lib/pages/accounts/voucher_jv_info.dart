@@ -15,7 +15,7 @@ class VoucherJvInfo extends StatefulWidget {
 
 class VoucherJvInfoState extends State<VoucherJvInfo> {
   final AccountService _accounts = AccountService();
-  final AcVoucherService _vouchers = AcVoucherService();
+  final AcVoucherService _voucher = AcVoucherService();
 
   Future<Map<String, String?>>? _accountNamesFuture;
 
@@ -27,7 +27,7 @@ class VoucherJvInfoState extends State<VoucherJvInfo> {
 
   Future<Map<String, String?>> _fetchAccountNames() async {
     try {
-      var accountSnapshots = await _vouchers.getVouchersTypeStream(kUserId, kJV).first;
+      var accountSnapshots = await _voucher.getVouchersTypeStream(kUserId, kJV).first;
 
       List<String> accountIDs = accountSnapshots.docs
           .map((doc) => doc['drAcId'] as String?)
@@ -55,7 +55,7 @@ class VoucherJvInfoState extends State<VoucherJvInfo> {
           ),
           TextButton(
             onPressed: () {
-              _vouchers.deleteVoucher(docID);
+              _voucher.deleteVoucher(docID);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -121,7 +121,7 @@ class VoucherJvInfoState extends State<VoucherJvInfo> {
       ),
 
       body: StreamBuilder<QuerySnapshot>(
-        stream: _vouchers.getVouchersTypeStream(kUserId, kJV),
+        stream: _voucher.getVouchersTypeStream(kUserId, kJV),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<DocumentSnapshot> accountList = snapshot.data!.docs;

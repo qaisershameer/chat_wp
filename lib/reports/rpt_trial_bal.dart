@@ -36,7 +36,9 @@ class RptTrialBalState extends State<RptTrialBal> {
   ];
 
   // Create a NumberFormat instance for comma-separated numbers
-  final NumberFormat _numberFormat = NumberFormat('#,##0.00');
+  final NumberFormat _numberFormat = NumberFormat('#,##0');
+  final NumberFormat _numberFormat1 = NumberFormat('#,##0.0');
+  final NumberFormat _numberFormat2 = NumberFormat('#,##0.00');
 
   // Numeric Fields Double Variables
   double debitText = 0;

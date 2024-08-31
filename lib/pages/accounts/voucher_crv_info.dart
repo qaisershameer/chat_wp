@@ -15,7 +15,7 @@ class VoucherCrvInfo extends StatefulWidget {
 
 class VoucherCrvInfoState extends State<VoucherCrvInfo> {
   final AccountService _accounts = AccountService();
-  final AcVoucherService _vouchers = AcVoucherService();
+  final AcVoucherService _voucher = AcVoucherService();
 
   void _deleteVoucherBox(BuildContext context, String docID) {
     showDialog(
@@ -30,7 +30,7 @@ class VoucherCrvInfoState extends State<VoucherCrvInfo> {
           ),
           TextButton(
             onPressed: () {
-              _vouchers.deleteVoucher(docID);
+              _voucher.deleteVoucher(docID);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -95,7 +95,7 @@ class VoucherCrvInfoState extends State<VoucherCrvInfo> {
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _vouchers.getVouchersTypeStream(kUserId, kCRV),
+        stream: _voucher.getVouchersTypeStream(kUserId, kCRV),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<DocumentSnapshot> customerList = snapshot.data!.docs;

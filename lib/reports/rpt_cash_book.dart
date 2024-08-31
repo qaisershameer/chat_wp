@@ -28,7 +28,9 @@ class RptCashBookState extends State<RptCashBook> {
   DateTime? _selectedDateTo = DateTime.now();
 
   // Create a NumberFormat instance for comma-separated numbers
-  final NumberFormat _numberFormat = NumberFormat('#,##0.00');
+  final NumberFormat _numberFormat = NumberFormat('#,##0');
+  final NumberFormat _numberFormat1 = NumberFormat('#,##0.0');
+  final NumberFormat _numberFormat2 = NumberFormat('#,##0.00');
 
   String? _selectedReport;
   // bool _showData = false;
@@ -335,10 +337,10 @@ class RptCashBookState extends State<RptCashBook> {
                             ...customerList.map((document) {
                               Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-                              final creditSrText = (data['creditsar'] ?? 0.0);
-                              final debitSrText = (data['debitsar'] ?? 0.0);
-                              final creditText = (data['credit'] ?? 0.0);
-                              final debitText = (data['debit'] ?? 0.0);
+                              creditSrText = (data['creditsar'] ?? 0.0);
+                              debitSrText = (data['debitsar'] ?? 0.0);
+                              creditText = (data['credit'] ?? 0.0);
+                              debitText = (data['debit'] ?? 0.0);
 
                               final drAcId = data['drAcId'] ?? '';
                               final crAcId = data['crAcId'] ?? '';
@@ -378,7 +380,7 @@ class RptCashBookState extends State<RptCashBook> {
                                   DataCell(Container(
                                     alignment: Alignment.centerRight,
                                     child: Text(
-                                      _numberFormat.format(creditText),
+                                      _numberFormat1.format(creditText),
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         color: Colors.green,
@@ -389,7 +391,7 @@ class RptCashBookState extends State<RptCashBook> {
                                   DataCell(Container(
                                     alignment: Alignment.centerRight,
                                     child: Text(
-                                      _numberFormat.format(debitText),
+                                      _numberFormat1.format(debitText),
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         color: Colors.green,
@@ -404,6 +406,7 @@ class RptCashBookState extends State<RptCashBook> {
                                   DataCell(Text(remarksText)),
                               ]);
                             }),
+
                             // Add the totals row
                             DataRow(cells: [
                               if (visibleColumns.contains(0))
@@ -432,7 +435,7 @@ class RptCashBookState extends State<RptCashBook> {
                                 DataCell(Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                    _numberFormat.format(totalDebitPK),
+                                    _numberFormat2.format(totalDebitPK),
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.red,
@@ -443,7 +446,7 @@ class RptCashBookState extends State<RptCashBook> {
                                 DataCell(Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                    _numberFormat.format(totalCreditPK),
+                                    _numberFormat2.format(totalCreditPK),
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.red,
@@ -461,6 +464,7 @@ class RptCashBookState extends State<RptCashBook> {
                               if (visibleColumns.contains(5)) const DataCell(Text('')),
                               if (visibleColumns.contains(6)) const DataCell(Text('')),
                             ]),
+
                             // Add the B/F Balance row
                             DataRow(cells: [
                               if (visibleColumns.contains(0)) const DataCell(Text('')),
@@ -480,7 +484,7 @@ class RptCashBookState extends State<RptCashBook> {
                                 DataCell(Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                    _numberFormat.format(bfBalancePK),
+                                    _numberFormat2.format(bfBalancePK),
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.teal,

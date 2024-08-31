@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_wp/themes/const.dart';
@@ -15,7 +16,7 @@ class VoucherCpvInfo extends StatefulWidget {
 
 class VoucherCpvInfoState extends State<VoucherCpvInfo> {
   final AccountService _accounts = AccountService();
-  final AcVoucherService _vouchers = AcVoucherService();
+  final AcVoucherService _voucher = AcVoucherService();
 
   void _deleteVoucherBox(BuildContext context, String docID) {
     showDialog(
@@ -30,7 +31,7 @@ class VoucherCpvInfoState extends State<VoucherCpvInfo> {
           ),
           TextButton(
             onPressed: () {
-              _vouchers.deleteVoucher(docID);
+              _voucher.deleteVoucher(docID);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -95,13 +96,14 @@ class VoucherCpvInfoState extends State<VoucherCpvInfo> {
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _vouchers.getVouchersTypeStream(kUserId, kCPV),
+        stream: _voucher.getVouchersTypeStream(kUserId, kCPV),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<DocumentSnapshot> customerList = snapshot.data!.docs;
 
             return ListView.builder(
               itemCount: customerList.length,
+              // scrollDirection: ScrollDirection.,
               itemBuilder: (context, index) {
                 DocumentSnapshot document = customerList[index];
                 String docID = document.id;

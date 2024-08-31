@@ -1,19 +1,21 @@
-// import 'package:intl/intl.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import '../../services/auth/auth_service.dart';
 
-// constant Global Parameters Project Level
-final AuthService _authService = AuthService();
+  // constant Global Parameters Project Level
+  final AuthService _authService = AuthService();
 
-// GET CURRENT USER ID
-String kUserId = _authService.getCurrentUser()!.uid;
-// String kUserId = 'CAKf9wMH4IfA58EmzDVJlMjLuRh2';
-String? kUserEmail = _authService.getCurrentUser()!.email;
+  // GET CURRENT USER ID
+  String kUserId = _authService.getCurrentUser()!.uid;
+  // String kUserId = 'CAKf9wMH4IfA58EmzDVJlMjLuRh2';
+  String? kUserEmail = _authService.getCurrentUser()!.email;
 
-String kCPV = 'CP';
-String kCRV = 'CR';
-String kJV = 'JV';
+  String kCPV = 'CP';
+  String kCRV = 'CR';
+  String kJV = 'JV';
 
+  final DateTime stDate = DateTime(DateTime.now().year, 7, 1);
+  final String kStartDate = DateFormat('dd-MMM-yyyy').format(stDate);
 
 const kSendButtonTextStyle = TextStyle(
   color: Colors.lightBlueAccent,

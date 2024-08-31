@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_wp/themes/const.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
@@ -41,7 +42,8 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
   final AccountService _accounts = AccountService();
   final AcVoucherService _voucher = AcVoucherService();
 
-  String? _voucherId, _selectedAccountDr, _selectedAccountCr;
+  String? _voucherId, _selectedAccountDrId, _selectedAccountCrId;
+  String? _selectedAccountDrText, _selectedAccountCrText;
 
   final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
 
@@ -74,12 +76,41 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
     _voucherId = widget.docId;
     _dateController.text = DateFormat('dd-MMM-yyyy').format(widget.vDate);
     _remarksController.text = widget.remarks;
-    _selectedAccountDr = widget.drAcId;
-    _selectedAccountCr = widget.crAcId;
+    _selectedAccountDrId = widget.drAcId;
+    _selectedAccountCrId = widget.crAcId;
     _pkrDrController.text = widget.debit.toString();
     _pkrCrController.text = widget.credit.toString();
     _sarDrController.text = widget.debitSar.toString();
     _sarCrController.text = widget.creditSar.toString();
+  }
+
+  void _deleteVoucherBox(BuildContext context, String docID) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete JV'),
+        content: const Text('Are you sure you want to delete this JV Voucher?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              _voucher.deleteVoucher(docID);
+              Navigator.pop(context);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('JV Voucher deleted!'),
+                ),
+              );
+            },
+            child: const Text('Delete JV'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -167,49 +198,28 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
                       }
 
                       List<DocumentSnapshot> accountList = snapshot.data?.docs ?? [];
-                      List<DropdownMenuItem<String>> dropdownItems = accountList.map((document) {
-                        String docID = document.id;
-                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-                        String areaText = data['accountName'];
 
-                        return DropdownMenuItem<String>(
-                          value: docID,
-                          child: Text(
-                            areaText,
-                            style: const TextStyle(color: Colors.teal),
-                          ),
-                        );
-                      }).toList();
-
-                      String? initialAccount = dropdownItems.isNotEmpty ? dropdownItems[0].value : null;
-
-                      // Ensure _selectedAccount is valid or fallback to initialAccount
-                      String? currentAccount = dropdownItems.any((item) => item.value == _selectedAccountCr) ? _selectedAccountCr : initialAccount;
-
-                      return DropdownButtonFormField<String>(
-                        value: currentAccount,
-                        items: dropdownItems,
-                        hint: const Text(
-                          'Select Credit Account',
-                          style: TextStyle(color: Colors.teal),
-                        ),
-                        isExpanded: true,
-                        onChanged: (accountValue) {
-                          setState(() {
-                            _selectedAccountCr = accountValue;
-                          });
+                      return DropdownSearch<DocumentSnapshot>(
+                        items: accountList,
+                        itemAsString: (DocumentSnapshot document) {
+                          Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                          return data['accountName']; // or any other field you want to display
                         },
-                        validator: (value) {
-                          if (value == null || value == '') {
-                            return 'Please select a valid credit account';
+                        selectedItem: accountList.isNotEmpty && accountList.any((document) => document.id == _selectedAccountCrId)
+                            ? accountList.firstWhere((document) => document.id == _selectedAccountCrId)
+                            : null,
+                        popupProps: const PopupProps.menu(
+                          showSearchBox: true,
+                          fit: FlexFit.loose,
+                          constraints: BoxConstraints.tightFor(),
+                        ),
+                        onChanged: (DocumentSnapshot? document) {
+                          if (document != null) {
+                            setState(() {
+                              _selectedAccountCrId = document.id;
+                              _selectedAccountCrText = (document.data() as Map<String, dynamic>)['accountName'];
+                            });
                           }
-                          if (_selectedAccountCr == null || _selectedAccountCr == '') {
-                            return 'Please select a valid credit account';
-                          }
-                          if (_selectedAccountDr == _selectedAccountCr) {
-                            return 'Please select a different credit account';
-                          }
-                          return null;
                         },
                       );
                     },
@@ -243,46 +253,28 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
                       }
 
                       List<DocumentSnapshot> accountList = snapshot.data?.docs ?? [];
-                      List<DropdownMenuItem<String>> dropdownItems = accountList.map((document) {
-                        String docID = document.id;
-                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-                        String areaText = data['accountName'];
 
-                        return DropdownMenuItem<String>(
-                          value: docID,
-                          child: Text(
-                            areaText,
-                            style: const TextStyle(color: Colors.teal),
-                          ),
-                        );
-                      }).toList();
-
-                      String? initialAccount = dropdownItems.isNotEmpty ? dropdownItems[0].value : null;
-
-                      // Ensure _selectedAccount is valid or fallback to initialAccount
-                      String? currentAccount = dropdownItems.any((item) => item.value == _selectedAccountDr) ? _selectedAccountDr : initialAccount;
-
-                      return DropdownButtonFormField<String>(
-                        value: currentAccount,
-                        items: dropdownItems,
-                        hint: const Text(
-                          'Select Debit Account',
-                          style: TextStyle(color: Colors.teal),
-                        ),
-                        isExpanded: true,
-                        onChanged: (accountValue) {
-                          setState(() {
-                            _selectedAccountDr = accountValue;
-                          });
+                      return DropdownSearch<DocumentSnapshot>(
+                        items: accountList,
+                        itemAsString: (DocumentSnapshot document) {
+                          Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                          return data['accountName']; // or any other field you want to display
                         },
-                        validator: (value) {
-                          if (value == null || value == '') {
-                            return 'Please select a valid debit account';
+                        selectedItem: accountList.isNotEmpty && accountList.any((document) => document.id == _selectedAccountDrId)
+                            ? accountList.firstWhere((document) => document.id == _selectedAccountDrId)
+                            : null,
+                        popupProps: const PopupProps.menu(
+                          showSearchBox: true,
+                          fit: FlexFit.loose,
+                          constraints: BoxConstraints.tightFor(),
+                        ),
+                        onChanged: (DocumentSnapshot? document) {
+                          if (document != null) {
+                            setState(() {
+                              _selectedAccountDrId = document.id;
+                              _selectedAccountDrText = (document.data() as Map<String, dynamic>)['accountName'];
+                            });
                           }
-                          if (_selectedAccountDr == null || _selectedAccountDr == '') {
-                            return 'Please select a valid debit account';
-                          }
-                          return null;
                         },
                       );
                     },
@@ -463,8 +455,8 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
                             kJV,
                             date,
                             _remarksController.text,
-                            _selectedAccountDr!,
-                            _selectedAccountCr!,
+                            _selectedAccountDrId!,
+                            _selectedAccountCrId!,
                             pkrDrAmount,
                             sarDrAmount,
                             pkrCrAmount,
@@ -477,8 +469,8 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
                             kJV,
                             date,
                             _remarksController.text,
-                            _selectedAccountDr!,
-                            _selectedAccountCr!,
+                            _selectedAccountDrId!,
+                            _selectedAccountCrId!,
                             pkrDrAmount,
                             sarDrAmount,
                             pkrCrAmount,
@@ -506,6 +498,16 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
                       }
                     },
                     child: const Text('Save'),
+                  ),
+
+                  // Delete Button
+                  ElevatedButton(
+                    child: const Text('Delete'),
+                    onPressed: () {
+                      if (_voucherId != null && _voucherId != '') {
+                        _deleteVoucherBox(context, _voucherId!);
+                      }
+                    },
                   ),
 
                   // Cancel Button

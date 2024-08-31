@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_wp/themes/const.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
@@ -41,7 +42,7 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
   final AccountService _accounts = AccountService();
   final AcVoucherService _voucher = AcVoucherService();
 
-  String? _voucherId, _selectedAccount;
+  String? _voucherId, _selectedAcId, _selectedAcText;
 
   final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
 
@@ -72,9 +73,38 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
     _voucherId = widget.docId;
     _dateController.text = DateFormat('dd-MMM-yyyy').format(widget.vDate);
     _remarksController.text = widget.remarks;
-    _selectedAccount = widget.crAcId;
+    _selectedAcId = widget.crAcId;
     _pkrController.text = widget.credit.toString();
     _sarController.text = widget.creditSar.toString();
+  }
+
+  void _deleteVoucherBox(BuildContext context, String docID) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete CRV'),
+        content: const Text('Are you sure you want to delete this CR Voucher?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              _voucher.deleteVoucher(docID);
+              Navigator.pop(context);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('CR Voucher deleted!'),
+                ),
+              );
+            },
+            child: const Text('Delete CR'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -163,55 +193,29 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                         return Center(child: Text('Error: ${snapshot.error}'));
                       }
 
-                      List<DocumentSnapshot> accountList =
-                          snapshot.data?.docs ?? [];
-                      List<DropdownMenuItem<String>> dropdownItems =
-                      accountList.map((document) {
-                        String docID = document.id;
-                        Map<String, dynamic> data =
-                        document.data() as Map<String, dynamic>;
-                        String areaText = data['accountName'];
+                      List<DocumentSnapshot> accountList = snapshot.data?.docs ?? [];
 
-                        return DropdownMenuItem<String>(
-                          value: docID,
-                          child: Text(
-                            areaText,
-                            style: const TextStyle(color: Colors.teal),
-                          ),
-                        );
-                      }).toList();
-
-                      String? initialAccount = dropdownItems.isNotEmpty
-                          ? dropdownItems[0].value
-                          : null;
-
-                      // Ensure _selectedAccount is valid or fallback to initialAccount
-                      String? currentAccount = dropdownItems
-                          .any((item) => item.value == _selectedAccount)
-                          ? _selectedAccount
-                          : initialAccount;
-
-                      return DropdownButtonFormField<String>(
-                        value: currentAccount,
-                        items: dropdownItems,
-                        hint: const Text(
-                          'Select Account',
-                          style: TextStyle(color: Colors.teal),
-                        ),
-                        isExpanded: true,
-                        onChanged: (accountValue) {
-                          setState(() {
-                            _selectedAccount = accountValue;
-                          });
+                      return DropdownSearch<DocumentSnapshot>(
+                        items: accountList,
+                        itemAsString: (DocumentSnapshot document) {
+                          Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                          return data['accountName']; // or any other field you want to display
                         },
-                        validator: (value) {
-                          if (value == null || value == '') {
-                            return 'Please select a valid account';
+                        selectedItem: accountList.isNotEmpty && accountList.any((document) => document.id == _selectedAcId)
+                            ? accountList.firstWhere((document) => document.id == _selectedAcId)
+                            : null,
+                        popupProps: const PopupProps.menu(
+                          showSearchBox: true,
+                          fit: FlexFit.loose,
+                          constraints: BoxConstraints.tightFor(),
+                        ),
+                        onChanged: (DocumentSnapshot? document) {
+                          if (document != null) {
+                            setState(() {
+                              _selectedAcId = document.id;
+                              _selectedAcText = (document.data() as Map<String, dynamic>)['accountName'];
+                            });
                           }
-                          if (_selectedAccount == null || _selectedAccount == '') {
-                            return 'Please select a valid account';
-                          }
-                          return null;
                         },
                       );
                     },
@@ -310,14 +314,6 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                   ElevatedButton(
                     onPressed: () {
                       if (_formKeyValue.currentState!.validate()) {
-                        // print(_voucherId);
-                        // print(kCRV);
-                        // print(_dateController.text);
-                        // print(_remarksController.text);
-                        // print(_selectedAccount);
-                        // print(_pkrController.text);
-                        // print(_sarController.text);
-                        // print(kUserId);
 
                         // Convert date string to DateTime
                         DateTime date = DateFormat('dd-MMM-yyyy').parse(_dateController.text);
@@ -332,7 +328,7 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                               date,
                               _remarksController.text,
                               '',
-                              _selectedAccount!,
+                              _selectedAcId!,
                               0,
                               0,
                               pkrAmount,
@@ -345,7 +341,7 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                               date,
                               _remarksController.text,
                               '',
-                              _selectedAccount!,
+                              _selectedAcId!,
                               0,
                               0,
                               pkrAmount,
@@ -369,6 +365,16 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                       }
                     },
                     child: const Text('Save'),
+                  ),
+
+                  // Delete Button
+                  ElevatedButton(
+                    child: const Text('Delete'),
+                    onPressed: () {
+                      if (_voucherId != null && _voucherId != '') {
+                        _deleteVoucherBox(context, _voucherId!);
+                      }
+                    },
                   ),
 
                   // Cancel Button
