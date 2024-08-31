@@ -93,11 +93,13 @@ class RptAcLedgerState extends State<RptAcLedger> {
   double debitSrText = 0;
   double creditSrText = 0;
 
+  // Calculate totals Double Variables
   double totalDebitPK = 0;
   double totalCreditPK = 0;
   double totalDebitSR = 0;
   double totalCreditSR = 0;
 
+  // Calculate b/f balances Double Variables
   double bfBalancePK = 0;
   double bfBalanceSR = 0;
 

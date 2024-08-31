@@ -2,14 +2,18 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
+import 'package:chat_wp/pages/accounts/voucher_crv_add.dart';
+import 'package:chat_wp/pages/accounts/voucher_cpv_add.dart';
+import 'package:chat_wp/pages/accounts/voucher_jv_add.add.dart';
 
 import 'package:chat_wp/themes/const.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 import 'package:chat_wp/services/accounts/ac_voucher_service.dart';
+
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 class RptCashBook extends StatefulWidget {
   const RptCashBook({super.key});
@@ -41,19 +45,27 @@ class RptCashBookState extends State<RptCashBook> {
     'PKR',
   ];
 
-  // field variables
+  // Basic Fields Double Variables
+  String voucherID = '';
+  DateTime vDate = DateTime.now();
+  String drAcId = '';
+  String crAcId = '';
+  String type = '';
+  String remarksText = '';
+
+  // Numeric Fields Double Variables
   double debitText = 0;
   double creditText = 0;
   double debitSrText = 0;
   double creditSrText = 0;
 
-  // Calculate totals
+  // Calculate totals Double Variables
   double totalDebitPK = 0;
   double totalCreditPK = 0;
   double totalDebitSR = 0;
   double totalCreditSR = 0;
 
-  // Calculate b/f balances
+  // Calculate b/f balances Double Variables
   double bfBalancePK = 0;
   double bfBalanceSR = 0;
 
@@ -102,10 +114,56 @@ class RptCashBookState extends State<RptCashBook> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cash Book Report'),
+        title: const Text('Cash Book'),
         foregroundColor: Colors.teal,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.receipt_long_rounded),
+            // icon: const Icon(Icons.add),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => VoucherCrvAdd(
+                    docId: '',
+                    type: '',
+                    vDate: vDate,
+                    remarks: 'Cash Received.',
+                    drAcId: '',
+                    crAcId: '',
+                    debit: 0,
+                    debitSar: 0,
+                    credit: 0,
+                    creditSar: 0,
+                  ),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.payment_rounded),
+            // icon: const Icon(Icons.exposure_minus_1),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => VoucherCpvAdd(
+                    docId: '',
+                    type: '',
+                    vDate: vDate,
+                    remarks: 'Cash Paid.',
+                    drAcId: '',
+                    crAcId: '',
+                    debit: 0,
+                    debitSar: 0,
+                    credit: 0,
+                    creditSar: 0,
+                  ),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.print),
             onPressed: _printPdf,
@@ -333,20 +391,25 @@ class RptCashBookState extends State<RptCashBook> {
                         child: DataTable(
                           columnSpacing: constraints.maxWidth / 15, // Adjust column spacing
                           columns: columns,
-                          rows: [
+                          rows: <DataRow>[
+
                             ...customerList.map((document) {
                               Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
-                              creditSrText = (data['creditsar'] ?? 0.0);
-                              debitSrText = (data['debitsar'] ?? 0.0);
-                              creditText = (data['credit'] ?? 0.0);
-                              debitText = (data['debit'] ?? 0.0);
+                              final voucherID = document.id; // Use final here to ensure immutability
+                              // final data = document.data() as Map<String, dynamic>;
+
+                              final creditSrText = (data['creditsar'] ?? 0.0);
+                              final debitSrText = (data['debitsar'] ?? 0.0);
+                              final creditText = (data['credit'] ?? 0.0);
+                              final debitText = (data['debit'] ?? 0.0);
 
                               final drAcId = data['drAcId'] ?? '';
                               final crAcId = data['crAcId'] ?? '';
                               final dateText = (data['date'] as Timestamp).toDate();
                               final formattedDate = DateFormat('dd MM yy').format(dateText);
                               final remarksText = data['remarks'] ?? '';
+                              final type = data['type'] ?? '';
 
                               final drAcName = accountNames[drAcId] ?? '';
                               final crAcName = accountNames[crAcId] ?? '';
@@ -399,7 +462,92 @@ class RptCashBookState extends State<RptCashBook> {
                                     ),
                                   )),
                                 if (visibleColumns.contains(4))
-                                  DataCell(Text(accountDisplayName)),
+                                  DataCell(
+                                      GestureDetector(
+                                        onTap: () {
+                                          // print('Navigating to VoucherCpvAdd with docId: $voucherID');
+                                          try {
+                                            if (voucherID.isNotEmpty) {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) {
+                                                    if (type == 'CP') {
+                                                      return VoucherCpvAdd(
+                                                        docId: voucherID,
+                                                        type: type,
+                                                        vDate: dateText,
+                                                        remarks: remarksText,
+                                                        drAcId: drAcId,
+                                                        crAcId: '',
+                                                        debit: data['debit'],
+                                                        debitSar: data['debitsar'],
+                                                        credit: data['credit'],
+                                                        creditSar: data['creditsar'],
+                                                      );
+                                                    } else if (type == 'CR') {
+                                                      return VoucherCrvAdd(
+                                                        docId: voucherID,
+                                                        type: type,
+                                                        vDate: dateText,
+                                                        remarks: remarksText,
+                                                        drAcId: '',
+                                                        crAcId: crAcId,
+                                                        debit: data['debit'],
+                                                        debitSar: data['debitsar'],
+                                                        credit: data['credit'],
+                                                        creditSar: data['creditsar'],
+                                                      );
+                                                    } else if (type == 'JV') {
+                                                      return VoucherJvAdd(
+                                                        docId: voucherID,
+                                                        type: type,
+                                                        vDate: dateText,
+                                                        remarks: remarksText,
+                                                        drAcId: drAcId,
+                                                        crAcId: crAcId,
+                                                        debit: data['debit'],
+                                                        debitSar: data['debitsar'],
+                                                        credit: data['credit'],
+                                                        creditSar: data['creditsar'],
+                                                      );
+                                                    }
+                                                    return const SizedBox.shrink(); // Fallback if no type matches
+                                                  },
+                                                ),
+                                              );
+                                            }
+                                          } catch (e) {
+                                            // print('Error during navigation: $e');
+                                          }
+                                        },
+                                        child: Container(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(accountDisplayName),
+                                        ),
+                                      )
+
+
+                                    // GestureDetector(
+                                      //   onTap: () {
+                                      //     // Replace with a simple test widget
+                                      //     Navigator.push(
+                                      //       context,
+                                      //       MaterialPageRoute(
+                                      //         builder: (context) => Scaffold(
+                                      //           appBar: AppBar(title: Text('Test')),
+                                      //           body: Center(child: Text('Tapped Row with Voucher ID: $voucherID')),
+                                      //         ),
+                                      //       ),
+                                      //     );
+                                      //   },
+                                      //   child: Container(
+                                      //     alignment: Alignment.centerLeft,
+                                      //     child: Text(accountDisplayName),
+                                      //   ),
+                                      // )
+
+                                  ),
                                 if (visibleColumns.contains(5))
                                   DataCell(Text(formattedDate)),
                                 if (visibleColumns.contains(6))
