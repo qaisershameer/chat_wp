@@ -65,14 +65,16 @@ class RptAcLedgerState extends State<RptAcLedger> {
         if (type == 'from') {
           _selectedDateFrom = pickedDate;
           // print(pickedDate);
-          _dateFromController.text = DateFormat('dd-MMM-yyyy').format(pickedDate);
+          _dateFromController.text =
+              DateFormat('dd-MMM-yyyy').format(pickedDate);
         } else if (type == 'to') {
           _selectedDateTo = pickedDate;
           _dateToController.text = DateFormat('dd-MMM-yyyy').format(pickedDate);
         }
       });
-    }else{
-      _dateFromController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
+    } else {
+      _dateFromController.text =
+          DateFormat('dd-MMM-yyyy').format(DateTime.now());
       _dateToController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
     }
   }
@@ -105,14 +107,13 @@ class RptAcLedgerState extends State<RptAcLedger> {
     // Initialize the text controllers with data from the previous screen
     // _voucherId = widget.docId;
     // _dateFromController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());    // OKAY WORKING but i change below line
-    _dateFromController.text = kStartDate;    // SESSION START DATE
+    _dateFromController.text = kStartDate; // SESSION START DATE
     _dateToController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
 
     // For Form Load From Variable Default Value Set here
     DateTime now = DateTime.now();
     // getDate(DateTime(now.year, now.month, now.day), 'from'); // OKAY WORKING but i change below line
     getDate(DateTime(now.year, 1, 1), 'from');
-
   }
 
   @override
@@ -126,25 +127,25 @@ class RptAcLedgerState extends State<RptAcLedger> {
           IconButton(
             icon: const Icon(Icons.receipt_long_rounded),
             // icon: const Icon(Icons.add),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => VoucherCrvAdd(
-                      docId: '',
-                      type: '',
-                      vDate: vDate,
-                      remarks: 'Cash Received.',
-                      drAcId: '',
-                      crAcId: _selectedAcId!,
-                      debit: debitText,
-                      debitSar: debitSrText,
-                      credit: creditText,
-                      creditSar: creditSrText,
-                    ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => VoucherCrvAdd(
+                    docId: '',
+                    type: '',
+                    vDate: vDate,
+                    remarks: 'Cash Received.',
+                    drAcId: '',
+                    crAcId: _selectedAcId!,
+                    debit: 0,
+                    debitSar: 0,
+                    credit: 0,
+                    creditSar: 0,
                   ),
-                );
-              },
+                ),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.payment_rounded),
@@ -160,10 +161,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
                     remarks: 'Cash Paid.',
                     drAcId: _selectedAcId!,
                     crAcId: '',
-                    debit: debitText,
-                    debitSar: debitSrText,
-                    credit: creditText,
-                    creditSar: creditSrText,
+                    debit: 0,
+                    debitSar: 0,
+                    credit: 0,
+                    creditSar: 0,
                   ),
                 ),
               );
@@ -183,10 +184,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
                     remarks: 'Amount Transferred.',
                     drAcId: _selectedAcId!,
                     crAcId: _selectedAcId!,
-                    debit: debitText,
-                    debitSar: debitSrText,
-                    credit: creditText,
-                    creditSar: creditSrText,
+                    debit: 0,
+                    debitSar: 0,
+                    credit: 0,
+                    creditSar: 0,
                   ),
                 ),
               );
@@ -195,7 +196,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
           IconButton(
             icon: const Icon(Icons.print),
             // onPressed: _printPdf,
-            onPressed: (){},
+            onPressed: () {},
           ),
           Padding(
             padding: const EdgeInsets.only(right: 20.0, bottom: 12.0),
@@ -214,7 +215,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           children: <Widget>[
-
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
@@ -226,15 +226,20 @@ class RptAcLedgerState extends State<RptAcLedger> {
                 ),
                 const SizedBox(width: 10.0),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width / 7.0, // Adjusted width
+                  width:
+                      MediaQuery.of(context).size.width / 7.0, // Adjusted width
                   child: DropdownButtonFormField<String>(
                     isExpanded: true,
-                    items: _accountType.map<DropdownMenuItem<String>>((String value) {
+                    items: _accountType
+                        .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(
                           value,
-                          style: const TextStyle(color: Colors.teal,fontSize: 12.0,),
+                          style: const TextStyle(
+                            color: Colors.teal,
+                            fontSize: 12.0,
+                          ),
                         ),
                       );
                     }).toList(),
@@ -264,13 +269,16 @@ class RptAcLedgerState extends State<RptAcLedger> {
                 Expanded(
                   child: TextFormField(
                     controller: _dateFromController,
-                    keyboardType: TextInputType.none, // Disable// keyboard input
+                    keyboardType:
+                        TextInputType.none, // Disable// keyboard input
                     onTap: () {
                       FocusScope.of(context)
                           .requestFocus(FocusNode()); // Hide keyboard
                       _selectDate(context, 'from'); // Show date picker
                     },
-                    style: const TextStyle(fontSize: 12.0,), // Set font size to 12.0
+                    style: const TextStyle(
+                      fontSize: 12.0,
+                    ), // Set font size to 12.0
                     decoration: const InputDecoration(
                       icon: Icon(
                         Icons.calendar_month, // Changed to a Flutter icon
@@ -301,7 +309,9 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           .requestFocus(FocusNode()); // Hide keyboard
                       _selectDate(context, 'to'); // Show date picker
                     },
-                    style: const TextStyle(fontSize: 12.0,), // Set font size to 12.0
+                    style: const TextStyle(
+                      fontSize: 12.0,
+                    ), // Set font size to 12.0
                     decoration: const InputDecoration(
                       icon: Icon(
                         Icons.calendar_month, // Changed to a Flutter icon
@@ -328,7 +338,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
                     stream: _accounts.getAccountsStream(kUserId),
@@ -341,16 +350,22 @@ class RptAcLedgerState extends State<RptAcLedger> {
                         return Center(child: Text('Error: ${snapshot.error}'));
                       }
 
-                      List<DocumentSnapshot> accountList = snapshot.data?.docs ?? [];
+                      List<DocumentSnapshot> accountList =
+                          snapshot.data?.docs ?? [];
 
                       return DropdownSearch<DocumentSnapshot>(
                         items: accountList,
                         itemAsString: (DocumentSnapshot document) {
-                          Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-                          return data['accountName']; // or any other field you want to display
+                          Map<String, dynamic> data =
+                              document.data() as Map<String, dynamic>;
+                          return data[
+                              'accountName']; // or any other field you want to display
                         },
-                        selectedItem: accountList.isNotEmpty && accountList.any((document) => document.id == _selectedAcId)
-                            ? accountList.firstWhere((document) => document.id == _selectedAcId)
+                        selectedItem: accountList.isNotEmpty &&
+                                accountList.any(
+                                    (document) => document.id == _selectedAcId)
+                            ? accountList.firstWhere(
+                                (document) => document.id == _selectedAcId)
                             : null,
                         popupProps: const PopupProps.menu(
                           showSearchBox: true,
@@ -361,7 +376,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           if (document != null) {
                             setState(() {
                               _selectedAcId = document.id;
-                              _selectedAcText = (document.data() as Map<String, dynamic>)['accountName'];
+                              _selectedAcText = (document.data()
+                                  as Map<String, dynamic>)['accountName'];
                             });
                           }
                         },
@@ -375,7 +391,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
             const SizedBox(height: 5.0),
 
             if (_selectedAcId != null) rptLedger()
-
           ],
         ),
       ),
@@ -391,7 +406,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
     bfBalanceSR = 0;
 
     return StreamBuilder<List<QueryDocumentSnapshot>>(
-      stream: _vouchers.getAcLedgerStream(kUserId, _selectedAcId ?? '', _selectedDateFrom, _selectedDateTo),
+      stream: _vouchers.getAcLedgerStream(
+          kUserId, _selectedAcId ?? '', _selectedDateFrom, _selectedDateTo),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -402,7 +418,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
         }
 
         final documents = snapshot.data ?? [];
-        List<DocumentSnapshot> customerList = documents.cast<DocumentSnapshot>();
+        List<DocumentSnapshot> customerList =
+            documents.cast<DocumentSnapshot>();
 
         return FutureBuilder<Map<String, String?>>(
           future: _getAccountNames(customerList),
@@ -430,21 +447,19 @@ class RptAcLedgerState extends State<RptAcLedger> {
                       ],
                       rows: [
                         ...customerList.map((document) {
+                          final voucherID = document.id ?? ''; // Use final here to ensure immutability
+                          final data = document.data() as Map<String, dynamic>;
 
-                          voucherID = document.id;
-
-                          Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-                          drAcId = data['drAcId'] ?? '';
-                          crAcId = data['crAcId'] ?? '';
-                          type = data['type'] ?? '';
+                          final drAcId = data['drAcId'] ?? '';
+                          final crAcId = data['crAcId'] ?? '';
+                          final type = data['type'] ?? '';
                           final dateText = (data['date'] as Timestamp).toDate();
                           final formattedDate = DateFormat('dd MM yy').format(dateText);
-                          remarksText = data['remarks'] ?? '';
+                          final remarksText = data['remarks'] ?? '';
 
-                          // double debitText, creditText, debitSrText, creditSrText;
+                          double debitText, creditText, debitSrText, creditSrText;
 
-                          if (data['type'] == 'JV') {
+                          if (type == 'JV') {
                             if (_selectedAcId == drAcId) {
                               debitText = (data['credit'] ?? 0.0);
                               creditText = 0.0;
@@ -471,114 +486,109 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           bfBalancePK = totalDebitPK - totalCreditPK;
                           bfBalanceSR = totalDebitSR - totalCreditSR;
 
+                          // print('Voucher ID: $voucherID');
+                          // print('Type: $type');
+                          // print('Remarks: $remarksText');
+
                           return DataRow(
                             cells: [
+                              DataCell(
+                                Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat.format(creditSrText),
+                                    style: const TextStyle(color: Colors.blue),
+                                  ),
+                                ),
+                              ),
+                              DataCell(
+                                Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat.format(debitSrText),
+                                    style: const TextStyle(color: Colors.blue),
+                                  ),
+                                ),
+                              ),
+                              DataCell(
+                                Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat1.format(creditText),
+                                    style: const TextStyle(color: Colors.green),
+                                  ),
+                                ),
+                              ),
+                              DataCell(
+                                Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat1.format(debitText),
+                                    style: const TextStyle(color: Colors.green),
+                                  ),
+                                ),
+                              ),
                               DataCell(
                                 GestureDetector(
                                   onTap: () {
                                     if (voucherID.isNotEmpty) {
-
-                                      // print(voucherID);
-                                      // print(data['type']);
-                                      // print(data['remarks']);
-
-                                      if (data['type'] == 'CP') {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => VoucherCpvAdd(
-                                              docId: '',
-                                              type: data['type'],
-                                              vDate: vDate,   //data['date']
-                                              remarks: data['remarks'],
-                                              drAcId: data['drAcId'],
-                                              crAcId: '',
-                                              debit: data['debit'],
-                                              debitSar: data['debitsar'],
-                                              credit: data['credit'],
-                                              creditSar: data['creditsar'],
-                                            ),
-                                          ),
-                                        );
-                                      } else if (data['type'] == 'CR') {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => VoucherCrvAdd(
-                                              docId: '',
-                                              type: data['type'],
-                                              vDate: vDate,   //data['date']
-                                              remarks: data['remarks'],
-                                              drAcId: '',
-                                              crAcId: data['crAcId'],
-                                              debit: data['debit'],
-                                              debitSar: data['debitsar'],
-                                              credit: data['credit'],
-                                              creditSar: data['creditsar'],
-                                            ),
-                                          ),
-                                        );
-                                      } else if (data['type'] == 'JV') {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => VoucherJvAdd(
-                                              docId: '',
-                                              type: data['type'],
-                                              vDate: vDate,   //data['date']
-                                              remarks: data['remarks'],
-                                              drAcId: data['drAcId'],
-                                              crAcId: data['crAcId'],
-                                              debit: data['debit'],
-                                              debitSar: data['debitsar'],
-                                              credit: data['credit'],
-                                              creditSar: data['creditsar'],
-
-                                            ),
-                                          ),
-                                        );
-                                      }
+                                      // print('Navigating with Voucher ID: $voucherID');
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) {
+                                            if (type == 'CP') {
+                                              return VoucherCpvAdd(
+                                                docId: voucherID,
+                                                type: type,
+                                                vDate: dateText,
+                                                remarks: remarksText,
+                                                drAcId: drAcId,
+                                                crAcId: '',
+                                                debit: data['debit'],
+                                                debitSar: data['debitsar'],
+                                                credit: data['credit'],
+                                                creditSar: data['creditsar'],
+                                              );
+                                            } else if (type == 'CR') {
+                                              return VoucherCrvAdd(
+                                                docId: voucherID,
+                                                type: type,
+                                                vDate: dateText,
+                                                remarks: remarksText,
+                                                drAcId: '',
+                                                crAcId: crAcId,
+                                                debit: data['debit'],
+                                                debitSar: data['debitsar'],
+                                                credit: data['credit'],
+                                                creditSar: data['creditsar'],
+                                              );
+                                            } else if (type == 'JV') {
+                                              return VoucherJvAdd(
+                                                docId: voucherID,
+                                                type: type,
+                                                vDate: dateText,
+                                                remarks: remarksText,
+                                                drAcId: drAcId,
+                                                crAcId: crAcId,
+                                                debit: data['debit'],
+                                                debitSar: data['debitsar'],
+                                                credit: data['credit'],
+                                                creditSar: data['creditsar'],
+                                              );
+                                            }
+                                            return const SizedBox.shrink(); // fallback if no type matches
+                                          },
+                                        ),
+                                      );
                                     }
                                   },
                                   child: Container(
-                                    alignment: Alignment.centerRight,
-                                    child: Text(
-                                      _numberFormat.format(creditSrText),
-                                      style: const TextStyle(
-                                        color: Colors.blue,
-                                      ),
-                                    ),
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(formattedDate),
                                   ),
                                 ),
                               ),
-                              DataCell(Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat.format(debitSrText),
-                                  style: const TextStyle(
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              )),
-                              DataCell(Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat1.format(creditText),
-                                  style: const TextStyle(
-                                    color: Colors.green,
-                                  ),
-                                ),
-                              )),
-                              DataCell(Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat1.format(debitText),
-                                  style: const TextStyle(
-                                    color: Colors.green,
-                                  ),
-                                ),
-                              )),
-                              DataCell(Text(formattedDate)),
                               DataCell(Text(remarksText)),
                             ],
                           );
@@ -586,87 +596,103 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
                         // Add the totals row
                         DataRow(cells: [
-                          DataCell(Container(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              _numberFormat.format(totalDebitSR),
-                              style: const TextStyle(
+                          DataCell(
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                _numberFormat.format(totalDebitSR),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                _numberFormat.format(totalCreditSR),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                _numberFormat2.format(totalDebitPK),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                _numberFormat2.format(totalCreditPK),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const DataCell(
+                            Text(
+                              'Totals',
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.red,
                               ),
                             ),
-                          )),
-                          DataCell(Container(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              _numberFormat.format(totalCreditSR),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red,
-                              ),
-                            ),
-                          )),
-                          DataCell(Container(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              _numberFormat2.format(totalDebitPK),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red,
-                              ),
-                            ),
-                          )),
-                          DataCell(Container(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              _numberFormat2.format(totalCreditPK),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red,
-                              ),
-                            ),
-                          )),
-                          const DataCell(Text(
-                            'Totals',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red,
-                            ),
-                          )),
+                          ),
                           const DataCell(Text('')),
                         ]),
 
                         // Add the B/F Balance row
                         DataRow(cells: [
                           const DataCell(Text('')),
-                          DataCell(Container(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              _numberFormat.format(bfBalanceSR),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.teal,
+                          DataCell(
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                _numberFormat.format(bfBalanceSR),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.teal,
+                                ),
                               ),
                             ),
-                          )),
+                          ),
                           const DataCell(Text('')),
-                          DataCell(Container(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              _numberFormat2.format(bfBalancePK),
-                              style: const TextStyle(
+                          DataCell(
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                _numberFormat2.format(bfBalancePK),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.teal,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const DataCell(
+                            Text(
+                              'Balance',
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.teal,
                               ),
                             ),
-                          )),
-                          const DataCell(Text(
-                            'Balance',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.teal,
-                            ),
-                          )),
+                          ),
                           const DataCell(Text('')),
                         ]),
                       ],
@@ -695,7 +721,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
     //     accountNames[drAcId] = 'QAISER SHAMEER';
     //   }
     // }
-    accountNames['drAcId'] = 'QAISER SHAMEER';  // FOR UN-COMMIT ABOVE THEN REMOVE THIS LINE
+    accountNames['drAcId'] =
+        'QAISER SHAMEER'; // FOR UN-COMMIT ABOVE THEN REMOVE THIS LINE
     return accountNames;
   }
 
@@ -775,10 +802,14 @@ class RptAcLedgerState extends State<RptAcLedger> {
                     pw.TableRow(
                       children: [
                         _buildBoldCell('Totals', pw.Alignment.centerRight),
-                        _buildBoldCell(_numberFormat.format(totalDebitSR), pw.Alignment.centerRight),
-                        _buildBoldCell(_numberFormat.format(totalCreditSR), pw.Alignment.centerRight),
-                        _buildBoldCell(_numberFormat.format(totalDebitPK), pw.Alignment.centerRight),
-                        _buildBoldCell(_numberFormat.format(totalCreditPK), pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(totalDebitSR),
+                            pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(totalCreditSR),
+                            pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(totalDebitPK),
+                            pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(totalCreditPK),
+                            pw.Alignment.centerRight),
                         pw.SizedBox(), // Empty cell
                         // pw.SizedBox(), // Empty cell
                       ],
@@ -787,9 +818,11 @@ class RptAcLedgerState extends State<RptAcLedger> {
                       children: [
                         _buildBoldCell('Balance', pw.Alignment.centerRight),
                         pw.SizedBox(), // Empty cell
-                        _buildBoldCell(_numberFormat.format(bfBalanceSR), pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(bfBalanceSR),
+                            pw.Alignment.centerRight),
                         pw.SizedBox(), // Empty cell
-                        _buildBoldCell(_numberFormat.format(bfBalancePK), pw.Alignment.centerRight),
+                        _buildBoldCell(_numberFormat.format(bfBalancePK),
+                            pw.Alignment.centerRight),
                         pw.SizedBox(), // Empty cell
                         // pw.SizedBox(), // Empty cell
                       ],
@@ -840,16 +873,20 @@ class RptAcLedgerState extends State<RptAcLedger> {
 // Helper method to create bold table cells
   pw.Widget _buildBoldCell(String text, pw.Alignment alignment) {
     return pw.Container(
-        alignment: alignment,padding: const pw.EdgeInsets.all(8.0),
-      child: pw.Text(text,
-        style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold,
+      alignment: alignment,
+      padding: const pw.EdgeInsets.all(8.0),
+      child: pw.Text(
+        text,
+        style: pw.TextStyle(
+          fontSize: 10,
+          fontWeight: pw.FontWeight.bold,
         ),
       ),
     );
   }
 
-  List<List<String>> _getPdfTableData(List<DocumentSnapshot> customerList,
-      Map<String, String?> accountNames) {
+  List<List<String>> _getPdfTableData(
+      List<DocumentSnapshot> customerList, Map<String, String?> accountNames) {
     final data = <List<String>>[];
 
     // Adding table rows
@@ -892,30 +929,24 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
       if (type == 'JV') {
         if (_selectedAcId == drAcId) {
-
           debitText = debitText;
           creditText = 0.0;
 
           debitSrText = debitSrText;
           creditSrText = 0.0;
-
         } else {
-
           debitText = 0.0;
           creditText = creditText;
 
           debitSrText = 0.0;
           creditSrText = creditSrText;
-
         }
-      } else  {
-
+      } else {
         debitText = debitText;
         creditText = creditText;
 
         debitSrText = debitSrText;
         creditSrText = creditSrText;
-
       }
 
       totalDebitPK += creditText;
@@ -926,7 +957,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
       // Calculate B/F Balance
       bfBalancePK = totalDebitPK - totalCreditPK;
       bfBalanceSR = totalDebitSR - totalCreditSR;
-
     }
 
     return data;
