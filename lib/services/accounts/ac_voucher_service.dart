@@ -248,4 +248,65 @@ class AcVoucherService {
       return combinedDocs;
     });
   }
+
+  // READ: getting Account Ledger Report Query
+  Stream<List<QueryDocumentSnapshot>> getAcTrialBalanceStream(
+      String userId, String accId, DateTime? startDate, DateTime? endDate) {
+
+    var query1 = _vouchers
+        .where('uid', isEqualTo: userId)
+        .where('drAcId', isEqualTo: accId);
+
+    // Add date filters conditionally
+    if (startDate != null) {
+      query1 = query1.where('date', isGreaterThanOrEqualTo: startDate);
+    }
+    if (endDate != null) {
+      query1 = query1.where('date', isLessThanOrEqualTo: endDate);
+    }
+
+    // Add ordering
+    query1 = query1
+        .orderBy('drAcId', descending: true);
+        // .orderBy('timestamp', descending: true);
+
+    // print(query1);
+
+    var query2 = _vouchers
+        .where('uid', isEqualTo: userId)
+        .where('crAcId', isEqualTo: accId);
+
+    // Add date filters conditionally
+    if (startDate != null) {
+      query2 = query2.where('date', isGreaterThanOrEqualTo: startDate);
+    }
+    if (endDate != null) {
+      query2 = query2.where('date', isLessThanOrEqualTo: endDate);
+    }
+
+    // Add ordering
+    query2 = query2
+        .orderBy('crAcId', descending: true);
+        // .orderBy('timestamp', descending: true);
+
+    // final query2 = _vouchers
+    //     .where('uid', isEqualTo: userId)
+    //     .where('crAcId', isEqualTo: accId)
+    //     .orderBy('date', descending: true)
+    //     .orderBy('timestamp', descending: true);
+
+    final stream1 = query1.snapshots().map((snapshot) => snapshot.docs);
+    final stream2 = query2.snapshots().map((snapshot) => snapshot.docs);
+
+    return Rx.combineLatest2(stream1, stream2, (docs1, docs2) {
+      final combinedDocs = <QueryDocumentSnapshot>[]
+        ..addAll(docs1)
+        ..addAll(docs2);
+
+      combinedDocs.sort((a, b) => b['drAcId'].compareTo(a['crAcId']));
+
+      return combinedDocs;
+    });
+  }
+
 }

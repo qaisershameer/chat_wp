@@ -22,10 +22,17 @@ class RptTrialBalState extends State<RptTrialBal> {
   final AcVoucherService _vouchers = AcVoucherService();
   // final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
 
-  String? _selectedAcId, _selectedAcText, _selectedType;
+  String? _selectedAcId, _selectedAcText, _selectedAcType, _selectedReport;
   // bool _showData = false;
 
+  final List<String> _reportType = <String>[
+    'ALL',
+    'SAR',
+    'PKR',
+  ];
+
   final List<String> _accountType = <String>[
+    'ALL',
     'PARTY',
     'PARTY B',
     'ASSETS',
@@ -34,6 +41,43 @@ class RptTrialBalState extends State<RptTrialBal> {
     'REVENUE',
     'EXPENSE',
   ];
+
+  Future<void> _selectDate(BuildContext context, String type) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      currentDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    getDate(pickedDate, type);
+  }
+
+  void getDate(DateTime? pickedDate, String type) {
+    if (pickedDate != null) {
+      setState(() {
+        if (type == 'from') {
+          _selectedDateFrom = pickedDate;
+          // print(pickedDate);
+          _dateFromController.text =
+              DateFormat('dd-MMM-yyyy').format(pickedDate);
+        } else if (type == 'to') {
+          _selectedDateTo = pickedDate;
+          _dateToController.text = DateFormat('dd-MMM-yyyy').format(pickedDate);
+        }
+      });
+    } else {
+      _dateFromController.text =
+          DateFormat('dd-MMM-yyyy').format(DateTime.now());
+      _dateToController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
+    }
+  }
+
+  final TextEditingController _dateFromController = TextEditingController();
+  final TextEditingController _dateToController = TextEditingController();
+  DateTime? _selectedDateFrom = DateTime.now();
+  DateTime? _selectedDateTo = DateTime.now();
 
   // Create a NumberFormat instance for comma-separated numbers
   final NumberFormat _numberFormat = NumberFormat('#,##0');
@@ -55,6 +99,21 @@ class RptTrialBalState extends State<RptTrialBal> {
   double bfBalanceSR = 0;
 
   @override
+  void initState() {
+    super.initState();
+    // Initialize the text controllers with data from the previous screen
+    // _voucherId = widget.docId;
+    // _dateFromController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());    // OKAY WORKING but i change below line
+    _dateFromController.text = kStartDate; // SESSION START DATE
+    _dateToController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
+
+    // For Form Load From Variable Default Value Set here
+    DateTime now = DateTime.now();
+    // getDate(DateTime(now.year, now.month, now.day), 'from'); // OKAY WORKING but i change below line
+    getDate(DateTime(now.year, 1, 1), 'from');
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -63,18 +122,23 @@ class RptTrialBalState extends State<RptTrialBal> {
         elevation: 0,
         actions: [
           IconButton(
+            icon: const Icon(Icons.search),
+            // onPressed: _printPdf,
+            onPressed: () {},
+          ),
+          IconButton(
             icon: const Icon(Icons.print),
             // onPressed: _printPdf,
             onPressed: () {},
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 25.0, bottom: 16.0),
+            padding: const EdgeInsets.only(right: 12.0, bottom: 6.0),
             child: Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
                 shape: BoxShape.circle,
               ),
-              margin: const EdgeInsets.only(right: 10.0),
+              margin: const EdgeInsets.only(right: 5.0),
             ),
           ),
         ],
@@ -82,15 +146,133 @@ class RptTrialBalState extends State<RptTrialBal> {
       body: Form(
         // key: _formKeyValue,
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
           children: <Widget>[
+            // REPORT TYPE Data COMBO, DATE FROM, DATE TO
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                const Icon(
+                  FontAwesomeIcons.database,
+                  size: 20.0,
+                  color: Colors.teal,
+                ),
+                const SizedBox(width: 10.0),
+                SizedBox(
+                  width:
+                      MediaQuery.of(context).size.width / 7.0, // Adjusted width
+                  child: DropdownButtonFormField<String>(
+                    isExpanded: true,
+                    items: _reportType
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(
+                          value,
+                          style: const TextStyle(
+                            color: Colors.teal,
+                            fontSize: 12.0,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (typeValue) {
+                      setState(() {
+                        if (_selectedReport != typeValue) {
+                          _selectedReport = typeValue;
+                        }
+                      });
+                    },
+                    value: _selectedReport,
+                    hint: const Text(
+                      'Style',
+                      style: TextStyle(color: Colors.teal, fontSize: 12.0),
+                    ),
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Please select a valid report style';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10.0),
+                // Date FROM Text Field
+
+                Expanded(
+                  child: TextFormField(
+                    controller: _dateFromController,
+                    keyboardType:
+                        TextInputType.none, // Disable// keyboard input
+                    onTap: () {
+                      FocusScope.of(context)
+                          .requestFocus(FocusNode()); // Hide keyboard
+                      _selectDate(context, 'from'); // Show date picker
+                    },
+                    style: const TextStyle(
+                      fontSize: 12.0,
+                    ), // Set font size to 12.0
+                    decoration: const InputDecoration(
+                      icon: Icon(
+                        Icons.calendar_month, // Changed to a Flutter icon
+                        color: Colors.teal,
+                      ),
+                      hintText: 'Date From',
+                      labelText: 'From',
+                      labelStyle: TextStyle(color: Colors.teal),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Invalid Date From';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+
+                const SizedBox(width: 10.0),
+
+                // Date To Text Field
+                Expanded(
+                  child: TextFormField(
+                    controller: _dateToController,
+                    keyboardType: TextInputType.none, // Disable keyboard input
+                    onTap: () {
+                      FocusScope.of(context)
+                          .requestFocus(FocusNode()); // Hide keyboard
+                      _selectDate(context, 'to'); // Show date picker
+                    },
+                    style: const TextStyle(
+                      fontSize: 12.0,
+                    ), // Set font size to 12.0
+                    decoration: const InputDecoration(
+                      icon: Icon(
+                        Icons.calendar_month, // Changed to a Flutter icon
+                        color: Colors.teal,
+                      ),
+                      hintText: 'Date To',
+                      labelText: 'To',
+                      labelStyle: TextStyle(color: Colors.teal),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Invalid Date To';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 5.0),
             // ACCOUNT TYPE Data COMBO
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 const Icon(
                   FontAwesomeIcons.moneyBill,
-                  size: 25.0,
+                  size: 20.0,
                   color: Colors.teal,
                 ),
                 const SizedBox(width: 20.0),
@@ -104,526 +286,235 @@ class RptTrialBalState extends State<RptTrialBal> {
                         value: value,
                         child: Text(
                           value,
-                          style: const TextStyle(color: Colors.teal),
+                          style: const TextStyle(
+                            color: Colors.teal,
+                            fontSize: 12.0,
+                          ),
                         ),
                       );
                     }).toList(),
                     onChanged: (typeValue) {
                       setState(() {
-                        if (_selectedType != typeValue) {
-                          _selectedType = typeValue;
+                        if (_selectedAcType != typeValue) {
+                          typeValue == 'ALL'
+                              ? _selectedAcType = null
+                              : _selectedAcType = typeValue;
                         }
                       });
                     },
-                    value: _selectedType,
+                    value: _selectedAcType,
                     hint: const Text(
                       'Select Type',
-                      style: TextStyle(color: Colors.teal),
+                      style: TextStyle(
+                        color: Colors.teal,
+                        fontSize: 12.0,
+                      ),
                     ),
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please select an account type';
-                      }
-                      return null;
-                    },
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 5.0),
 
-            if (_selectedType != null) rptTrial()
+            if (_selectedReport != null || _selectedAcType != null)
+              _getAccounts(),
+            // if (_selectedAcType != null) _getAccounts(),
           ],
         ),
       ),
     );
   }
 
-  Widget rptTrial() {
-    totalDebitPK = 0;
-    totalCreditPK = 0;
-    totalDebitSR = 0;
-    totalCreditSR = 0;
-    bfBalancePK = 0;
-    bfBalanceSR = 0;
-
-    return StreamBuilder<List<QueryDocumentSnapshot>>(
-      stream: _vouchers.getTrialBalanceStream(kUserId, _selectedAcId ?? ''),
+  StreamBuilder<QuerySnapshot<Object?>> _getAccounts() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: _selectedAcType != null
+          ? _accounts.getAccountsTypeStream(kUserId, _selectedAcType!)
+          : _accounts.getAccountsStream(kUserId),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        if (snapshot.hasData) {
+          List<DocumentSnapshot> accountsList = snapshot.data!.docs;
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SingleChildScrollView(
+              child: DataTable(
+                columns: const <DataColumn>[
+                  DataColumn(label: Text('SR-Dr')),
+                  DataColumn(label: Text('SR-Cr')),
+                  DataColumn(label: Text('PK-Dr')),
+                  DataColumn(label: Text('PK-Cr')),
+                  DataColumn(label: Text('Name')),
+                ],
+                rows: accountsList.map<DataRow>((DocumentSnapshot document) {
+                  String accountId = document.id; // Retrieving document ID
 
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
+                  Map<String, dynamic> data =
+                  document.data() as Map<String, dynamic>;
 
-        final documents = snapshot.data ?? [];
-        List<DocumentSnapshot> customerList =
-        documents.cast<DocumentSnapshot>();
-
-        return FutureBuilder<Map<String, String?>>(
-          future: _getAccountNames(customerList),
-          builder: (context, futureSnapshot) {
-            if (futureSnapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (futureSnapshot.hasError) {
-              return Center(child: Text('Error: ${futureSnapshot.error}'));
-            } else if (futureSnapshot.hasData) {
-              // Map<String, String?> accountNames = futureSnapshot.data!;
-
-              return LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        columnSpacing: constraints.maxWidth / 15,
-                        border: TableBorder.all(
-                          color: Colors.black,
-                          width: 1,
-                        ),
-                        columns: const [
-                          DataColumn(label: Center(child: Text('SR-Dr')),),
-                          DataColumn(label: Center(child: Text('SR-Cr')),),
-                          DataColumn(label: Center(child: Text('PK-Dr')),),
-                          DataColumn(label: Center(child: Text('PK-Cr')),),
-                          // DataColumn(label: Center(child: Text('Date')),),
-                          // DataColumn(label: Center(child: Text('Remarks')),),
-                        ],
-                        rows: [
-                          ...customerList.map((document) {
-                            Map<String, dynamic> data =
-                            document.data() as Map<String, dynamic>;
-
-                            String drAcId = data['drAcId'] ?? '';
-                            String crAcId = data['crAcId'] ?? '';
-                            String type = data['type'] ?? '';
-                            DateTime dateText =
-                            (data['date'] as Timestamp).toDate();
-                            String formattedDate =
-                            DateFormat('dd MM yy').format(dateText);
-                            String remarksText = data['remarks'] ?? '';
-
-                            if (type == 'JV') {
-                              if (_selectedAcId == drAcId) {
-                                debitText = (data['credit'] ?? 0.0);
-                                creditText = 0.0;
-                                debitSrText = (data['creditsar'] ?? 0.0);
-                                creditSrText = 0.0;
-                              } else {
-                                debitText = 0.0;
-                                creditText = (data['debit'] ?? 0.0);
-                                debitSrText = 0.0;
-                                creditSrText = (data['debitsar'] ?? 0.0);
-                              }
-                            } else {
-                              debitText = (data['credit'] ?? 0.0);
-                              creditText = (data['debit'] ?? 0.0);
-                              debitSrText = (data['creditsar'] ?? 0.0);
-                              creditSrText = (data['debitsar'] ?? 0.0);
-                            }
-
-                            // Calculate Totals
-                            totalDebitPK += creditText;
-                            totalCreditPK += debitText;
-                            totalDebitSR += creditSrText;
-                            totalCreditSR += debitSrText;
-
-                            // Calculate B/F Balances
-                            bfBalancePK = totalDebitPK - totalCreditPK;
-                            bfBalanceSR = totalDebitSR - totalCreditSR;
-
-                            return DataRow(cells: [
-                              DataCell(Container(alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat.format(creditSrText),
-                                  style: const TextStyle(
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              )),
-                              DataCell(Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat.format(debitSrText),
-                                  style: const TextStyle(
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              )),
-                              DataCell(Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat.format(creditText),
-                                  style: const TextStyle(
-                                    color: Colors.green,
-                                  ),
-                                ),
-                              )),
-                              DataCell(Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat.format(debitText),
-                                  style: const TextStyle(
-                                    color: Colors.green,
-                                  ),
-                                ),
-                              )),
-                              DataCell(Text(formattedDate)),
-                              DataCell(Text(remarksText)),
-                            ]);
-
-                          }),
-                          // Add the totals row
-                          DataRow(cells: [
-                            DataCell(Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat.format(totalDebitSR),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            )),
-                            DataCell(Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat.format(totalCreditSR),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            )),
-                            DataCell(Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat.format(totalDebitPK),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                              ),
-                            )),
-                            DataCell(Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat.format(totalCreditPK),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                              ),
-                            )),
-                            const DataCell(Text(
-                              'Totals',
-                              style: TextStyle(
+                  return DataRow(
+                    cells: <DataCell>[
+                      DataCell(FutureBuilder<Map<String, double>>(
+                        future: calculateLedgerTotals(accountId),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else if (!snapshot.hasData) {
+                            return const Text('No data');
+                          } else {
+                            Map<String, double> totals = snapshot.data!;
+                            double totalDebitSr = totals['totalDebitSr'] ?? 0.0;
+                            return Text(
+                              _numberFormat1.format(totalDebitSr),
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.red,
+                                color: Colors.blue,
                               ),
-                            )),
-                            const DataCell(Text('')),
-                          ]),
-                          // Add the B/F Balance row
-                          DataRow(cells: [
-                            const DataCell(Text('')),
-                            DataCell(Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat.format(bfBalanceSR),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            )),
-                            const DataCell(Text('')),
-                            DataCell(Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat.format(bfBalancePK),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
-                                ),
-                              ),
-                            )),
-                            const DataCell(Text(
-                              'Balance',
-                              style: TextStyle(
+                            );
+                          }
+                        },
+                      )),
+                      DataCell(FutureBuilder<Map<String, double>>(
+                        future: calculateLedgerTotals(accountId),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else if (!snapshot.hasData) {
+                            return const Text('No data');
+                          } else {
+                            Map<String, double> totals = snapshot.data!;
+                            double totalCreditSr = totals['totalCreditSr'] ?? 0.0;
+                            return Text(
+                              _numberFormat1.format(totalCreditSr),
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.teal,
+                                color: Colors.blue,
                               ),
-                            )),
-                            const DataCell(Text('')),
-                          ]),
-                        ],
-                      ),
-                    ),
+                            );
+                          }
+                        },
+                      )),
+                      DataCell(FutureBuilder<Map<String, double>>(
+                        future: calculateLedgerTotals(accountId),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else if (!snapshot.hasData) {
+                            return const Text('No data');
+                          } else {
+                            Map<String, double> totals = snapshot.data!;
+                            double totalDebitPk = totals['totalDebitPk'] ?? 0.0;
+                            return Text(
+                              _numberFormat1.format(totalDebitPk),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                            );
+                          }
+                        },
+                      )),
+                      DataCell(FutureBuilder<Map<String, double>>(
+                        future: calculateLedgerTotals(accountId),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          } else if (!snapshot.hasData) {
+                            return const Text('No data');
+                          } else {
+                            Map<String, double> totals = snapshot.data!;
+                            double totalCreditPk = totals['totalCreditPk'] ?? 0.0;
+                            return Text(
+                              _numberFormat1.format(totalCreditPk),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                            );
+                          }
+                        },
+                      )),
+                      DataCell(Text(data['accountName'] ?? '')),
+                    ],
                   );
-                },
-              );
-
-
-            }
-
-            return const Center(child: Text('No data available'));
-          },
-        );
+                }).toList(),
+              ),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else {
+          return const Center(child: Text('No account data to display!'));
+        }
       },
     );
   }
 
-  Future<Map<String, String?>> _getAccountNames(
-      List<DocumentSnapshot> customerList) async {
-    Map<String, String?> accountNames = {};
-    for (var document in customerList) {
-      String drAcId = (document.data() as Map<String, dynamic>)['drAcId'] ?? '';
-      if (drAcId.isNotEmpty) {
-        // DocumentSnapshot accountDoc = await _accounts.getAccountById(drAcId);
-        // accountNames[drAcId] = accountDoc.get('accountName');
-        accountNames[drAcId] = 'QAISER SHAMEER';
-      }
-    }
-    return accountNames;
-  }
-
-  void _printPdf() async {
-    // Show progress dialog
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const AlertDialog(
-          title: Text('Generating PDF'),
-          content: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              CircularProgressIndicator(),
-              SizedBox(width: 20),
-              Text('Please wait...'),
-            ],
-          ),
-        );
-      },
-    );
+  Future<Map<String, double>> calculateLedgerTotals(String accountId) async {
+    double totalDebitPK = 0.0;
+    double totalCreditPK = 0.0;
+    double totalDebitSR = 0.0;
+    double totalCreditSR = 0.0;
 
     try {
-      final snapshot =
-      await _vouchers.getCashBookStream(kUserId, [kCRV, kCPV], null, null).first;
-      final customerList = snapshot.docs;
+      // Fetch the documents from the stream
+      final snapshot = await _vouchers.getAcTrialBalanceStream(kUserId, _selectedAcId ?? '', _selectedDateFrom, _selectedDateTo).first;
 
-      final futureAccountNames = _getAccountNames(customerList);
-      final accountNames = await futureAccountNames;
+      List<DocumentSnapshot> voucherList = snapshot.cast<DocumentSnapshot>();
 
-      final pdf = pw.Document();
+      for (var document in voucherList) {
+        final data = document.data() as Map<String, dynamic>;
+        final drAcId = data['drAcId'] ?? '';
+        final crAcId = data['crAcId'] ?? '';
+        final type = data['type'] ?? '';
 
-      pdf.addPage(
-        pw.Page(
-          build: (pw.Context context) {
-            return pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                // pw.Text('Ledger: $_selectedAcText',
-                pw.Text('Trial Balance',
-                    style: const pw.TextStyle(
-                      fontSize: 20,
-                    )),
-                pw.SizedBox(height: 10),
-                pw.Table(
-                  border: pw.TableBorder.all(),
-                  children: [
-                    // Header row
-                    pw.TableRow(
-                      children: [
-                        _buildHeaderCell('Date'),
-                        _buildHeaderCell('SR-Cr'),
-                        _buildHeaderCell('SR-Dr'),
-                        _buildHeaderCell('PK-Cr'),
-                        _buildHeaderCell('PK-Dr'),
-                        // _buildHeaderCell('AccountName'),
-                        _buildHeaderCell('Remarks'),
-                      ],
-                    ),
-                    // Data rows
-                    ..._getPdfTableData(customerList, accountNames).map((row) {
-                      return pw.TableRow(
-                        children: [
-                          _buildCell(row[0], pw.Alignment.center),
-                          _buildCell(row[1], pw.Alignment.centerRight),
-                          _buildCell(row[2], pw.Alignment.centerRight),
-                          _buildCell(row[3], pw.Alignment.centerRight),
-                          _buildCell(row[4], pw.Alignment.centerRight),
-                          _buildCell(row[5], pw.Alignment.centerLeft),
-                          // _buildCell(row[6], pw.Alignment.centerLeft),
-                        ],
-                      );
-                    }),
-                    // Totals and Balance rows with bold font
-                    pw.TableRow(
-                      children: [
-                        _buildBoldCell('Totals', pw.Alignment.centerRight),
-                        _buildBoldCell(_numberFormat.format(totalDebitSR),
-                            pw.Alignment.centerRight),
-                        _buildBoldCell(_numberFormat.format(totalCreditSR),
-                            pw.Alignment.centerRight),
-                        _buildBoldCell(_numberFormat.format(totalDebitPK),
-                            pw.Alignment.centerRight),
-                        _buildBoldCell(_numberFormat.format(totalCreditPK),
-                            pw.Alignment.centerRight),
-                        pw.SizedBox(), // Empty cell
-                        // pw.SizedBox(), // Empty cell
-                      ],
-                    ),
-                    pw.TableRow(
-                      children: [
-                        _buildBoldCell('Balance', pw.Alignment.centerRight),
-                        pw.SizedBox(), // Empty cell
-                        _buildBoldCell(_numberFormat.format(bfBalanceSR),
-                            pw.Alignment.centerRight),
-                        pw.SizedBox(), // Empty cell
-                        _buildBoldCell(_numberFormat.format(bfBalancePK),
-                            pw.Alignment.centerRight),
-                        pw.SizedBox(), // Empty cell
-                        // pw.SizedBox(), // Empty cell
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
-      );
+        // print('DrAcID: $drAcId');
+        // print('CrAcID: $crAcId');
 
-      await Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async => pdf.save(),
-      );
-    } catch (e) {
-      // Handle any errors
-      // print('Error generating PDF: $e');
-    } finally {
-      // Dismiss the progress dialog
-      Navigator.of(context).pop();
-    }
-  }
+        double debitText, creditText, debitSrText, creditSrText;
 
-// Helper method to create table headers
-  pw.Widget _buildHeaderCell(String text) {
-    return pw.Align(
-      alignment: pw.Alignment.center,
-      child: pw.Padding(
-        padding: const pw.EdgeInsets.all(5.0),
-        child: pw.Text(
-          text,
-          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-        ),
-      ),
-    );
-  }
-
-// Helper method to create table cells with alignment
-  pw.Widget _buildCell(String text, pw.Alignment alignment) {
-    return pw.Container(
-      alignment: alignment,
-      padding: const pw.EdgeInsets.all(8.0),
-      child: pw.Text(text, style: const pw.TextStyle(fontSize: 10)),
-    );
-  }
-
-// Helper method to create bold table cells
-  pw.Widget _buildBoldCell(String text, pw.Alignment alignment) {
-    return pw.Container(
-      alignment: alignment,
-      padding: const pw.EdgeInsets.all(8.0),
-      child: pw.Text(
-        text,
-        style: pw.TextStyle(
-          fontSize: 10,
-          fontWeight: pw.FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  List<List<String>> _getPdfTableData(
-      List<DocumentSnapshot> customerList, Map<String, String?> accountNames) {
-    final data = <List<String>>[];
-
-    // Adding table rows
-    for (var document in customerList) {
-      Map<String, dynamic> dataRow = document.data() as Map<String, dynamic>;
-
-      String drAcId = dataRow['drAcId'] ?? '';
-      String crAcId = dataRow['crAcId'] ?? '';
-      DateTime dateText = (dataRow['date'] as Timestamp).toDate();
-      String formattedDate = DateFormat('dd MM yy').format(dateText);
-      String remarksText = dataRow['remarks'] ?? '';
-      String type = dataRow['type'] ?? '';
-
-      creditText = (dataRow['credit'] ?? 0.0);
-      debitText = (dataRow['debit'] ?? 0.0);
-      creditSrText = (dataRow['creditsar'] ?? 0.0);
-      debitSrText = (dataRow['debitsar'] ?? 0.0);
-
-      String? drAcName = accountNames[drAcId] ?? '';
-      String? crAcName = accountNames[crAcId] ?? '';
-
-      String accountDisplayName = drAcId.isNotEmpty ? drAcName : crAcName;
-
-      data.add([
-        formattedDate,
-        _numberFormat.format(creditSrText),
-        _numberFormat.format(debitSrText),
-        _numberFormat.format(creditText),
-        _numberFormat.format(debitText),
-        // accountDisplayName,
-        remarksText,
-      ]);
-
-      totalDebitPK = 0;
-      totalCreditPK = 0;
-      totalDebitSR = 0;
-      totalCreditSR = 0;
-      bfBalancePK = 0;
-      bfBalanceSR = 0;
-
-      if (type == 'JV') {
-        if (_selectedAcId == drAcId) {
-          debitText = debitText;
-          creditText = 0.0;
-
-          debitSrText = debitSrText;
-          creditSrText = 0.0;
+        if (type == 'JV') {
+          if (accountId == drAcId) {
+            debitText = (data['credit'] ?? 0.0);
+            creditText = 0.0;
+            debitSrText = (data['creditsar'] ?? 0.0);
+            creditSrText = 0.0;
+          } else {
+            debitText = 0.0;
+            creditText = (data['debit'] ?? 0.0);
+            debitSrText = 0.0;
+            creditSrText = (data['debitsar'] ?? 0.0);
+          }
         } else {
-          debitText = 0.0;
-          creditText = creditText;
-
-          debitSrText = 0.0;
-          creditSrText = creditSrText;
+          debitText = (data['credit'] ?? 0.0);
+          creditText = (data['debit'] ?? 0.0);
+          debitSrText = (data['creditsar'] ?? 0.0);
+          creditSrText = (data['debitsar'] ?? 0.0);
         }
-      } else {
-        debitText = debitText;
-        creditText = creditText;
 
-        debitSrText = debitSrText;
-        creditSrText = creditSrText;
+        totalDebitPK += creditText;
+        totalCreditPK += debitText;
+        totalDebitSR += creditSrText;
+        totalCreditSR += debitSrText;
       }
-
-      totalDebitPK += creditText;
-      totalCreditPK += debitText;
-      totalDebitSR += creditSrText;
-      totalCreditSR += debitSrText;
-
-      // Calculate B/F Balance
-      bfBalancePK = totalDebitPK - totalCreditPK;
-      bfBalanceSR = totalDebitSR - totalCreditSR;
+    } catch (error) {
+      // Handle errors if needed
+      // print('Error: $error');
     }
 
-    return data;
+    return {
+      'totalDebitPk': totalDebitPK,
+      'totalCreditPk': totalCreditPK,
+      'totalDebitSr': totalDebitSR,
+      'totalCreditSr': totalCreditSR,
+    };
   }
+
 }

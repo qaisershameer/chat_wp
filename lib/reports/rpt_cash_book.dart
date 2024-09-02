@@ -232,9 +232,10 @@ class RptCashBookState extends State<RptCashBook> {
                     },
                   ),
                 ),
-                const SizedBox(width: 10.0),
-                // Date FROM Text Field
 
+                const SizedBox(width: 10.0),
+
+                // Date FROM Text Field
                 Expanded(
                   child: TextFormField(
                     controller: _dateFromController,
@@ -262,7 +263,9 @@ class RptCashBookState extends State<RptCashBook> {
                     },
                   ),
                 ),
+
                 const SizedBox(width: 10.0),
+
                 // Date To Text Field
                 Expanded(
                   child: TextFormField(
@@ -308,10 +311,10 @@ class RptCashBookState extends State<RptCashBook> {
       stream: _vouchers.getCashBookStream(kUserId, [kCRV, kCPV], _selectedDateFrom, _selectedDateTo), // Pass the list of types
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          List<DocumentSnapshot> customerList = snapshot.data!.docs;
+          List<DocumentSnapshot> accountsList = snapshot.data!.docs;
 
           return FutureBuilder<Map<String, String?>>(
-            future: _getAccountNames(customerList),
+            future: _getAccountNames(accountsList),
             builder: (context, futureSnapshot) {
               if (futureSnapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -327,7 +330,7 @@ class RptCashBookState extends State<RptCashBook> {
                 totalCreditSR = 0.0;
 
                 // Calculate totals
-                for (var document in customerList) {
+                for (var document in accountsList) {
                   Map<String, dynamic> data = document.data() as Map<String, dynamic>;
                   totalDebitPK += (data['credit'] ?? 0.0);
                   totalCreditPK += (data['debit'] ?? 0.0);
@@ -393,7 +396,7 @@ class RptCashBookState extends State<RptCashBook> {
                           columns: columns,
                           rows: <DataRow>[
 
-                            ...customerList.map((document) {
+                            ...accountsList.map((document) {
                               Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
                               final voucherID = document.id; // Use final here to ensure immutability
@@ -529,23 +532,23 @@ class RptCashBookState extends State<RptCashBook> {
 
 
                                     // GestureDetector(
-                                      //   onTap: () {
-                                      //     // Replace with a simple test widget
-                                      //     Navigator.push(
-                                      //       context,
-                                      //       MaterialPageRoute(
-                                      //         builder: (context) => Scaffold(
-                                      //           appBar: AppBar(title: Text('Test')),
-                                      //           body: Center(child: Text('Tapped Row with Voucher ID: $voucherID')),
-                                      //         ),
-                                      //       ),
-                                      //     );
-                                      //   },
-                                      //   child: Container(
-                                      //     alignment: Alignment.centerLeft,
-                                      //     child: Text(accountDisplayName),
-                                      //   ),
-                                      // )
+                                    //   onTap: () {
+                                    //     // Replace with a simple test widget
+                                    //     Navigator.push(
+                                    //       context,
+                                    //       MaterialPageRoute(
+                                    //         builder: (context) => Scaffold(
+                                    //           appBar: AppBar(title: Text('Test')),
+                                    //           body: Center(child: Text('Tapped Row with Voucher ID: $voucherID')),
+                                    //         ),
+                                    //       ),
+                                    //     );
+                                    //   },
+                                    //   child: Container(
+                                    //     alignment: Alignment.centerLeft,
+                                    //     child: Text(accountDisplayName),
+                                    //   ),
+                                    // )
 
                                   ),
                                 if (visibleColumns.contains(5))
@@ -672,12 +675,12 @@ class RptCashBookState extends State<RptCashBook> {
 
 
   Future<Map<String, String?>> _getAccountNames(
-      List<DocumentSnapshot> customerList) async {
+      List<DocumentSnapshot> accountsList) async {
     Map<String, String?> accountNames = {};
     Set<String> accountIds = {}; // Use a Set to avoid duplicates
 
     // Collect all unique account IDs
-    for (DocumentSnapshot document in customerList) {
+    for (DocumentSnapshot document in accountsList) {
       Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
       // Check and add DR Account ID
@@ -726,9 +729,9 @@ class RptCashBookState extends State<RptCashBook> {
       final snapshot = await _vouchers
           .getCashBookStream(kUserId, [kCRV, kCPV], _selectedDateFrom, _selectedDateTo)
           .first;
-      final customerList = snapshot.docs;
+      final accountsList = snapshot.docs;
 
-      final futureAccountNames = _getAccountNames(customerList);
+      final futureAccountNames = _getAccountNames(accountsList);
       final accountNames = await futureAccountNames;
 
       final pdf = pw.Document();
@@ -760,7 +763,7 @@ class RptCashBookState extends State<RptCashBook> {
                       ],
                     ),
                     // Data rows
-                    ..._getPdfTableData(customerList, accountNames).map((row) {
+                    ..._getPdfTableData(accountsList, accountNames).map((row) {
                       return pw.TableRow(
                         children: [
                           _buildCell(row[0], pw.Alignment.center),
@@ -850,12 +853,12 @@ class RptCashBookState extends State<RptCashBook> {
     );
   }
 
-  List<List<String>> _getPdfTableData(List<DocumentSnapshot> customerList,
+  List<List<String>> _getPdfTableData(List<DocumentSnapshot> accountsList,
       Map<String, String?> accountNames) {
     final data = <List<String>>[];
 
     // Adding table rows
-    for (var document in customerList) {
+    for (var document in accountsList) {
       Map<String, dynamic> dataRow = document.data() as Map<String, dynamic>;
 
       String drAcId = dataRow['drAcId'] ?? '';

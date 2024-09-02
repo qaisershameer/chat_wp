@@ -41,7 +41,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
   final NumberFormat _numberFormat1 = NumberFormat('#,##0.0');
   final NumberFormat _numberFormat2 = NumberFormat('#,##0.00');
 
-  final List<String> _accountType = <String>[
+  final List<String> _reportType = <String>[
     'ALL',
     'SAR',
     'PKR',
@@ -217,10 +217,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           children: <Widget>[
+            // REPORT TYPE Data COMBO, DATE FROM, DATE TO
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                // ACCOUNT TYPE Data COMBO
                 const Icon(
                   FontAwesomeIcons.database,
                   size: 25.0,
@@ -229,10 +229,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
                 const SizedBox(width: 10.0),
                 SizedBox(
                   width:
-                      MediaQuery.of(context).size.width / 7.0, // Adjusted width
+                  MediaQuery.of(context).size.width / 7.0, // Adjusted width
                   child: DropdownButtonFormField<String>(
                     isExpanded: true,
-                    items: _accountType
+                    items: _reportType
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -272,7 +272,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                   child: TextFormField(
                     controller: _dateFromController,
                     keyboardType:
-                        TextInputType.none, // Disable// keyboard input
+                    TextInputType.none, // Disable// keyboard input
                     onTap: () {
                       FocusScope.of(context)
                           .requestFocus(FocusNode()); // Hide keyboard
@@ -336,7 +336,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
             const SizedBox(height: 5.0),
 
-            // Account Data COMBO
+            // Account TYPE Data COMBO
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
@@ -359,12 +359,12 @@ class RptAcLedgerState extends State<RptAcLedger> {
                         items: accountList,
                         itemAsString: (DocumentSnapshot document) {
                           Map<String, dynamic> data =
-                              document.data() as Map<String, dynamic>;
+                          document.data() as Map<String, dynamic>;
                           return data[
-                              'accountName']; // or any other field you want to display
+                          'accountName']; // or any other field you want to display
                         },
                         selectedItem: accountList.isNotEmpty &&
-                                accountList.any(
+                            accountList.any(
                                     (document) => document.id == _selectedAcId)
                             ? accountList.firstWhere(
                                 (document) => document.id == _selectedAcId)
@@ -379,7 +379,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                             setState(() {
                               _selectedAcId = document.id;
                               _selectedAcText = (document.data()
-                                  as Map<String, dynamic>)['accountName'];
+                              as Map<String, dynamic>)['accountName'];
                             });
                           }
                         },
@@ -420,11 +420,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
         }
 
         final documents = snapshot.data ?? [];
-        List<DocumentSnapshot> customerList =
-            documents.cast<DocumentSnapshot>();
+        List<DocumentSnapshot> accountsList = documents.cast<DocumentSnapshot>();
 
         return FutureBuilder<Map<String, String?>>(
-          future: _getAccountNames(customerList),
+          future: _getAccountNames(accountsList),
           builder: (context, futureSnapshot) {
             if (futureSnapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -448,7 +447,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                         DataColumn(label: Text('Remarks')),
                       ],
                       rows: [
-                        ...customerList.map((document) {
+                        ...accountsList.map((document) {
                           final voucherID = document.id ?? ''; // Use final here to ensure immutability
                           final data = document.data() as Map<String, dynamic>;
 
@@ -702,9 +701,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                   );
                 },
               );
-
             }
-
             return const Center(child: Text('No data available'));
           },
         );
@@ -713,9 +710,9 @@ class RptAcLedgerState extends State<RptAcLedger> {
   }
 
   Future<Map<String, String?>> _getAccountNames(
-      List<DocumentSnapshot> customerList) async {
+      List<DocumentSnapshot> accountsList) async {
     Map<String, String?> accountNames = {};
-    // for (var document in customerList) {
+    // for (var document in accountsList) {
     //   String drAcId = (document.data() as Map<String, dynamic>)['drAcId'] ?? '';
     //   if (drAcId.isNotEmpty) {
     //     // DocumentSnapshot accountDoc = await _accounts.getAccountById(drAcId);
@@ -724,7 +721,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
     //   }
     // }
     accountNames['drAcId'] =
-        'QAISER SHAMEER'; // FOR UN-COMMIT ABOVE THEN REMOVE THIS LINE
+    'QAISER SHAMEER'; // FOR UN-COMMIT ABOVE THEN REMOVE THIS LINE
     return accountNames;
   }
 
@@ -752,9 +749,9 @@ class RptAcLedgerState extends State<RptAcLedger> {
       final snapshot = await _vouchers
           .getCashBookStream(kUserId, [kCRV, kCPV], null, null)
           .first;
-      final customerList = snapshot.docs;
+      final accountsList = snapshot.docs;
 
-      final futureAccountNames = _getAccountNames(customerList);
+      final futureAccountNames = _getAccountNames(accountsList);
       final accountNames = await futureAccountNames;
 
       final pdf = pw.Document();
@@ -787,7 +784,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                       ],
                     ),
                     // Data rows
-                    ..._getPdfTableData(customerList, accountNames).map((row) {
+                    ..._getPdfTableData(accountsList, accountNames).map((row) {
                       return pw.TableRow(
                         children: [
                           _buildCell(row[0], pw.Alignment.center),
@@ -888,11 +885,11 @@ class RptAcLedgerState extends State<RptAcLedger> {
   }
 
   List<List<String>> _getPdfTableData(
-      List<DocumentSnapshot> customerList, Map<String, String?> accountNames) {
+      List<DocumentSnapshot> accountsList, Map<String, String?> accountNames) {
     final data = <List<String>>[];
 
     // Adding table rows
-    for (var document in customerList) {
+    for (var document in accountsList) {
       Map<String, dynamic> dataRow = document.data() as Map<String, dynamic>;
 
       String drAcId = dataRow['drAcId'] ?? '';
