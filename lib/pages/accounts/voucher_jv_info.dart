@@ -160,14 +160,82 @@ class VoucherJvInfoState extends State<VoucherJvInfo> {
 
                       return Container(
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
                         padding: const EdgeInsets.all(3),
                         child: ListTile(
-                          title: Text('Cr: ${crAccountName ?? 'NA'}\nDr: ${drAccountName ?? 'NA'}'),
-                          subtitle: Text('SAR ==> Dr: $debitSarText * Cr: $creditSarText\nPKR ==> Dr: $debitText * Cr: $creditText\n$remarksText\n$formattedDate'),
+                          title: Text.rich(
+                            TextSpan(
+                              children: [
+                                const TextSpan(
+                                  text: 'Cr: ',
+                                  style: TextStyle(color: Colors.teal), // Color for the label 'Cr:'
+                                ),
+                                TextSpan(
+                                  text: crAccountName ?? 'NA',
+                                  style: const TextStyle(color: Colors.teal), // Color for crAccountName
+                                ),
+                                const TextSpan(
+                                  text: '\nDr: ',
+                                  style: TextStyle(color: Colors.red), // Color for the label 'Dr:'
+                                ),
+                                TextSpan(
+                                  text: drAccountName ?? 'NA',
+                                  style: const TextStyle(color: Colors.red), // Color for drAccountName
+                                ),
+                              ],
+                            ),
+                          ),
+
+                            subtitle: Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'SAR: Dr: ',
+                                    style: TextStyle(color: Colors.black), // Color for 'SAR ==> Dr:'
+                                  ),
+                                  TextSpan(
+                                    text: debitSarText.toString(),
+                                    style: const TextStyle(color: Colors.blue), // Color for debitSarText
+                                  ),
+                                  const TextSpan(
+                                    text: ' * Cr: ',
+                                    style: TextStyle(color: Colors.black), // Color for '* Cr:'
+                                  ),
+                                  TextSpan(
+                                    text: creditSarText.toString(),
+                                    style: const TextStyle(color: Colors.blue), // Color for creditSarText
+                                  ),
+                                  const TextSpan(
+                                    text: '\nPKR: Dr: ',
+                                    style: TextStyle(color: Colors.black), // Color for 'PKR ==> Dr:'
+                                  ),
+                                  TextSpan(
+                                    text: debitText.toString(),
+                                    style: const TextStyle(color: Colors.green), // Color for debitText
+                                  ),
+                                  const TextSpan(
+                                    text: ' * Cr: ',
+                                    style: TextStyle(color: Colors.black), // Color for '* Cr:'
+                                  ),
+                                  TextSpan(
+                                    text: creditText.toString(),
+                                    style: const TextStyle(color: Colors.green), // Color for creditText
+                                  ),
+                                  TextSpan(
+                                    text: '\n$remarksText\n',
+                                    style: const TextStyle(color: Colors.blueGrey), // Color for remarksText
+                                  ),
+                                  TextSpan(
+                                    text: formattedDate,
+                                    style: const TextStyle(color: Colors.grey), // Color for formattedDate
+                                  ),
+                                ],
+                              ),
+                            )
+                          ,
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [

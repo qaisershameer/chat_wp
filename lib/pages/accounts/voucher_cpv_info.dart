@@ -134,7 +134,7 @@ class VoucherCpvInfoState extends State<VoucherCpvInfo> {
 
                       return Container(
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),

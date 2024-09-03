@@ -40,6 +40,17 @@ class AccountService {
     return accountsStream;
   }
 
+// READ: getting accounts from database
+  Stream<QuerySnapshot> getAccountsTypeAreaStream(String userId, String type, String areaId) {
+    final accountsStream = _accounts
+        .where('uid', isEqualTo: userId)
+        .where('type', isEqualTo: type)
+        .where('areaId', isEqualTo: areaId)
+        .orderBy("accountName", descending: false)
+        .snapshots();
+    return accountsStream;
+  }
+
   // UPDATE: update accounts given a doc id
   Future<void> updateAccount(
       String? docID,

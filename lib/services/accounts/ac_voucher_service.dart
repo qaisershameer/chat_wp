@@ -253,6 +253,8 @@ class AcVoucherService {
   Stream<List<QueryDocumentSnapshot>> getAcTrialBalanceStream(
       String userId, String accId, DateTime? startDate, DateTime? endDate) {
 
+    print('A/C ID: $accId');
+
     var query1 = _vouchers
         .where('uid', isEqualTo: userId)
         .where('drAcId', isEqualTo: accId);
@@ -287,13 +289,6 @@ class AcVoucherService {
     // Add ordering
     query2 = query2
         .orderBy('crAcId', descending: true);
-        // .orderBy('timestamp', descending: true);
-
-    // final query2 = _vouchers
-    //     .where('uid', isEqualTo: userId)
-    //     .where('crAcId', isEqualTo: accId)
-    //     .orderBy('date', descending: true)
-    //     .orderBy('timestamp', descending: true);
 
     final stream1 = query1.snapshots().map((snapshot) => snapshot.docs);
     final stream2 = query2.snapshots().map((snapshot) => snapshot.docs);

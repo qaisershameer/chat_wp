@@ -4,11 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:chat_wp/themes/const.dart';
+import 'package:chat_wp/services/accounts/area_service.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 import 'package:chat_wp/services/accounts/ac_voucher_service.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 
 class RptTrialBal extends StatefulWidget {
   const RptTrialBal({super.key});
@@ -18,11 +16,12 @@ class RptTrialBal extends StatefulWidget {
 }
 
 class RptTrialBalState extends State<RptTrialBal> {
+  final AreaService _areas = AreaService();
   final AccountService _accounts = AccountService();
   final AcVoucherService _vouchers = AcVoucherService();
   // final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
 
-  String? _selectedAcId, _selectedAcText, _selectedAcType, _selectedReport;
+  String? _selectedAcId, _selectedReport, _selectedAcType, _selectedArea;
   // bool _showData = false;
 
   final List<String> _reportType = <String>[
@@ -254,19 +253,13 @@ class RptTrialBalState extends State<RptTrialBal> {
                       labelText: 'To',
                       labelStyle: TextStyle(color: Colors.teal),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Invalid Date To';
-                      }
-                      return null;
-                    },
                   ),
                 ),
               ],
             ),
 
             const SizedBox(height: 5.0),
-            // ACCOUNT TYPE Data COMBO
+
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
@@ -275,9 +268,12 @@ class RptTrialBalState extends State<RptTrialBal> {
                   size: 20.0,
                   color: Colors.teal,
                 ),
-                const SizedBox(width: 20.0),
+
+                const SizedBox(width: 5.0),
+
+                // ACCOUNT TYPE Data COMBO
                 SizedBox(
-                  width: MediaQuery.of(context).size.width / 1.25,
+                  width: MediaQuery.of(context).size.width / 2.5,
                   child: DropdownButtonFormField<String>(
                     isExpanded: true,
                     items: _accountType
@@ -304,12 +300,85 @@ class RptTrialBalState extends State<RptTrialBal> {
                     },
                     value: _selectedAcType,
                     hint: const Text(
-                      'Select Type',
+                      'Account Type',
                       style: TextStyle(
                         color: Colors.teal,
                         fontSize: 12.0,
                       ),
                     ),
+                  ),
+                ),
+
+                const SizedBox(width: 5.0),
+
+                const Icon(
+                  FontAwesomeIcons.chartArea,
+                  size: 20.0,
+                  color: Colors.teal,
+                ),
+
+                const SizedBox(width: 10.0),
+
+                // Area Data Combo
+                SizedBox(
+                  width: MediaQuery.of(context).size.width / 2.5,
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: _areas.getAreasStream(kUserId),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      }
+
+                      List<DocumentSnapshot> areaList =
+                          snapshot.data?.docs ?? [];
+                      List<DropdownMenuItem<String>> dropdownItems =
+                          areaList.map((document) {
+                        String docID = document.id;
+                        Map<String, dynamic> data =
+                            document.data() as Map<String, dynamic>;
+                        String areaText = data['area_name'];
+
+                        return DropdownMenuItem<String>(
+                          value: docID,
+                          child: Text(
+                            areaText,
+                            style: const TextStyle(
+                              color: Colors.teal,
+                              fontSize: 12.0,
+                            ),
+                          ),
+                        );
+                      }).toList();
+
+                      String? initialArea = dropdownItems.isNotEmpty
+                          ? dropdownItems[0].value
+                          : null;
+
+                      // Ensure _selectedArea is valid or fallback to initialArea
+                      String? currentArea = dropdownItems
+                              .any((item) => item.value == _selectedArea)
+                          ? _selectedArea
+                          : initialArea;
+
+                      return DropdownButtonFormField<String>(
+                        value: currentArea,
+                        items: dropdownItems,
+                        hint: const Text(
+                          'Select Area',
+                          style: TextStyle(color: Colors.teal),
+                        ),
+                        isExpanded: false,
+                        onChanged: (areaValue) {
+                          setState(() {
+                            _selectedArea = areaValue;
+                          });
+                        },
+                      );
+                    },
                   ),
                 ),
               ],
@@ -330,123 +399,189 @@ class RptTrialBalState extends State<RptTrialBal> {
     return StreamBuilder<QuerySnapshot>(
       stream: _selectedAcType != null
           ? _accounts.getAccountsTypeStream(kUserId, _selectedAcType!)
+          // ? _accounts.getAccountsTypeAreaStream(kUserId, _selectedAcType!, _selectedArea!)
           : _accounts.getAccountsStream(kUserId),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<DocumentSnapshot> accountsList = snapshot.data!.docs;
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SingleChildScrollView(
-              child: DataTable(
-                columns: const <DataColumn>[
-                  DataColumn(label: Text('SR-Dr')),
-                  DataColumn(label: Text('SR-Cr')),
-                  DataColumn(label: Text('PK-Dr')),
-                  DataColumn(label: Text('PK-Cr')),
-                  DataColumn(label: Text('Name')),
-                ],
-                rows: accountsList.map<DataRow>((DocumentSnapshot document) {
-                  String accountId = document.id; // Retrieving document ID
 
-                  Map<String, dynamic> data =
-                  document.data() as Map<String, dynamic>;
+          // Create a Future for each row to fetch ledger totals
+          Future<List<Map<String, double>>> fetchLedgerTotals(
+              List<String> accountIds) async {
+            List<Map<String, double>> results = [];
+            for (var id in accountIds) {
+              results.add(await calculateLedgerTotals(id));
+            }
+            return results;
+          }
+
+          List<String> accountIds = accountsList.map((doc) => doc.id).toList();
+
+          return FutureBuilder<List<Map<String, double>>>(
+            future: fetchLedgerTotals(accountIds),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData) {
+                return const Center(child: Text('No data available'));
+              } else {
+                List<Map<String, double>> ledgerTotalsList = snapshot.data!;
+
+                // Calculate totals for all columns
+                double totalDebitSr = 0.0;
+                double totalCreditSr = 0.0;
+                double totalDebitPk = 0.0;
+                double totalCreditPk = 0.0;
+
+                double displayBalanceSr = 0.0;
+                double displayBalancePk = 0.0;
+
+
+                List<DataRow> dataRows = accountsList.asMap().entries.map<DataRow>((entry) {
+                  int index = entry.key;
+                  DocumentSnapshot document = entry.value;
+                  String accountId = document.id;
+                  Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                  Map<String, double> totals = ledgerTotalsList[index];
+
+                  double totalDebitSrRow = totals['totalDebitSr'] ?? 0.0;
+                  double totalCreditSrRow = totals['totalCreditSr'] ?? 0.0;
+                  double totalDebitPkRow = totals['totalDebitPk'] ?? 0.0;
+                  double totalCreditPkRow = totals['totalCreditPk'] ?? 0.0;
+
+                  double bfSAR = totalDebitSrRow - totalCreditSrRow;
+                  double bfPKR = totalDebitPkRow - totalCreditPkRow;
+
+                  double displayDebitSr = bfSAR > 0 ? bfSAR : 0;
+                  double displayCreditSr = bfSAR < 0 ? bfSAR : 0;
+                  double displayDebitPk = bfPKR > 0 ? bfPKR : 0;
+                  double displayCreditPk = bfPKR < 0 ? bfPKR : 0;
+
+                  // Accumulate totals
+                  totalDebitSr += displayDebitSr;
+                  totalCreditSr += displayCreditSr;
+                  totalDebitPk += displayDebitPk;
+                  totalCreditPk += displayCreditPk;
+
+                  // b/f totals
+                  displayBalanceSr = totalDebitSr + totalCreditSr;
+                  displayBalancePk = totalDebitPk + totalCreditPk ?? 0.0;
 
                   return DataRow(
                     cells: <DataCell>[
-                      DataCell(FutureBuilder<Map<String, double>>(
-                        future: calculateLedgerTotals(accountId),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator());
-                          } else if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          } else if (!snapshot.hasData) {
-                            return const Text('No data');
-                          } else {
-                            Map<String, double> totals = snapshot.data!;
-                            double totalDebitSr = totals['totalDebitSr'] ?? 0.0;
-                            return Text(
-                              _numberFormat1.format(totalDebitSr),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            );
-                          }
-                        },
+                      DataCell(Text(
+                        _numberFormat.format(displayDebitSr),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
                       )),
-                      DataCell(FutureBuilder<Map<String, double>>(
-                        future: calculateLedgerTotals(accountId),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator());
-                          } else if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          } else if (!snapshot.hasData) {
-                            return const Text('No data');
-                          } else {
-                            Map<String, double> totals = snapshot.data!;
-                            double totalCreditSr = totals['totalCreditSr'] ?? 0.0;
-                            return Text(
-                              _numberFormat1.format(totalCreditSr),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            );
-                          }
-                        },
+                      DataCell(Text(
+                        _numberFormat.format(displayCreditSr),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
                       )),
-                      DataCell(FutureBuilder<Map<String, double>>(
-                        future: calculateLedgerTotals(accountId),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator());
-                          } else if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          } else if (!snapshot.hasData) {
-                            return const Text('No data');
-                          } else {
-                            Map<String, double> totals = snapshot.data!;
-                            double totalDebitPk = totals['totalDebitPk'] ?? 0.0;
-                            return Text(
-                              _numberFormat1.format(totalDebitPk),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                              ),
-                            );
-                          }
-                        },
+                      DataCell(Text(
+                        _numberFormat1.format(displayDebitPk),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
                       )),
-                      DataCell(FutureBuilder<Map<String, double>>(
-                        future: calculateLedgerTotals(accountId),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator());
-                          } else if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          } else if (!snapshot.hasData) {
-                            return const Text('No data');
-                          } else {
-                            Map<String, double> totals = snapshot.data!;
-                            double totalCreditPk = totals['totalCreditPk'] ?? 0.0;
-                            return Text(
-                              _numberFormat1.format(totalCreditPk),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
-                              ),
-                            );
-                          }
-                        },
+                      DataCell(Text(
+                        _numberFormat1.format(displayCreditPk),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
                       )),
                       DataCell(Text(data['accountName'] ?? '')),
                     ],
                   );
-                }).toList(),
-              ),
-            ),
+                }).toList();
+
+                // Add the total row
+                dataRows.add(DataRow(
+                  cells: <DataCell>[
+                    DataCell(Text(
+                      _numberFormat.format(totalDebitSr),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    )),
+                    DataCell(Text(
+                      _numberFormat.format(totalCreditSr),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    )),
+                    DataCell(Text(
+                      _numberFormat1.format(totalDebitPk),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    )),
+                    DataCell(Text(
+                      _numberFormat1.format(totalCreditPk),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    )),
+                    const DataCell(Text('Total', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red,))),
+                  ],
+                ));
+
+                // Add the b/f balances row
+                dataRows.add(DataRow(
+
+                  cells: <DataCell>[const DataCell(Text(''),),
+
+                    DataCell(Text(
+                      _numberFormat.format(displayBalanceSr),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.teal,
+                      ),
+                    )),
+
+                    const DataCell(Text(''),),
+
+                    DataCell(Text(
+                      _numberFormat1.format(displayBalancePk),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.teal,
+                      ),
+                    )),
+                    const DataCell(Text('Balance', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal,))),
+                  ],
+                ));
+
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: SingleChildScrollView(
+                    child: DataTable(
+                      columns: const <DataColumn>[
+                        DataColumn(label: Text('SR-Dr')),
+                        DataColumn(label: Text('SR-Cr')),
+                        DataColumn(label: Text('PK-Dr')),
+                        DataColumn(label: Text('PK-Cr')),
+                        DataColumn(label: Text('Name')),
+                      ],
+                      rows: dataRows,
+                    ),
+                  ),
+                );
+              }
+            },
           );
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
@@ -465,7 +600,10 @@ class RptTrialBalState extends State<RptTrialBal> {
 
     try {
       // Fetch the documents from the stream
-      final snapshot = await _vouchers.getAcTrialBalanceStream(kUserId, _selectedAcId ?? '', _selectedDateFrom, _selectedDateTo).first;
+      final snapshot = await _vouchers
+          .getAcTrialBalanceStream(
+              kUserId, accountId ?? '', _selectedDateFrom, _selectedDateTo)
+          .first;
 
       List<DocumentSnapshot> voucherList = snapshot.cast<DocumentSnapshot>();
 
@@ -516,5 +654,4 @@ class RptTrialBalState extends State<RptTrialBal> {
       'totalCreditSr': totalCreditSR,
     };
   }
-
 }
