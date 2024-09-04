@@ -34,7 +34,7 @@ class RptCashBookState extends State<RptCashBook> {
   // Create a NumberFormat instance for comma-separated numbers
   final NumberFormat _numberFormat = NumberFormat('#,##0');
   final NumberFormat _numberFormat1 = NumberFormat('#,##0.0');
-  final NumberFormat _numberFormat2 = NumberFormat('#,##0.00');
+  // final NumberFormat _numberFormat2 = NumberFormat('#,##0.00');
 
   String? _selectedReport;
   // bool _showData = false;
@@ -529,27 +529,6 @@ class RptCashBookState extends State<RptCashBook> {
                                           child: Text(accountDisplayName),
                                         ),
                                       )
-
-
-                                    // GestureDetector(
-                                    //   onTap: () {
-                                    //     // Replace with a simple test widget
-                                    //     Navigator.push(
-                                    //       context,
-                                    //       MaterialPageRoute(
-                                    //         builder: (context) => Scaffold(
-                                    //           appBar: AppBar(title: Text('Test')),
-                                    //           body: Center(child: Text('Tapped Row with Voucher ID: $voucherID')),
-                                    //         ),
-                                    //       ),
-                                    //     );
-                                    //   },
-                                    //   child: Container(
-                                    //     alignment: Alignment.centerLeft,
-                                    //     child: Text(accountDisplayName),
-                                    //   ),
-                                    // )
-
                                   ),
                                 if (visibleColumns.contains(5))
                                   DataCell(Text(formattedDate)),
@@ -586,7 +565,7 @@ class RptCashBookState extends State<RptCashBook> {
                                 DataCell(Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                    _numberFormat2.format(totalDebitPK),
+                                    _numberFormat1.format(totalDebitPK),
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.red,
@@ -597,7 +576,7 @@ class RptCashBookState extends State<RptCashBook> {
                                 DataCell(Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                    _numberFormat2.format(totalCreditPK),
+                                    _numberFormat1.format(totalCreditPK),
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.red,
@@ -635,7 +614,7 @@ class RptCashBookState extends State<RptCashBook> {
                                 DataCell(Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
-                                    _numberFormat2.format(bfBalancePK),
+                                    _numberFormat1.format(bfBalancePK),
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.teal,

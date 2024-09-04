@@ -42,13 +42,35 @@ class AccountService {
 
 // READ: getting accounts from database
   Stream<QuerySnapshot> getAccountsTypeAreaStream(String userId, String type, String areaId) {
-    final accountsStream = _accounts
-        .where('uid', isEqualTo: userId)
-        .where('type', isEqualTo: type)
-        .where('areaId', isEqualTo: areaId)
-        .orderBy("accountName", descending: false)
-        .snapshots();
-    return accountsStream;
+
+    // print('Area Id: $areaId');
+    // print('Type : $type');
+
+    var query1 = _accounts
+        .where('uid', isEqualTo: userId);
+
+    // Add date filters conditionally
+    if (type != 'ALL') {
+      query1 = query1.where('type', isEqualTo: type);
+    }
+    if (areaId != 'ALL') {
+      query1 = query1.where('areaId', isEqualTo: areaId);
+    }
+
+    // Add ordering
+    query1 = query1
+        .orderBy('accountName', descending: true);
+
+    return query1.snapshots();
+
+    // final accountsStream = _accounts
+    //     .where('uid', isEqualTo: userId)
+    //     .where('type', isEqualTo: type)
+    //     .where('areaId', isEqualTo: areaId)
+    //     .orderBy("accountName", descending: false)
+    //     .snapshots();
+    // return accountsStream;
+
   }
 
   // UPDATE: update accounts given a doc id

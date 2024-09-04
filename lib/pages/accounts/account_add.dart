@@ -40,7 +40,9 @@ class AccountAddState extends State<AccountAdd> {
 
   final List<String> _accountType = <String>[
     'PARTY',
-    'PARTY B',
+    'CUSTOMER',
+    'SUPPLIER',
+    'BANK',
     'ASSETS',
     'LIABILITY',
     'CAPITAL',

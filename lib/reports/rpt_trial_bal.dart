@@ -1,3 +1,4 @@
+import 'package:chat_wp/reports/rpt_ac_ledger.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,9 @@ class RptTrialBalState extends State<RptTrialBal> {
   final List<String> _accountType = <String>[
     'ALL',
     'PARTY',
-    'PARTY B',
+    'CUSTOMER',
+    'SUPPLIER',
+    'BANK',
     'ASSETS',
     'LIABILITY',
     'CAPITAL',
@@ -81,7 +84,7 @@ class RptTrialBalState extends State<RptTrialBal> {
   // Create a NumberFormat instance for comma-separated numbers
   final NumberFormat _numberFormat = NumberFormat('#,##0');
   final NumberFormat _numberFormat1 = NumberFormat('#,##0.0');
-  final NumberFormat _numberFormat2 = NumberFormat('#,##0.00');
+  // final NumberFormat _numberFormat2 = NumberFormat('#,##0.00');
 
   // Numeric Fields Double Variables
   double debitText = 0;
@@ -269,7 +272,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                   color: Colors.teal,
                 ),
 
-                const SizedBox(width: 5.0),
+                const SizedBox(width: 10.0),
 
                 // ACCOUNT TYPE Data COMBO
                 SizedBox(
@@ -333,13 +336,10 @@ class RptTrialBalState extends State<RptTrialBal> {
                         return Center(child: Text('Error: ${snapshot.error}'));
                       }
 
-                      List<DocumentSnapshot> areaList =
-                          snapshot.data?.docs ?? [];
-                      List<DropdownMenuItem<String>> dropdownItems =
-                          areaList.map((document) {
+                      List<DocumentSnapshot> areaList = snapshot.data?.docs ?? [];
+                      List<DropdownMenuItem<String>> dropdownItems = areaList.map((document) {
                         String docID = document.id;
-                        Map<String, dynamic> data =
-                            document.data() as Map<String, dynamic>;
+                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
                         String areaText = data['area_name'];
 
                         return DropdownMenuItem<String>(
@@ -354,13 +354,27 @@ class RptTrialBalState extends State<RptTrialBal> {
                         );
                       }).toList();
 
+                      // Add "ALL" option at index 0
+                      dropdownItems.insert(
+                        0,
+                        const DropdownMenuItem<String>(
+                          value: 'ALL',
+                          child: Text(
+                            'ALL',
+                            style: TextStyle(
+                              color: Colors.teal,
+                              fontSize: 12.0,
+                            ),
+                          ),
+                        ),
+                      );
+
                       String? initialArea = dropdownItems.isNotEmpty
                           ? dropdownItems[0].value
                           : null;
 
                       // Ensure _selectedArea is valid or fallback to initialArea
-                      String? currentArea = dropdownItems
-                              .any((item) => item.value == _selectedArea)
+                      String? currentArea = dropdownItems.any((item) => item.value == _selectedArea)
                           ? _selectedArea
                           : initialArea;
 
@@ -381,6 +395,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                     },
                   ),
                 ),
+
               ],
             ),
 
@@ -396,10 +411,13 @@ class RptTrialBalState extends State<RptTrialBal> {
   }
 
   StreamBuilder<QuerySnapshot<Object?>> _getAccounts() {
+
+    // print('Aread Id: $_selectedArea');
+
     return StreamBuilder<QuerySnapshot>(
-      stream: _selectedAcType != null
-          ? _accounts.getAccountsTypeStream(kUserId, _selectedAcType!)
-          // ? _accounts.getAccountsTypeAreaStream(kUserId, _selectedAcType!, _selectedArea!)
+      stream: _selectedAcType != null || _selectedArea != null
+          // ? _accounts.getAccountsTypeAreaStream(kUserId, _selectedAcType!)
+          ? _accounts.getAccountsTypeAreaStream(kUserId, _selectedAcType ?? 'ALL', _selectedArea ?? 'ALL')
           : _accounts.getAccountsStream(kUserId),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
@@ -442,8 +460,10 @@ class RptTrialBalState extends State<RptTrialBal> {
                 List<DataRow> dataRows = accountsList.asMap().entries.map<DataRow>((entry) {
                   int index = entry.key;
                   DocumentSnapshot document = entry.value;
-                  String accountId = document.id;
+                  final _selectedAcId = document.id;
+
                   Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
                   Map<String, double> totals = ledgerTotalsList[index];
 
                   double totalDebitSrRow = totals['totalDebitSr'] ?? 0.0;
@@ -467,7 +487,7 @@ class RptTrialBalState extends State<RptTrialBal> {
 
                   // b/f totals
                   displayBalanceSr = totalDebitSr + totalCreditSr;
-                  displayBalancePk = totalDebitPk + totalCreditPk ?? 0.0;
+                  displayBalancePk = totalDebitPk + totalCreditPk;
 
                   return DataRow(
                     cells: <DataCell>[
@@ -499,7 +519,34 @@ class RptTrialBalState extends State<RptTrialBal> {
                           color: Colors.green,
                         ),
                       )),
-                      DataCell(Text(data['accountName'] ?? '')),
+                      DataCell(
+                          GestureDetector(
+                            onTap: () {
+                              // print('Navigating to VoucherCpvAdd with docId: $voucherID');
+                              try {
+                                if (_selectedAcId!= '') {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                          return RptAcLedger(
+                                          accountId: _selectedAcId,
+                                          );
+                                        }
+                                        // return const SizedBox.shrink(); // Fallback if no type matches
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                // print('Error during navigation: $e');
+                              }
+                            },
+                            child: Container(
+                              alignment: Alignment.centerLeft,
+                              child: Text(data['accountName'] ?? '')),
+                            ),
+                      ),
+                      // DataCell(Text(data['accountName'] ?? '')),
                     ],
                   );
                 }).toList();
@@ -602,7 +649,7 @@ class RptTrialBalState extends State<RptTrialBal> {
       // Fetch the documents from the stream
       final snapshot = await _vouchers
           .getAcTrialBalanceStream(
-              kUserId, accountId ?? '', _selectedDateFrom, _selectedDateTo)
+              kUserId, accountId, _selectedDateFrom, _selectedDateTo)
           .first;
 
       List<DocumentSnapshot> voucherList = snapshot.cast<DocumentSnapshot>();

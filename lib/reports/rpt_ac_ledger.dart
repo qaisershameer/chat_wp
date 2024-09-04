@@ -17,7 +17,8 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 class RptAcLedger extends StatefulWidget {
-  const RptAcLedger({super.key});
+  final String accountId;
+  const RptAcLedger({super.key, required this.accountId});
 
   @override
   State<RptAcLedger> createState() => RptAcLedgerState();
@@ -39,7 +40,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
   // Create a NumberFormat instance for comma-separated numbers
   final NumberFormat _numberFormat = NumberFormat('#,##0');
   final NumberFormat _numberFormat1 = NumberFormat('#,##0.0');
-  final NumberFormat _numberFormat2 = NumberFormat('#,##0.00');
+  // final NumberFormat _numberFormat2 = NumberFormat('#,##0.00');
 
   final List<String> _reportType = <String>[
     'ALL',
@@ -107,7 +108,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
   void initState() {
     super.initState();
     // Initialize the text controllers with data from the previous screen
-    // _voucherId = widget.docId;
+    _selectedAcId = widget.accountId;
     // _dateFromController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());    // OKAY WORKING but i change below line
     _dateFromController.text = kStartDate; // SESSION START DATE
     _dateToController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
@@ -625,7 +626,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                             Container(
                               alignment: Alignment.centerRight,
                               child: Text(
-                                _numberFormat2.format(totalDebitPK),
+                                _numberFormat1.format(totalDebitPK),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.red,
@@ -637,7 +638,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                             Container(
                               alignment: Alignment.centerRight,
                               child: Text(
-                                _numberFormat2.format(totalCreditPK),
+                                _numberFormat1.format(totalCreditPK),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.red,
@@ -677,7 +678,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                             Container(
                               alignment: Alignment.centerRight,
                               child: Text(
-                                _numberFormat2.format(bfBalancePK),
+                                _numberFormat1.format(bfBalancePK),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.teal,
