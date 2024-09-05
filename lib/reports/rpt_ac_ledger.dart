@@ -109,6 +109,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
     super.initState();
     // Initialize the text controllers with data from the previous screen
     _selectedAcId = widget.accountId;
+    _selectedReport = 'SAR';
     // _dateFromController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());    // OKAY WORKING but i change below line
     _dateFromController.text = kStartDate; // SESSION START DATE
     _dateToController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
@@ -392,8 +393,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
             ),
 
             const SizedBox(height: 5.0),
-
-            if (_selectedAcId != null) rptLedger()
+            if (_selectedAcId != '') rptLedger()
           ],
         ),
       ),
@@ -401,12 +401,54 @@ class RptAcLedgerState extends State<RptAcLedger> {
   }
 
   Widget rptLedger() {
+
+    // print('A/c Id: $_selectedAcId');
+
     totalDebitPK = 0;
     totalCreditPK = 0;
     totalDebitSR = 0;
     totalCreditSR = 0;
     bfBalancePK = 0;
     bfBalanceSR = 0;
+
+    List<DataColumn> myColumns;
+    List<int> visibleColumns;
+
+    switch (_selectedReport) {
+      case 'ALL':
+        myColumns = const [
+          DataColumn(label: Text('SR-Dr')),
+          DataColumn(label: Text('SR-Cr')),
+          DataColumn(label: Text('PK-Dr')),
+          DataColumn(label: Text('PK-Cr')),
+          DataColumn(label: Text('Date')),
+          DataColumn(label: Text('Remarks')),
+        ];
+        visibleColumns = [0, 1, 2, 3, 4, 5];
+        break;
+      case 'SAR':
+        myColumns = const [
+          DataColumn(label: Text('SR-Dr')),
+          DataColumn(label: Text('SR-Cr')),
+          DataColumn(label: Text('Date')),
+          DataColumn(label: Text('Remarks')),
+        ];
+        visibleColumns = [0, 1, 4, 5];
+        break;
+      case 'PKR':
+        myColumns = const [
+          DataColumn(label: Text('PK-Dr')),
+          DataColumn(label: Text('PK-Cr')),
+          DataColumn(label: Text('Date')),
+          DataColumn(label: Text('Remarks')),
+        ];
+        visibleColumns = [2, 3, 4, 5];
+        break;
+      default:
+        myColumns = const [];
+        visibleColumns = [];
+        break;
+    }
 
     return StreamBuilder<List<QueryDocumentSnapshot>>(
       stream: _vouchers.getAcLedgerStream(
@@ -439,17 +481,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
                     scrollDirection: Axis.horizontal,
                     child: DataTable(
                       columnSpacing: constraints.maxWidth / 15,
-                      columns: const [
-                        DataColumn(label: Text('SR-Dr')),
-                        DataColumn(label: Text('SR-Cr')),
-                        DataColumn(label: Text('PK-Dr')),
-                        DataColumn(label: Text('PK-Cr')),
-                        DataColumn(label: Text('Date')),
-                        DataColumn(label: Text('Remarks')),
-                      ],
+                      columns: myColumns,
                       rows: [
                         ...accountsList.map((document) {
-                          final voucherID = document.id ?? ''; // Use final here to ensure immutability
+                          final voucherID = document.id; // Use final here to ensure immutability
                           final data = document.data() as Map<String, dynamic>;
 
                           final drAcId = data['drAcId'] ?? '';
@@ -494,6 +529,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
                           return DataRow(
                             cells: [
+                              if (visibleColumns.contains(0))
                               DataCell(
                                 Container(
                                   alignment: Alignment.centerRight,
@@ -503,6 +539,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                   ),
                                 ),
                               ),
+                              if (visibleColumns.contains(1))
                               DataCell(
                                 Container(
                                   alignment: Alignment.centerRight,
@@ -512,6 +549,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                   ),
                                 ),
                               ),
+                              if (visibleColumns.contains(2))
                               DataCell(
                                 Container(
                                   alignment: Alignment.centerRight,
@@ -521,6 +559,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                   ),
                                 ),
                               ),
+                              if (visibleColumns.contains(3))
                               DataCell(
                                 Container(
                                   alignment: Alignment.centerRight,
@@ -530,6 +569,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                   ),
                                 ),
                               ),
+                              if (visibleColumns.contains(4))
                               DataCell(
                                 GestureDetector(
                                   onTap: () {
@@ -591,6 +631,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                   ),
                                 ),
                               ),
+                              if (visibleColumns.contains(5))
                               DataCell(Text(remarksText)),
                             ],
                           );
@@ -598,6 +639,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
                         // Add the totals row
                         DataRow(cells: [
+                          if (visibleColumns.contains(0))
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
@@ -610,6 +652,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           ),
+                          if (visibleColumns.contains(1))
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
@@ -622,6 +665,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           ),
+                          if (visibleColumns.contains(2))
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
@@ -634,6 +678,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           ),
+                          if (visibleColumns.contains(3))
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
@@ -646,6 +691,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           ),
+                          if (visibleColumns.contains(4))
                           const DataCell(
                             Text(
                               'Totals',
@@ -655,12 +701,15 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           ),
+                          if (visibleColumns.contains(5))
                           const DataCell(Text('')),
                         ]),
 
                         // Add the B/F Balance row
                         DataRow(cells: [
+                          if (visibleColumns.contains(0))
                           const DataCell(Text('')),
+                          if (visibleColumns.contains(1))
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
@@ -673,7 +722,9 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           ),
+                          if (visibleColumns.contains(2))
                           const DataCell(Text('')),
+                          if (visibleColumns.contains(3))
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
@@ -686,6 +737,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           ),
+                          if (visibleColumns.contains(4))
                           const DataCell(
                             Text(
                               'Balance',
@@ -695,6 +747,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           ),
+                          if (visibleColumns.contains(5))
                           const DataCell(Text('')),
                         ]),
                       ],

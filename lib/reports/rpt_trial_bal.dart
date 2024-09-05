@@ -105,6 +105,9 @@ class RptTrialBalState extends State<RptTrialBal> {
     super.initState();
     // Initialize the text controllers with data from the previous screen
     // _voucherId = widget.docId;
+    _selectedReport = 'SAR';
+    _selectedAcType = 'CUSTOMER';
+
     // _dateFromController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());    // OKAY WORKING but i change below line
     _dateFromController.text = kStartDate; // SESSION START DATE
     _dateToController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
@@ -412,7 +415,41 @@ class RptTrialBalState extends State<RptTrialBal> {
 
   StreamBuilder<QuerySnapshot<Object?>> _getAccounts() {
 
-    // print('Aread Id: $_selectedArea');
+    List<DataColumn> myColumns;
+    List<int> visibleColumns;
+
+    switch (_selectedReport) {
+      case 'ALL':
+        myColumns = const [
+          DataColumn(label: Text('SR-Dr')),
+          DataColumn(label: Text('SR-Cr')),
+          DataColumn(label: Text('PK-Dr')),
+          DataColumn(label: Text('PK-Cr')),
+          DataColumn(label: Text('Name')),
+        ];
+        visibleColumns = [0, 1, 2, 3, 4];
+        break;
+      case 'SAR':
+        myColumns = const [
+          DataColumn(label: Text('SR-Dr')),
+          DataColumn(label: Text('SR-Cr')),
+          DataColumn(label: Text('Account')),
+        ];
+        visibleColumns = [0, 1, 4];
+        break;
+      case 'PKR':
+        myColumns = const [
+          DataColumn(label: Text('PK-Dr')),
+          DataColumn(label: Text('PK-Cr')),
+          DataColumn(label: Text('Account')),
+        ];
+        visibleColumns = [2, 3, 4];
+        break;
+      default:
+        myColumns = const [];
+        visibleColumns = [];
+        break;
+    }
 
     return StreamBuilder<QuerySnapshot>(
       stream: _selectedAcType != null || _selectedArea != null
@@ -421,6 +458,7 @@ class RptTrialBalState extends State<RptTrialBal> {
           : _accounts.getAccountsStream(kUserId),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
+
           List<DocumentSnapshot> accountsList = snapshot.data!.docs;
 
           // Create a Future for each row to fetch ledger totals
@@ -445,6 +483,7 @@ class RptTrialBalState extends State<RptTrialBal> {
               } else if (!snapshot.hasData) {
                 return const Center(child: Text('No data available'));
               } else {
+
                 List<Map<String, double>> ledgerTotalsList = snapshot.data!;
 
                 // Calculate totals for all columns
@@ -456,11 +495,10 @@ class RptTrialBalState extends State<RptTrialBal> {
                 double displayBalanceSr = 0.0;
                 double displayBalancePk = 0.0;
 
-
                 List<DataRow> dataRows = accountsList.asMap().entries.map<DataRow>((entry) {
                   int index = entry.key;
                   DocumentSnapshot document = entry.value;
-                  final _selectedAcId = document.id;
+                  _selectedAcId = document.id;
 
                   Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
@@ -491,6 +529,7 @@ class RptTrialBalState extends State<RptTrialBal> {
 
                   return DataRow(
                     cells: <DataCell>[
+                      if (visibleColumns.contains(0))
                       DataCell(Text(
                         _numberFormat.format(displayDebitSr),
                         style: const TextStyle(
@@ -498,6 +537,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                           color: Colors.blue,
                         ),
                       )),
+                      if (visibleColumns.contains(1))
                       DataCell(Text(
                         _numberFormat.format(displayCreditSr),
                         style: const TextStyle(
@@ -505,6 +545,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                           color: Colors.blue,
                         ),
                       )),
+                      if (visibleColumns.contains(2))
                       DataCell(Text(
                         _numberFormat1.format(displayDebitPk),
                         style: const TextStyle(
@@ -512,6 +553,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                           color: Colors.green,
                         ),
                       )),
+                      if (visibleColumns.contains(3))
                       DataCell(Text(
                         _numberFormat1.format(displayCreditPk),
                         style: const TextStyle(
@@ -519,6 +561,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                           color: Colors.green,
                         ),
                       )),
+                      if (visibleColumns.contains(4))
                       DataCell(
                           GestureDetector(
                             onTap: () {
@@ -530,7 +573,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                                     MaterialPageRoute(
                                       builder: (context) {
                                           return RptAcLedger(
-                                          accountId: _selectedAcId,
+                                          accountId: _selectedAcId!,
                                           );
                                         }
                                         // return const SizedBox.shrink(); // Fallback if no type matches
@@ -554,6 +597,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                 // Add the total row
                 dataRows.add(DataRow(
                   cells: <DataCell>[
+                    if (visibleColumns.contains(0))
                     DataCell(Text(
                       _numberFormat.format(totalDebitSr),
                       style: const TextStyle(
@@ -561,6 +605,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                         color: Colors.red,
                       ),
                     )),
+                    if (visibleColumns.contains(1))
                     DataCell(Text(
                       _numberFormat.format(totalCreditSr),
                       style: const TextStyle(
@@ -568,6 +613,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                         color: Colors.red,
                       ),
                     )),
+                    if (visibleColumns.contains(2))
                     DataCell(Text(
                       _numberFormat1.format(totalDebitPk),
                       style: const TextStyle(
@@ -575,6 +621,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                         color: Colors.red,
                       ),
                     )),
+                    if (visibleColumns.contains(3))
                     DataCell(Text(
                       _numberFormat1.format(totalCreditPk),
                       style: const TextStyle(
@@ -582,6 +629,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                         color: Colors.red,
                       ),
                     )),
+                    if (visibleColumns.contains(4))
                     const DataCell(Text('Total', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red,))),
                   ],
                 ));
@@ -589,8 +637,12 @@ class RptTrialBalState extends State<RptTrialBal> {
                 // Add the b/f balances row
                 dataRows.add(DataRow(
 
-                  cells: <DataCell>[const DataCell(Text(''),),
+                  cells: <DataCell>[
 
+                    if (visibleColumns.contains(0))
+                      const DataCell(Text(''),),
+
+                    if (visibleColumns.contains(1))
                     DataCell(Text(
                       _numberFormat.format(displayBalanceSr),
                       style: const TextStyle(
@@ -599,8 +651,10 @@ class RptTrialBalState extends State<RptTrialBal> {
                       ),
                     )),
 
+                    if (visibleColumns.contains(2))
                     const DataCell(Text(''),),
 
+                    if (visibleColumns.contains(3))
                     DataCell(Text(
                       _numberFormat1.format(displayBalancePk),
                       style: const TextStyle(
@@ -608,6 +662,8 @@ class RptTrialBalState extends State<RptTrialBal> {
                         color: Colors.teal,
                       ),
                     )),
+
+                    if (visibleColumns.contains(4))
                     const DataCell(Text('Balance', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal,))),
                   ],
                 ));
@@ -616,13 +672,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                   scrollDirection: Axis.horizontal,
                   child: SingleChildScrollView(
                     child: DataTable(
-                      columns: const <DataColumn>[
-                        DataColumn(label: Text('SR-Dr')),
-                        DataColumn(label: Text('SR-Cr')),
-                        DataColumn(label: Text('PK-Dr')),
-                        DataColumn(label: Text('PK-Cr')),
-                        DataColumn(label: Text('Name')),
-                      ],
+                      columns: myColumns,
                       rows: dataRows,
                     ),
                   ),
@@ -657,7 +707,7 @@ class RptTrialBalState extends State<RptTrialBal> {
       for (var document in voucherList) {
         final data = document.data() as Map<String, dynamic>;
         final drAcId = data['drAcId'] ?? '';
-        final crAcId = data['crAcId'] ?? '';
+        // final crAcId = data['crAcId'] ?? '';
         final type = data['type'] ?? '';
 
         // print('DrAcID: $drAcId');

@@ -108,6 +108,7 @@ class RptCashBookState extends State<RptCashBook> {
     _dateToController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
     DateTime now = DateTime.now();
     getDate(DateTime(now.year, now.month, now.day), 'from');
+    _selectedReport = 'SAR';
   }
 
   @override
