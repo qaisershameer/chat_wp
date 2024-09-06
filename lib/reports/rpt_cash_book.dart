@@ -350,35 +350,35 @@ class RptCashBookState extends State<RptCashBook> {
                 switch (_selectedReport) {
                   case 'ALL':
                     columns = const [
-                      DataColumn(label: Text('SR-Dr')),
-                      DataColumn(label: Text('SR-Cr')),
-                      DataColumn(label: Text('PK-Dr')),
-                      DataColumn(label: Text('PK-Cr')),
-                      DataColumn(label: Text('Account')),
                       DataColumn(label: Text('Date')),
+                      DataColumn(label: Text('Sr-Out')),
+                      DataColumn(label: Text('Sr-in')),
+                      DataColumn(label: Text('Pk-Out')),
+                      DataColumn(label: Text('Pk-In')),
+                      DataColumn(label: Text('Account')),
                       DataColumn(label: Text('Remarks')),
                     ];
                     visibleColumns = [0, 1, 2, 3, 4, 5, 6];
                     break;
                   case 'SAR':
                     columns = const [
-                      DataColumn(label: Text('SR-Dr')),
-                      DataColumn(label: Text('SR-Cr')),
-                      DataColumn(label: Text('Account')),
                       DataColumn(label: Text('Date')),
+                      DataColumn(label: Text('Sr-Out')),
+                      DataColumn(label: Text('Sr-In')),
+                      DataColumn(label: Text('Account')),
                       DataColumn(label: Text('Remarks')),
                     ];
-                    visibleColumns = [0, 1, 4, 5, 6];
+                    visibleColumns = [0, 1, 2, 5, 6];
                     break;
                   case 'PKR':
                     columns = const [
-                      DataColumn(label: Text('PK-Dr')),
-                      DataColumn(label: Text('PK-Cr')),
+                      DataColumn(label: Text('Pk-Out')),
+                      DataColumn(label: Text('Pk-In')),
                       DataColumn(label: Text('Account')),
                       DataColumn(label: Text('Date')),
                       DataColumn(label: Text('Remarks')),
                     ];
-                    visibleColumns = [2, 3, 4, 5, 6];
+                    visibleColumns = [0, 3, 4, 5, 6];
                     break;
                   default:
                     columns = const [];
@@ -422,6 +422,8 @@ class RptCashBookState extends State<RptCashBook> {
 
                               return DataRow(cells: [
                                 if (visibleColumns.contains(0))
+                                  DataCell(Text(formattedDate)),
+                                if (visibleColumns.contains(1))
                                   DataCell(Container(
                                     alignment: Alignment.centerRight,
                                     child: Text(
@@ -432,7 +434,7 @@ class RptCashBookState extends State<RptCashBook> {
                                       ),
                                     ),
                                   )),
-                                if (visibleColumns.contains(1))
+                                if (visibleColumns.contains(2))
                                   DataCell(Container(
                                     alignment: Alignment.centerRight,
                                     child: Text(
@@ -443,7 +445,7 @@ class RptCashBookState extends State<RptCashBook> {
                                       ),
                                     ),
                                   )),
-                                if (visibleColumns.contains(2))
+                                if (visibleColumns.contains(3))
                                   DataCell(Container(
                                     alignment: Alignment.centerRight,
                                     child: Text(
@@ -454,7 +456,7 @@ class RptCashBookState extends State<RptCashBook> {
                                       ),
                                     ),
                                   )),
-                                if (visibleColumns.contains(3))
+                                if (visibleColumns.contains(4))
                                   DataCell(Container(
                                     alignment: Alignment.centerRight,
                                     child: Text(
@@ -465,7 +467,7 @@ class RptCashBookState extends State<RptCashBook> {
                                       ),
                                     ),
                                   )),
-                                if (visibleColumns.contains(4))
+                                if (visibleColumns.contains(5))
                                   DataCell(
                                       GestureDetector(
                                         onTap: () {
@@ -531,8 +533,6 @@ class RptCashBookState extends State<RptCashBook> {
                                         ),
                                       )
                                   ),
-                                if (visibleColumns.contains(5))
-                                  DataCell(Text(formattedDate)),
                                 if (visibleColumns.contains(6))
                                   DataCell(Text(remarksText)),
                               ]);
@@ -540,7 +540,8 @@ class RptCashBookState extends State<RptCashBook> {
 
                             // Add the totals row
                             DataRow(cells: [
-                              if (visibleColumns.contains(0))
+                              if (visibleColumns.contains(0)) const DataCell(Text('')),
+                              if (visibleColumns.contains(1))
                                 DataCell(Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
@@ -551,7 +552,7 @@ class RptCashBookState extends State<RptCashBook> {
                                     ),
                                   ),
                                 )),
-                              if (visibleColumns.contains(1))
+                              if (visibleColumns.contains(2))
                                 DataCell(Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
@@ -562,7 +563,7 @@ class RptCashBookState extends State<RptCashBook> {
                                     ),
                                   ),
                                 )),
-                              if (visibleColumns.contains(2))
+                              if (visibleColumns.contains(3))
                                 DataCell(Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
@@ -573,7 +574,7 @@ class RptCashBookState extends State<RptCashBook> {
                                     ),
                                   ),
                                 )),
-                              if (visibleColumns.contains(3))
+                              if (visibleColumns.contains(4))
                                 DataCell(Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
@@ -584,7 +585,7 @@ class RptCashBookState extends State<RptCashBook> {
                                     ),
                                   ),
                                 )),
-                              if (visibleColumns.contains(4))
+                              if (visibleColumns.contains(5))
                                 const DataCell(Text(
                                   'Totals',
                                   style: TextStyle(
@@ -592,14 +593,14 @@ class RptCashBookState extends State<RptCashBook> {
                                     color: Colors.red,
                                   ),
                                 )),
-                              if (visibleColumns.contains(5)) const DataCell(Text('')),
                               if (visibleColumns.contains(6)) const DataCell(Text('')),
                             ]),
 
                             // Add the B/F Balance row
                             DataRow(cells: [
                               if (visibleColumns.contains(0)) const DataCell(Text('')),
-                              if (visibleColumns.contains(1))
+                              if (visibleColumns.contains(1)) const DataCell(Text('')),
+                              if (visibleColumns.contains(2))
                                 DataCell(Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
@@ -610,8 +611,8 @@ class RptCashBookState extends State<RptCashBook> {
                                     ),
                                   ),
                                 )),
-                              if (visibleColumns.contains(2)) const DataCell(Text('')),
-                              if (visibleColumns.contains(3))
+                              if (visibleColumns.contains(3)) const DataCell(Text('')),
+                              if (visibleColumns.contains(4))
                                 DataCell(Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
@@ -622,7 +623,7 @@ class RptCashBookState extends State<RptCashBook> {
                                     ),
                                   ),
                                 )),
-                              if (visibleColumns.contains(4))
+                              if (visibleColumns.contains(5))
                                 const DataCell(Text(
                                   'Balance',
                                   style: TextStyle(
@@ -631,7 +632,6 @@ class RptCashBookState extends State<RptCashBook> {
                                   ),
                                 )),
                               if (visibleColumns.contains(5)) const DataCell(Text('')),
-                              if (visibleColumns.contains(6)) const DataCell(Text('')),
                             ]),
                           ],
                         ),

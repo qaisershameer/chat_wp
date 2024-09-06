@@ -5,14 +5,14 @@ import 'package:chat_wp/services/chat/chat_service.dart';
 import 'package:chat_wp/pages/logins_chat/chat_page.dart';
 import 'package:chat_wp/components/user_tile.dart';
 
-class HomePage extends StatefulWidget {
+class HomeScreen extends StatefulWidget {
   static const String id = 'home_screen';
-  const HomePage({super.key});
+  const HomeScreen({super.key});
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomeScreenState extends State<HomeScreen> {
 
   // chat & auth services
   final ChatService _chatService = ChatService();
@@ -58,20 +58,21 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.teal,
-          title: const Text('admin'),
+          title: const Text('WhatsApp'),
           bottom: const TabBar(
             tabs: [
               Tab(
-                child: Text('Customers'),
+                child: Icon(Icons.message_outlined),
+                // child: Text('Friends'),
               ),
               Tab(
-                child: Text('Suppliers'),
+                child: Text('Chats'),
               ),
               Tab(
-                child: Text('Banks'),
+                child: Text('Status'),
               ),
               Tab(
-                child: Text('ALL'),
+                child: Text('Calls'),
               ),
             ],
           ),
@@ -82,9 +83,9 @@ class _HomePageState extends State<HomePage> {
             PopupMenuButton(
               child: const Icon(Icons.more_vert_outlined),
               itemBuilder: (
-                  context,
-                  ) =>
-              [
+                context,
+              ) =>
+                  [
                 const PopupMenuItem(
                   value: '1',
                   child: Text('New Group'),
@@ -129,34 +130,34 @@ class _HomePageState extends State<HomePage> {
             ListView.builder(
                 itemCount: 100,
                 itemBuilder: (context, index){
-                  return ListTile(
-                    leading: Container(
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.green,
-                              width: 3,
-                            )
-                        ),
-                        child: const CircleAvatar(backgroundImage: AssetImage('images/imran_khan.jpg'),)),
-                    title: Text(index % 2 == 0 ? 'Imran Khan' : 'Pakistan Tahreek-e-Insaf'),
-                    subtitle:Text('$index minutes ago'),
-                  );
-                }),
+              return ListTile(
+                leading: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.green,
+                      width: 3,
+                    )
+                  ),
+                    child: const CircleAvatar(backgroundImage: AssetImage('images/imran_khan.jpg'),)),
+                title: Text(index % 2 == 0 ? 'Imran Khan' : 'Pakistan Tahreek-e-Insaf'),
+                subtitle:Text('$index minutes ago'),
+              );
+            }),
 
             // 4th Menu Body Data Calls
             ListView.builder(
                 itemCount: 100,
                 itemBuilder: (context, index) {
-                  return  ListTile(
-                    leading: const CircleAvatar(
-                      backgroundImage: AssetImage('images/qaiser1.jfif'),
-                    ),
-                    title: const Text('Qurban Raza'),
-                    subtitle: Text(index % 2 == 0 ? 'You missed a Audio Call $index minutes ago' : 'You missed a Video Call $index minutes ago'),
-                    trailing: Icon(index % 2 == 0 ? Icons.phone: Icons.video_call ),
-                  );
-                }),
+              return  ListTile(
+                leading: const CircleAvatar(
+                  backgroundImage: AssetImage('images/qaiser1.jfif'),
+                ),
+                title: const Text('Qurban Raza'),
+                subtitle: Text(index % 2 == 0 ? 'You missed a Audio Call $index minutes ago' : 'You missed a Video Call $index minutes ago'),
+                trailing: Icon(index % 2 == 0 ? Icons.phone: Icons.video_call ),
+              );
+            }),
           ],
         ),
       ),

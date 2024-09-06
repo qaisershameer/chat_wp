@@ -21,25 +21,30 @@ class UserTile extends StatelessWidget {
           color: Theme.of(context).colorScheme.secondary,
           borderRadius: BorderRadius.circular(12),
         ),
-        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-        padding: const EdgeInsets.all(15),
+        margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+        padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            // icon
-            const Icon(Icons.person),
 
-            // icon & text vertical gap in width
-            const SizedBox(
-              width: 10,
+            const CircleAvatar(
+              backgroundImage: AssetImage('images/qaiser1.jfif'),
             ),
 
+            // icon
+            // const Icon(Icons.person),
+
+            // icon & text vertical gap in width
+            const SizedBox(width: 10,),
+
             // user name
-            Text(
-              text,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
-                color: Theme.of(context).colorScheme.primary,
+            Expanded(
+              child: Text(
+                text,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
             ),
           ],

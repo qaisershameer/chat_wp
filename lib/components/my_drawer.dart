@@ -1,6 +1,6 @@
 import 'package:chat_wp/themes/const.dart';
 import 'package:flutter/material.dart';
-import 'package:chat_wp/home_screen.dart';
+import 'package:chat_wp/whatsapp_screen.dart';
 import '../services/auth/auth_service.dart';
 import '../pages/logins_chat/settings_page.dart';
 import 'package:chat_wp/pages/accounts/acc_dashboard.dart';

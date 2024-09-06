@@ -421,10 +421,10 @@ class RptTrialBalState extends State<RptTrialBal> {
     switch (_selectedReport) {
       case 'ALL':
         myColumns = const [
-          DataColumn(label: Text('SR-Dr')),
-          DataColumn(label: Text('SR-Cr')),
-          DataColumn(label: Text('PK-Dr')),
-          DataColumn(label: Text('PK-Cr')),
+          DataColumn(label: Text('Sr-Out')),
+          DataColumn(label: Text('Sr-In')),
+          DataColumn(label: Text('Pk-Out')),
+          DataColumn(label: Text('Pk-In')),
           DataColumn(label: Text('Name')),
         ];
         visibleColumns = [0, 1, 2, 3, 4];
@@ -498,9 +498,10 @@ class RptTrialBalState extends State<RptTrialBal> {
                 List<DataRow> dataRows = accountsList.asMap().entries.map<DataRow>((entry) {
                   int index = entry.key;
                   DocumentSnapshot document = entry.value;
-                  _selectedAcId = document.id;
 
                   Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                  final _selectedAcId = document.id;
 
                   Map<String, double> totals = ledgerTotalsList[index];
 
@@ -528,6 +529,17 @@ class RptTrialBalState extends State<RptTrialBal> {
                   displayBalancePk = totalDebitPk + totalCreditPk;
 
                   return DataRow(
+
+                    // Get Selected Row accountId to view ledger
+                    // selected: _selectedAcId == currentAcId,
+                    // onSelectChanged: (isSelected) {
+                    //   if (isSelected != null && isSelected) {
+                    //     setState(() {
+                    //       _selectedAcId = currentAcId;
+                    //     });
+                    //   }
+                    // },
+
                     cells: <DataCell>[
                       if (visibleColumns.contains(0))
                       DataCell(Text(
@@ -573,7 +585,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                                     MaterialPageRoute(
                                       builder: (context) {
                                           return RptAcLedger(
-                                          accountId: _selectedAcId!,
+                                          accountId: _selectedAcId,
                                           );
                                         }
                                         // return const SizedBox.shrink(); // Fallback if no type matches

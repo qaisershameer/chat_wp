@@ -417,32 +417,32 @@ class RptAcLedgerState extends State<RptAcLedger> {
     switch (_selectedReport) {
       case 'ALL':
         myColumns = const [
-          DataColumn(label: Text('SR-Dr')),
-          DataColumn(label: Text('SR-Cr')),
-          DataColumn(label: Text('PK-Dr')),
-          DataColumn(label: Text('PK-Cr')),
           DataColumn(label: Text('Date')),
+          DataColumn(label: Text('Sr-Out')),
+          DataColumn(label: Text('Sr-In')),
+          DataColumn(label: Text('Pk-Out')),
+          DataColumn(label: Text('Pk-In')),
           DataColumn(label: Text('Remarks')),
         ];
         visibleColumns = [0, 1, 2, 3, 4, 5];
         break;
       case 'SAR':
         myColumns = const [
-          DataColumn(label: Text('SR-Dr')),
-          DataColumn(label: Text('SR-Cr')),
           DataColumn(label: Text('Date')),
+          DataColumn(label: Text('Sr-Out')),
+          DataColumn(label: Text('Sr-In')),
           DataColumn(label: Text('Remarks')),
         ];
-        visibleColumns = [0, 1, 4, 5];
+        visibleColumns = [0, 1, 2, 5];
         break;
       case 'PKR':
         myColumns = const [
-          DataColumn(label: Text('PK-Dr')),
-          DataColumn(label: Text('PK-Cr')),
           DataColumn(label: Text('Date')),
+          DataColumn(label: Text('Pk-Out')),
+          DataColumn(label: Text('Pk-In')),
           DataColumn(label: Text('Remarks')),
         ];
-        visibleColumns = [2, 3, 4, 5];
+        visibleColumns = [0, 3, 4, 5];
         break;
       default:
         myColumns = const [];
@@ -530,6 +530,68 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           return DataRow(
                             cells: [
                               if (visibleColumns.contains(0))
+                                DataCell(
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (voucherID.isNotEmpty) {
+                                        // print('Navigating with Voucher ID: $voucherID');
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) {
+                                              if (type == 'CP') {
+                                                return VoucherCpvAdd(
+                                                  docId: voucherID,
+                                                  type: type,
+                                                  vDate: dateText,
+                                                  remarks: remarksText,
+                                                  drAcId: drAcId,
+                                                  crAcId: '',
+                                                  debit: data['debit'],
+                                                  debitSar: data['debitsar'],
+                                                  credit: data['credit'],
+                                                  creditSar: data['creditsar'],
+                                                );
+                                              } else if (type == 'CR') {
+                                                return VoucherCrvAdd(
+                                                  docId: voucherID,
+                                                  type: type,
+                                                  vDate: dateText,
+                                                  remarks: remarksText,
+                                                  drAcId: '',
+                                                  crAcId: crAcId,
+                                                  debit: data['debit'],
+                                                  debitSar: data['debitsar'],
+                                                  credit: data['credit'],
+                                                  creditSar: data['creditsar'],
+                                                );
+                                              } else if (type == 'JV') {
+                                                return VoucherJvAdd(
+                                                  docId: voucherID,
+                                                  type: type,
+                                                  vDate: dateText,
+                                                  remarks: remarksText,
+                                                  drAcId: drAcId,
+                                                  crAcId: crAcId,
+                                                  debit: data['debit'],
+                                                  debitSar: data['debitsar'],
+                                                  credit: data['credit'],
+                                                  creditSar: data['creditsar'],
+                                                );
+                                              }
+                                              return const SizedBox.shrink(); // fallback if no type matches
+                                            },
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: Container(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(formattedDate),
+                                    ),
+                                  ),
+                                ),
+                              if (visibleColumns.contains(1))
                               DataCell(
                                 Container(
                                   alignment: Alignment.centerRight,
@@ -539,7 +601,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                   ),
                                 ),
                               ),
-                              if (visibleColumns.contains(1))
+                              if (visibleColumns.contains(2))
                               DataCell(
                                 Container(
                                   alignment: Alignment.centerRight,
@@ -549,7 +611,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                   ),
                                 ),
                               ),
-                              if (visibleColumns.contains(2))
+                              if (visibleColumns.contains(3))
                               DataCell(
                                 Container(
                                   alignment: Alignment.centerRight,
@@ -559,75 +621,13 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                   ),
                                 ),
                               ),
-                              if (visibleColumns.contains(3))
+                              if (visibleColumns.contains(4))
                               DataCell(
                                 Container(
                                   alignment: Alignment.centerRight,
                                   child: Text(
                                     _numberFormat1.format(debitText),
                                     style: const TextStyle(color: Colors.green),
-                                  ),
-                                ),
-                              ),
-                              if (visibleColumns.contains(4))
-                              DataCell(
-                                GestureDetector(
-                                  onTap: () {
-                                    if (voucherID.isNotEmpty) {
-                                      // print('Navigating with Voucher ID: $voucherID');
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) {
-                                            if (type == 'CP') {
-                                              return VoucherCpvAdd(
-                                                docId: voucherID,
-                                                type: type,
-                                                vDate: dateText,
-                                                remarks: remarksText,
-                                                drAcId: drAcId,
-                                                crAcId: '',
-                                                debit: data['debit'],
-                                                debitSar: data['debitsar'],
-                                                credit: data['credit'],
-                                                creditSar: data['creditsar'],
-                                              );
-                                            } else if (type == 'CR') {
-                                              return VoucherCrvAdd(
-                                                docId: voucherID,
-                                                type: type,
-                                                vDate: dateText,
-                                                remarks: remarksText,
-                                                drAcId: '',
-                                                crAcId: crAcId,
-                                                debit: data['debit'],
-                                                debitSar: data['debitsar'],
-                                                credit: data['credit'],
-                                                creditSar: data['creditsar'],
-                                              );
-                                            } else if (type == 'JV') {
-                                              return VoucherJvAdd(
-                                                docId: voucherID,
-                                                type: type,
-                                                vDate: dateText,
-                                                remarks: remarksText,
-                                                drAcId: drAcId,
-                                                crAcId: crAcId,
-                                                debit: data['debit'],
-                                                debitSar: data['debitsar'],
-                                                credit: data['credit'],
-                                                creditSar: data['creditsar'],
-                                              );
-                                            }
-                                            return const SizedBox.shrink(); // fallback if no type matches
-                                          },
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  child: Container(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(formattedDate),
                                   ),
                                 ),
                               ),
@@ -640,6 +640,16 @@ class RptAcLedgerState extends State<RptAcLedger> {
                         // Add the totals row
                         DataRow(cells: [
                           if (visibleColumns.contains(0))
+                            const DataCell(
+                              Text(
+                                'Totals',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                          if (visibleColumns.contains(1))
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
@@ -652,7 +662,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           ),
-                          if (visibleColumns.contains(1))
+                          if (visibleColumns.contains(2))
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
@@ -665,7 +675,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           ),
-                          if (visibleColumns.contains(2))
+                          if (visibleColumns.contains(3))
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
@@ -678,7 +688,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           ),
-                          if (visibleColumns.contains(3))
+                          if (visibleColumns.contains(4))
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
@@ -691,16 +701,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           ),
-                          if (visibleColumns.contains(4))
-                          const DataCell(
-                            Text(
-                              'Totals',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red,
-                              ),
-                            ),
-                          ),
                           if (visibleColumns.contains(5))
                           const DataCell(Text('')),
                         ]),
@@ -708,8 +708,18 @@ class RptAcLedgerState extends State<RptAcLedger> {
                         // Add the B/F Balance row
                         DataRow(cells: [
                           if (visibleColumns.contains(0))
-                          const DataCell(Text('')),
+                            const DataCell(
+                              Text(
+                                'Balance',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.teal,
+                                ),
+                              ),
+                            ),
                           if (visibleColumns.contains(1))
+                          const DataCell(Text('')),
+                          if (visibleColumns.contains(2))
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
@@ -722,9 +732,9 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           ),
-                          if (visibleColumns.contains(2))
-                          const DataCell(Text('')),
                           if (visibleColumns.contains(3))
+                          const DataCell(Text('')),
+                          if (visibleColumns.contains(4))
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
@@ -734,16 +744,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                   fontWeight: FontWeight.bold,
                                   color: Colors.teal,
                                 ),
-                              ),
-                            ),
-                          ),
-                          if (visibleColumns.contains(4))
-                          const DataCell(
-                            Text(
-                              'Balance',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.teal,
                               ),
                             ),
                           ),
