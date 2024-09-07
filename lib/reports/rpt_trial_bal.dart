@@ -165,7 +165,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                 const SizedBox(width: 10.0),
                 SizedBox(
                   width:
-                      MediaQuery.of(context).size.width / 7.0, // Adjusted width
+                  MediaQuery.of(context).size.width / 7.0, // Adjusted width
                   child: DropdownButtonFormField<String>(
                     isExpanded: true,
                     items: _reportType
@@ -208,7 +208,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                   child: TextFormField(
                     controller: _dateFromController,
                     keyboardType:
-                        TextInputType.none, // Disable// keyboard input
+                    TextInputType.none, // Disable// keyboard input
                     onTap: () {
                       FocusScope.of(context)
                           .requestFocus(FocusNode()); // Hide keyboard
@@ -453,7 +453,7 @@ class RptTrialBalState extends State<RptTrialBal> {
 
     return StreamBuilder<QuerySnapshot>(
       stream: _selectedAcType != null || _selectedArea != null
-          // ? _accounts.getAccountsTypeAreaStream(kUserId, _selectedAcType!)
+      // ? _accounts.getAccountsTypeAreaStream(kUserId, _selectedAcType!)
           ? _accounts.getAccountsTypeAreaStream(kUserId, _selectedAcType ?? 'ALL', _selectedArea ?? 'ALL')
           : _accounts.getAccountsStream(kUserId),
       builder: (context, snapshot) {
@@ -542,39 +542,39 @@ class RptTrialBalState extends State<RptTrialBal> {
 
                     cells: <DataCell>[
                       if (visibleColumns.contains(0))
-                      DataCell(Text(
-                        _numberFormat.format(displayDebitSr),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
-                      )),
+                        DataCell(Text(
+                          _numberFormat.format(displayDebitSr),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        )),
                       if (visibleColumns.contains(1))
-                      DataCell(Text(
-                        _numberFormat.format(displayCreditSr),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
-                      )),
+                        DataCell(Text(
+                          _numberFormat.format(displayCreditSr),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        )),
                       if (visibleColumns.contains(2))
-                      DataCell(Text(
-                        _numberFormat1.format(displayDebitPk),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                        ),
-                      )),
+                        DataCell(Text(
+                          _numberFormat1.format(displayDebitPk),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        )),
                       if (visibleColumns.contains(3))
-                      DataCell(Text(
-                        _numberFormat1.format(displayCreditPk),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green,
-                        ),
-                      )),
+                        DataCell(Text(
+                          _numberFormat1.format(displayCreditPk),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        )),
                       if (visibleColumns.contains(4))
-                      DataCell(
+                        DataCell(
                           GestureDetector(
                             onTap: () {
                               // print('Navigating to VoucherCpvAdd with docId: $voucherID');
@@ -583,12 +583,12 @@ class RptTrialBalState extends State<RptTrialBal> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) {
+                                        builder: (context) {
                                           return RptAcLedger(
-                                          accountId: _selectedAcId,
+                                            accountId: _selectedAcId,
                                           );
                                         }
-                                        // return const SizedBox.shrink(); // Fallback if no type matches
+                                      // return const SizedBox.shrink(); // Fallback if no type matches
                                     ),
                                   );
                                 }
@@ -597,10 +597,10 @@ class RptTrialBalState extends State<RptTrialBal> {
                               }
                             },
                             child: Container(
-                              alignment: Alignment.centerLeft,
-                              child: Text(data['accountName'] ?? '')),
-                            ),
-                      ),
+                                alignment: Alignment.centerLeft,
+                                child: Text(data['accountName'] ?? '')),
+                          ),
+                        ),
                       // DataCell(Text(data['accountName'] ?? '')),
                     ],
                   );
@@ -610,39 +610,39 @@ class RptTrialBalState extends State<RptTrialBal> {
                 dataRows.add(DataRow(
                   cells: <DataCell>[
                     if (visibleColumns.contains(0))
-                    DataCell(Text(
-                      _numberFormat.format(totalDebitSr),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
-                    )),
+                      DataCell(Text(
+                        _numberFormat.format(totalDebitSr),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
+                      )),
                     if (visibleColumns.contains(1))
-                    DataCell(Text(
-                      _numberFormat.format(totalCreditSr),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
-                    )),
+                      DataCell(Text(
+                        _numberFormat.format(totalCreditSr),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
+                      )),
                     if (visibleColumns.contains(2))
-                    DataCell(Text(
-                      _numberFormat1.format(totalDebitPk),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
-                    )),
+                      DataCell(Text(
+                        _numberFormat1.format(totalDebitPk),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
+                      )),
                     if (visibleColumns.contains(3))
-                    DataCell(Text(
-                      _numberFormat1.format(totalCreditPk),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
-                    )),
+                      DataCell(Text(
+                        _numberFormat1.format(totalCreditPk),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
+                        ),
+                      )),
                     if (visibleColumns.contains(4))
-                    const DataCell(Text('Total', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red,))),
+                      const DataCell(Text('Total', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red,))),
                   ],
                 ));
 
@@ -655,28 +655,28 @@ class RptTrialBalState extends State<RptTrialBal> {
                       const DataCell(Text(''),),
 
                     if (visibleColumns.contains(1))
-                    DataCell(Text(
-                      _numberFormat.format(displayBalanceSr),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.teal,
-                      ),
-                    )),
+                      DataCell(Text(
+                        _numberFormat.format(displayBalanceSr),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.teal,
+                        ),
+                      )),
 
                     if (visibleColumns.contains(2))
-                    const DataCell(Text(''),),
+                      const DataCell(Text(''),),
 
                     if (visibleColumns.contains(3))
-                    DataCell(Text(
-                      _numberFormat1.format(displayBalancePk),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.teal,
-                      ),
-                    )),
+                      DataCell(Text(
+                        _numberFormat1.format(displayBalancePk),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.teal,
+                        ),
+                      )),
 
                     if (visibleColumns.contains(4))
-                    const DataCell(Text('Balance', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal,))),
+                      const DataCell(Text('Balance', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal,))),
                   ],
                 ));
 
@@ -711,7 +711,7 @@ class RptTrialBalState extends State<RptTrialBal> {
       // Fetch the documents from the stream
       final snapshot = await _vouchers
           .getAcTrialBalanceStream(
-              kUserId, accountId, _selectedDateFrom, _selectedDateTo)
+          kUserId, accountId, _selectedDateFrom, _selectedDateTo)
           .first;
 
       List<DocumentSnapshot> voucherList = snapshot.cast<DocumentSnapshot>();

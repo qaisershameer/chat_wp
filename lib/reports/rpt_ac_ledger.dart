@@ -592,47 +592,47 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                   ),
                                 ),
                               if (visibleColumns.contains(1))
-                              DataCell(
-                                Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat.format(creditSrText),
-                                    style: const TextStyle(color: Colors.blue),
+                                DataCell(
+                                  Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      _numberFormat.format(creditSrText),
+                                      style: const TextStyle(color: Colors.blue),
+                                    ),
                                   ),
                                 ),
-                              ),
                               if (visibleColumns.contains(2))
-                              DataCell(
-                                Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat.format(debitSrText),
-                                    style: const TextStyle(color: Colors.blue),
+                                DataCell(
+                                  Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      _numberFormat.format(debitSrText),
+                                      style: const TextStyle(color: Colors.blue),
+                                    ),
                                   ),
                                 ),
-                              ),
                               if (visibleColumns.contains(3))
-                              DataCell(
-                                Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat1.format(creditText),
-                                    style: const TextStyle(color: Colors.green),
+                                DataCell(
+                                  Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      _numberFormat1.format(creditText),
+                                      style: const TextStyle(color: Colors.green),
+                                    ),
                                   ),
                                 ),
-                              ),
                               if (visibleColumns.contains(4))
-                              DataCell(
-                                Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat1.format(debitText),
-                                    style: const TextStyle(color: Colors.green),
+                                DataCell(
+                                  Container(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      _numberFormat1.format(debitText),
+                                      style: const TextStyle(color: Colors.green),
+                                    ),
                                   ),
                                 ),
-                              ),
                               if (visibleColumns.contains(5))
-                              DataCell(Text(remarksText)),
+                                DataCell(Text(remarksText)),
                             ],
                           );
                         }),
@@ -650,59 +650,59 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           if (visibleColumns.contains(1))
-                          DataCell(
-                            Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat.format(totalDebitSR),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.red,
+                            DataCell(
+                              Container(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  _numberFormat.format(totalDebitSR),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
                           if (visibleColumns.contains(2))
-                          DataCell(
-                            Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat.format(totalCreditSR),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.red,
+                            DataCell(
+                              Container(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  _numberFormat.format(totalCreditSR),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
                           if (visibleColumns.contains(3))
-                          DataCell(
-                            Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat1.format(totalDebitPK),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.red,
+                            DataCell(
+                              Container(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  _numberFormat1.format(totalDebitPK),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
                           if (visibleColumns.contains(4))
-                          DataCell(
-                            Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat1.format(totalCreditPK),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.red,
+                            DataCell(
+                              Container(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  _numberFormat1.format(totalCreditPK),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
                           if (visibleColumns.contains(5))
-                          const DataCell(Text('')),
+                            const DataCell(Text('')),
                         ]),
 
                         // Add the B/F Balance row
@@ -718,37 +718,37 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               ),
                             ),
                           if (visibleColumns.contains(1))
-                          const DataCell(Text('')),
+                            const DataCell(Text('')),
                           if (visibleColumns.contains(2))
-                          DataCell(
-                            Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat.format(bfBalanceSR),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.teal,
+                            DataCell(
+                              Container(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  _numberFormat.format(bfBalanceSR),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.teal,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
                           if (visibleColumns.contains(3))
-                          const DataCell(Text('')),
+                            const DataCell(Text('')),
                           if (visibleColumns.contains(4))
-                          DataCell(
-                            Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                _numberFormat1.format(bfBalancePK),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.teal,
+                            DataCell(
+                              Container(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  _numberFormat1.format(bfBalancePK),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.teal,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
                           if (visibleColumns.contains(5))
-                          const DataCell(Text('')),
+                            const DataCell(Text('')),
                         ]),
                       ],
                     ),

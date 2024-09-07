@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:chat_wp/themes/const.dart';
 import 'package:chat_wp/components/my_drawer.dart';
 import 'package:chat_wp/services/auth/auth_service.dart';
-import 'package:chat_wp/services/chat/chat_service.dart';
-import 'package:chat_wp/pages/logins_chat/chat_page.dart';
-import 'package:chat_wp/components/user_tile.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:chat_wp/services/accounts/account_service.dart';
 
 class HomePage extends StatefulWidget {
   static const String id = 'home_screen';
@@ -14,41 +14,79 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  // chat & auth services
-  final ChatService _chatService = ChatService();
+  // auth services
   final AuthService _authService = AuthService();
+  final AccountService _accounts = AccountService();
 
-  void logout() {
-    _authService.signOut();
+  List _allAccounts = [];
+  List _allCustomers = [];
+  List _allSuppliers = [];
+  List _allBanks = [];
+  List _searchResult = [];
+
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    _searchController.addListener(_onSearchChanged);
+    super.initState();
   }
 
-  // show confirm block box
-  void showBlockBox(BuildContext context, String userId) {
-    showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Block User'),
-          content: const Text('Are you sure! want to block this user?'),
-          actions: [
-            // cancel button
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel')),
+  _onSearchChanged() {
+    // print(_searchController.text);
+    searchResultList();
+  }
 
-            // unblock button
-            TextButton(
-                onPressed: () {
-                  _chatService.blockUser(userId);
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('User blocked!'),
-                    ),
-                  );
-                },
-                child: const Text('Block')),
-          ],
-        ));
+  searchResultList() {
+    var showResults = [];
+    if (_searchController.text != '') {
+      for (var accountSnapShot in _allAccounts) {
+        var name = accountSnapShot['accountName'].toString().toLowerCase();
+        if (name.contains(_searchController.text.toLowerCase())) {
+          showResults.add(accountSnapShot);
+        }
+      }
+    } else {
+      showResults = List.from(_allAccounts);
+    }
+
+    setState(() {
+      _searchResult = showResults;
+    });
+  }
+
+  getAccountStream() async {
+
+    // var data = await _accounts.getAccountsStream(kUserId);
+
+    var data = await FirebaseFirestore.instance
+        .collection('accounts')
+        .where('uid', isEqualTo: kUserId)
+        .orderBy('accountName')
+        .get();
+
+    setState(() {
+
+      _allAccounts = data.docs;
+    });
+    searchResultList();
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    getAccountStream();
+    _accounts.getAccountsStream(kUserId);
+    // _accounts.getAccountsTypeStream(kUserId, 'CUSTOMER');
+    // _accounts.getAccountsTypeStream(kUserId, 'SUPPLIER');
+    // _accounts.getAccountsTypeStream(kUserId, 'BANK');
+    super.didChangeDependencies();
   }
 
   @override
@@ -107,111 +145,76 @@ class _HomePageState extends State<HomePage> {
 
         body: TabBarView(
           children: [
-            // 1st Menu Body Data Camera
-            // const Icon(Icons.camera_alt),
-            _buildUserList(),
+            // 1st Menu Body Data CUSTOMERS
+            ListAccounts(searchResult: _searchResult,type: 'CUSTOMER',),
 
-            // 2nd Menu Body Data Chats
-            ListView.builder(
-                itemCount: 100,
-                itemBuilder: (context, index) {
-                  return const ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: AssetImage('images/qaiser.jpg'),
-                    ),
-                    title: Text('Qaiser Shameer'),
-                    subtitle: Text('Have you not follow my Orders!'),
-                    trailing: Text('12:45 PM'),
-                  );
-                }),
+            // 2nd Menu Body Data SUPPLIERS
 
-            // 3rd Menu Body Data Status
-            ListView.builder(
-                itemCount: 100,
-                itemBuilder: (context, index){
-                  return ListTile(
-                    leading: Container(
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.green,
-                              width: 3,
-                            )
-                        ),
-                        child: const CircleAvatar(backgroundImage: AssetImage('images/imran_khan.jpg'),)),
-                    title: Text(index % 2 == 0 ? 'Imran Khan' : 'Pakistan Tahreek-e-Insaf'),
-                    subtitle:Text('$index minutes ago'),
-                  );
-                }),
+            ListAccounts(searchResult: _searchResult,type: 'SUPPLIER',),
 
-            // 4th Menu Body Data Calls
-            ListView.builder(
-                itemCount: 100,
-                itemBuilder: (context, index) {
-                  return  ListTile(
-                    leading: const CircleAvatar(
-                      backgroundImage: AssetImage('images/qaiser1.jfif'),
-                    ),
-                    title: const Text('Qurban Raza'),
-                    subtitle: Text(index % 2 == 0 ? 'You missed a Audio Call $index minutes ago' : 'You missed a Video Call $index minutes ago'),
-                    trailing: Icon(index % 2 == 0 ? Icons.phone: Icons.video_call ),
-                  );
-                }),
+            // 3rd Menu Body Data BANKS
+            ListAccounts(searchResult: _searchResult,type: 'BANK',),
+
+            // 4th Menu Body Data ALL ACCOUNTS
+            ListAccounts(searchResult: _searchResult,type: 'ALL',),
           ],
         ),
       ),
     );
   }
 
-  // build a list of users except for the current logged in user
-  Widget _buildUserList() {
-    return StreamBuilder(
-      stream: _chatService.getUsersStreamExcludingBlocked(),
-      builder: (context, snapshot) {
-        // errors
-        if (snapshot.hasError) {
-          return const Center(child: Text('Error Found in User List.'));
+}
+class ListAccounts extends StatefulWidget {
+  const ListAccounts({
+    super.key,
+    required List searchResult,
+    required this.type,
+  }) : _searchResult = searchResult;
+
+  final List _searchResult;
+  final String type;
+
+  @override
+  State<ListAccounts> createState() => _ListAccountsState();
+}
+
+class _ListAccountsState extends State<ListAccounts> {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: widget._searchResult.length,
+      itemBuilder: (context, index) {
+        // Check if the current item's type matches the passed type
+        bool matchesType=true;
+        if(widget.type!='ALL'){
+        matchesType = widget.type == widget._searchResult[index]['type'];
         }
 
-        // loading..
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Text('loading..');
-        }
-
-        // return list view
-        return ListView(
-          children: snapshot.data!
-              .map<Widget>((userData) => _buildUserListItem(userData, context))
-              .toList(),
-        );
+        // If it matches, show the ListTile; otherwise, return a SizedBox.shrink()
+        return matchesType ? ListTile(
+          leading: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.green,
+                width: 3,
+              ),
+            ),
+            child: const CircleAvatar(
+              backgroundImage: AssetImage('images/imran_khan.jpg'),
+            ),
+          ),
+          title: Text(
+            widget._searchResult[index]['accountName'],
+          ),
+          subtitle: Text(
+            widget._searchResult[index]['phone'],
+          ),
+          trailing: Text(
+            widget._searchResult[index]['type'],
+          ),
+        ) : const SizedBox.shrink();
       },
     );
   }
-
-  // build individual list tile for users
-  Widget _buildUserListItem(
-      Map<String, dynamic> userData, BuildContext context) {
-    // display all users except current user
-    if (userData['email'] != _authService.getCurrentUser()) {
-      return UserTile(
-        text: userData['email'],
-        onLongPress: () => showBlockBox(context, userData['uid']),
-        onTap: () {
-          // tapped on user and go to chat page
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ChatPage(
-                receiverEmail: userData['email'],
-                receiverID: userData['uid'],
-              ),
-            ),
-          );
-        },
-      );
-    } else {
-      return Container();
-    }
-  }
-
 }

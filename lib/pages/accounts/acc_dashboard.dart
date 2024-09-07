@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:chat_wp/components/my_drawer.dart';
 import 'package:chat_wp/components/my_list_tile.dart';
+import 'package:chat_wp/pages/logins_chat/home_page.dart';
 
 class AccountsDashboard extends StatelessWidget {
   const AccountsDashboard({super.key});
@@ -26,7 +27,19 @@ class AccountsDashboard extends StatelessWidget {
                 ),
                 margin: const EdgeInsets.only(right: 10.0),
                 child: IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // // pop the drawer
+                      // Navigator.pop(context);
+
+                      // navigate to settings page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HomePage(),
+                        ),
+                      );
+
+                    },
                     icon: const Icon(
                       Icons.account_balance_rounded,
                       color: Colors.white,

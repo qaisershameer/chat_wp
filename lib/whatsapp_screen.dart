@@ -83,9 +83,9 @@ class _HomeScreenState extends State<HomeScreen> {
             PopupMenuButton(
               child: const Icon(Icons.more_vert_outlined),
               itemBuilder: (
-                context,
-              ) =>
-                  [
+                  context,
+                  ) =>
+              [
                 const PopupMenuItem(
                   value: '1',
                   child: Text('New Group'),
@@ -130,34 +130,34 @@ class _HomeScreenState extends State<HomeScreen> {
             ListView.builder(
                 itemCount: 100,
                 itemBuilder: (context, index){
-              return ListTile(
-                leading: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.green,
-                      width: 3,
-                    )
-                  ),
-                    child: const CircleAvatar(backgroundImage: AssetImage('images/imran_khan.jpg'),)),
-                title: Text(index % 2 == 0 ? 'Imran Khan' : 'Pakistan Tahreek-e-Insaf'),
-                subtitle:Text('$index minutes ago'),
-              );
-            }),
+                  return ListTile(
+                    leading: Container(
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.green,
+                              width: 3,
+                            )
+                        ),
+                        child: const CircleAvatar(backgroundImage: AssetImage('images/imran_khan.jpg'),)),
+                    title: Text(index % 2 == 0 ? 'Imran Khan' : 'Pakistan Tahreek-e-Insaf'),
+                    subtitle:Text('$index minutes ago'),
+                  );
+                }),
 
             // 4th Menu Body Data Calls
             ListView.builder(
                 itemCount: 100,
                 itemBuilder: (context, index) {
-              return  ListTile(
-                leading: const CircleAvatar(
-                  backgroundImage: AssetImage('images/qaiser1.jfif'),
-                ),
-                title: const Text('Qurban Raza'),
-                subtitle: Text(index % 2 == 0 ? 'You missed a Audio Call $index minutes ago' : 'You missed a Video Call $index minutes ago'),
-                trailing: Icon(index % 2 == 0 ? Icons.phone: Icons.video_call ),
-              );
-            }),
+                  return  ListTile(
+                    leading: const CircleAvatar(
+                      backgroundImage: AssetImage('images/qaiser1.jfif'),
+                    ),
+                    title: const Text('Qurban Raza'),
+                    subtitle: Text(index % 2 == 0 ? 'You missed a Audio Call $index minutes ago' : 'You missed a Video Call $index minutes ago'),
+                    trailing: Icon(index % 2 == 0 ? Icons.phone: Icons.video_call ),
+                  );
+                }),
           ],
         ),
       ),

@@ -7,9 +7,9 @@ class UserTile extends StatelessWidget {
 
   const UserTile(
       {super.key,
-      required this.text,
-      required this.onTap,
-      required this.onLongPress});
+        required this.text,
+        required this.onTap,
+        required this.onLongPress});
 
   @override
   Widget build(BuildContext context) {
