@@ -14,8 +14,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  // auth services
-  final AuthService _authService = AuthService();
+  // account services
   final AccountService _accounts = AccountService();
 
   List _allAccounts = [];

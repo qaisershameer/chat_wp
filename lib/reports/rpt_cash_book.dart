@@ -333,15 +333,15 @@ class RptCashBookState extends State<RptCashBook> {
                 // Calculate totals
                 for (var document in accountsList) {
                   Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-                  totalDebitPK += (data['credit'] ?? 0.0);
-                  totalCreditPK += (data['debit'] ?? 0.0);
-                  totalDebitSR += (data['creditsar'] ?? 0.0);
-                  totalCreditSR += (data['debitsar'] ?? 0.0);
+                  totalDebitPK += (data['debit'] ?? 0.0);
+                  totalCreditPK += (data['credit'] ?? 0.0);
+                  totalDebitSR += (data['debitsar'] ?? 0.0);
+                  totalCreditSR += (data['creditsar'] ?? 0.0);
                 }
 
                 // Calculate B/F Balance
-                bfBalancePK = totalDebitPK - totalCreditPK;
-                bfBalanceSR = totalDebitSR - totalCreditSR;
+                bfBalancePK = totalCreditPK - totalDebitPK;
+                bfBalanceSR = totalCreditSR - totalDebitSR;
 
                 // Determine columns to display based on _selectedReport
                 List<DataColumn> columns = [];
@@ -393,25 +393,158 @@ class RptCashBookState extends State<RptCashBook> {
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
+
                           columnSpacing: constraints.maxWidth / 15, // Adjust column spacing
                           columns: columns,
                           rows: <DataRow>[
 
+                            // Add the B/F Balance row
+                            // DataRow(cells: [
+                            //   if (visibleColumns.contains(0)) const DataCell(Text('')),
+                            //   if (visibleColumns.contains(1)) const DataCell(Text('')),
+                            //   if (visibleColumns.contains(2))
+                            //     DataCell(Container(
+                            //       alignment: Alignment.centerRight,
+                            //       child: Text(
+                            //         _numberFormat.format(bfBalanceSR),
+                            //         style: const TextStyle(
+                            //           fontWeight: FontWeight.bold,
+                            //           color: Colors.teal,
+                            //         ),
+                            //       ),
+                            //     )),
+                            //   if (visibleColumns.contains(3)) const DataCell(Text('')),
+                            //   if (visibleColumns.contains(4))
+                            //     DataCell(Container(
+                            //       alignment: Alignment.centerRight,
+                            //       child: Text(
+                            //         _numberFormat1.format(bfBalancePK),
+                            //         style: const TextStyle(
+                            //           fontWeight: FontWeight.bold,
+                            //           color: Colors.teal,
+                            //         ),
+                            //       ),
+                            //     )),
+                            //   if (visibleColumns.contains(5))
+                            //     const DataCell(Text(
+                            //       'Balance',
+                            //       style: TextStyle(
+                            //         fontWeight: FontWeight.bold,
+                            //         color: Colors.teal,
+                            //       ),
+                            //     )),
+                            //   if (visibleColumns.contains(6)) const DataCell(Text('')),
+                            // ]),
+                            // B/F Balance Row in above line commit
+
+                            // Add the totals row
+                            DataRow(
+                                color: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+                                  // Return the color you want to use for the highlighted row
+                                  return Colors.teal.withOpacity(0.25); // Example color with transparency
+                                }),
+
+                                cells: [
+                              if (visibleColumns.contains(0))
+                                DataCell(Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat.format(bfBalanceSR),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                )),
+
+                              if (visibleColumns.contains(1))
+                                DataCell(Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat.format(totalDebitSR),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.deepPurpleAccent,
+                                    ),
+                                  ),
+                                )),
+                              if (visibleColumns.contains(2))
+                                DataCell(Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat.format(totalCreditSR),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.deepPurpleAccent,
+                                    ),
+                                  ),
+                                )),
+                              if (visibleColumns.contains(3))
+                                DataCell(Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat1.format(totalDebitPK),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.teal,
+                                    ),
+                                  ),
+                                )),
+                              if (visibleColumns.contains(4))
+                                DataCell(Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat1.format(totalCreditPK),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.teal,
+                                    ),
+                                  ),
+                                )),
+                              if (visibleColumns.contains(5))
+                                DataCell(Container(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    _numberFormat1.format(bfBalancePK),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.green,
+                                    ),
+                                  ),
+                                )),
+                              if (visibleColumns.contains(6))
+                                const DataCell(Text(
+                                  'Total',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontStyle: FontStyle.italic,
+                                    color: Colors.black,
+                                  ),
+                                )),
+                              // if (visibleColumns.contains(6)) const DataCell(Text('')),
+                            ]),
+
+                            // Add the detail row records
                             ...accountsList.map((document) {
                               Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
                               final voucherID = document.id; // Use final here to ensure immutability
                               // final data = document.data() as Map<String, dynamic>;
 
-                              final creditSrText = (data['creditsar'] ?? 0.0);
-                              final debitSrText = (data['debitsar'] ?? 0.0);
-                              final creditText = (data['credit'] ?? 0.0);
-                              final debitText = (data['debit'] ?? 0.0);
+                              final creditSrText = (data['debitsar'] ?? 0.0);
+                              final debitSrText = (data['creditsar'] ?? 0.0);
+                              final creditText = (data['debit'] ?? 0.0);
+                              final debitText = (data['credit'] ?? 0.0);
 
                               final drAcId = data['drAcId'] ?? '';
                               final crAcId = data['crAcId'] ?? '';
                               final dateText = (data['date'] as Timestamp).toDate();
-                              final formattedDate = DateFormat('dd MM yy').format(dateText);
+                              final formattedDate = DateFormat('dd MMM').format(dateText);
                               final remarksText = data['remarks'] ?? '';
                               final type = data['type'] ?? '';
 
@@ -422,7 +555,7 @@ class RptCashBookState extends State<RptCashBook> {
 
                               return DataRow(cells: [
                                 if (visibleColumns.contains(0))
-                                  DataCell(Text(formattedDate)),
+                                  DataCell(Text(formattedDate, style: const TextStyle(color: Colors.blueGrey,))),
                                 if (visibleColumns.contains(1))
                                   DataCell(Container(
                                     alignment: Alignment.centerRight,
@@ -538,101 +671,6 @@ class RptCashBookState extends State<RptCashBook> {
                               ]);
                             }),
 
-                            // Add the totals row
-                            DataRow(cells: [
-                              if (visibleColumns.contains(0)) const DataCell(Text('')),
-                              if (visibleColumns.contains(1))
-                                DataCell(Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat.format(totalDebitSR),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                )),
-                              if (visibleColumns.contains(2))
-                                DataCell(Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat.format(totalCreditSR),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                )),
-                              if (visibleColumns.contains(3))
-                                DataCell(Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat1.format(totalDebitPK),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                )),
-                              if (visibleColumns.contains(4))
-                                DataCell(Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat1.format(totalCreditPK),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                )),
-                              if (visibleColumns.contains(5))
-                                const DataCell(Text(
-                                  'Totals',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red,
-                                  ),
-                                )),
-                              if (visibleColumns.contains(6)) const DataCell(Text('')),
-                            ]),
-
-                            // Add the B/F Balance row
-                            DataRow(cells: [
-                              if (visibleColumns.contains(0)) const DataCell(Text('')),
-                              if (visibleColumns.contains(1)) const DataCell(Text('')),
-                              if (visibleColumns.contains(2))
-                                DataCell(Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat.format(bfBalanceSR),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.teal,
-                                    ),
-                                  ),
-                                )),
-                              if (visibleColumns.contains(3)) const DataCell(Text('')),
-                              if (visibleColumns.contains(4))
-                                DataCell(Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat1.format(bfBalancePK),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.teal,
-                                    ),
-                                  ),
-                                )),
-                              if (visibleColumns.contains(5))
-                                const DataCell(Text(
-                                  'Balance',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.teal,
-                                  ),
-                                )),
-                              if (visibleColumns.contains(5)) const DataCell(Text('')),
-                            ]),
                           ],
                         ),
                       ),

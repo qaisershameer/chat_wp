@@ -403,7 +403,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
   Widget rptLedger() {
 
     // print('A/c Id: $_selectedAcId');
-
     totalDebitPK = 0;
     totalCreditPK = 0;
     totalDebitSR = 0;
@@ -465,6 +464,44 @@ class RptAcLedgerState extends State<RptAcLedger> {
         final documents = snapshot.data ?? [];
         List<DocumentSnapshot> accountsList = documents.cast<DocumentSnapshot>();
 
+        // First loop through the data to accumulate totals
+        for (var document in accountsList) {
+          final data = document.data() as Map<String, dynamic>;
+          final drAcId = data['drAcId'] ?? '';
+          final crAcId = data['crAcId'] ?? '';
+          final type = data['type'] ?? '';
+
+          double debitText, creditText, debitSrText, creditSrText;
+
+          if (type == 'JV') {
+            if (_selectedAcId == drAcId) {
+              debitText = (data['credit'] ?? 0.0);
+              creditText = 0.0;
+              debitSrText = (data['creditsar'] ?? 0.0);
+              creditSrText = 0.0;
+            } else {
+              debitText = 0.0;
+              creditText = (data['debit'] ?? 0.0);
+              debitSrText = 0.0;
+              creditSrText = (data['debitsar'] ?? 0.0);
+            }
+          } else {
+            debitText = (data['credit'] ?? 0.0);
+            creditText = (data['debit'] ?? 0.0);
+            debitSrText = (data['creditsar'] ?? 0.0);
+            creditSrText = (data['debitsar'] ?? 0.0);
+          }
+
+          totalDebitPK += creditText;
+          totalCreditPK += debitText;
+          totalDebitSR += creditSrText;
+          totalCreditSR += debitSrText;
+        }
+
+        // Calculate the balances after looping through the data
+        bfBalancePK = totalDebitPK - totalCreditPK;
+        bfBalanceSR = totalDebitSR - totalCreditSR;
+
         return FutureBuilder<Map<String, String?>>(
           future: _getAccountNames(accountsList),
           builder: (context, futureSnapshot) {
@@ -473,8 +510,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
             } else if (futureSnapshot.hasError) {
               return Center(child: Text('Error: ${futureSnapshot.error}'));
             } else if (futureSnapshot.hasData) {
-              // Map<String, String?> accountNames = futureSnapshot.data!;
-
               return LayoutBuilder(
                 builder: (context, constraints) {
                   return SingleChildScrollView(
@@ -483,273 +518,292 @@ class RptAcLedgerState extends State<RptAcLedger> {
                       columnSpacing: constraints.maxWidth / 15,
                       columns: myColumns,
                       rows: [
+
+                        // Add the totals row at the top
+                        DataRow(
+                          color: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+                            // Return the color you want to use for the highlighted row
+                            return Colors.teal.withOpacity(0.25); // Example color with transparency
+                          }),
+                          cells: [
+                            if (visibleColumns.contains(0))
+                              DataCell(
+                                Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat.format(bfBalanceSR),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (visibleColumns.contains(1))
+                              DataCell(
+                                Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat.format(totalDebitSR),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.deepPurpleAccent,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (visibleColumns.contains(2))
+                              DataCell(
+                                Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat.format(totalCreditSR),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.deepPurpleAccent,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (visibleColumns.contains(3))
+                              DataCell(
+                                Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat1.format(totalDebitPK),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.teal,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (visibleColumns.contains(4))
+                              DataCell(
+                                Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _numberFormat1.format(totalCreditPK),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.teal,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (visibleColumns.contains(5))
+                              DataCell(
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    _numberFormat1.format(bfBalancePK),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.green,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+
+
+                        // Add the B/F Balance row at the top
+                        // DataRow(cells: [
+                        //   if (visibleColumns.contains(0))
+                        //     const DataCell(
+                        //       Text(
+                        //         'B/F',
+                        //         style: TextStyle(
+                        //           fontWeight: FontWeight.bold,
+                        //           color: Colors.teal,
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   if (visibleColumns.contains(1)) const DataCell(Text('')),
+                        //   if (visibleColumns.contains(2))
+                        //     DataCell(
+                        //       Container(
+                        //         alignment: Alignment.centerRight,
+                        //         child: Text(
+                        //           _numberFormat.format(bfBalanceSR),
+                        //           style: const TextStyle(
+                        //             fontWeight: FontWeight.bold,
+                        //             color: Colors.teal,
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   if (visibleColumns.contains(3)) const DataCell(Text('')),
+                        //   if (visibleColumns.contains(4))
+                        //     DataCell(
+                        //       Container(
+                        //         alignment: Alignment.centerRight,
+                        //         child: Text(
+                        //           _numberFormat1.format(bfBalancePK),
+                        //           style: const TextStyle(
+                        //             fontWeight: FontWeight.bold,
+                        //             color: Colors.teal,
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   if (visibleColumns.contains(5)) const DataCell(Text('')),
+                        // ]),
+
                         ...accountsList.map((document) {
-                          final voucherID = document.id; // Use final here to ensure immutability
+                          final voucherID = document.id;
                           final data = document.data() as Map<String, dynamic>;
 
-                          final drAcId = data['drAcId'] ?? '';
-                          final crAcId = data['crAcId'] ?? '';
-                          final type = data['type'] ?? '';
-                          final dateText = (data['date'] as Timestamp).toDate();
-                          final formattedDate = DateFormat('dd MM yy').format(dateText);
-                          final remarksText = data['remarks'] ?? '';
+                          if (data != null) {
+                            final drAcId = data['drAcId'] ?? '';
+                            final crAcId = data['crAcId'] ?? '';
+                            final type = data['type'] ?? '';
+                            final dateText = (data['date'] as Timestamp).toDate();
+                            final formattedDate = DateFormat('dd MMM').format(dateText);
+                            final remarksText = data['remarks'] ?? '';
 
-                          double debitText, creditText, debitSrText, creditSrText;
+                            double debitText, creditText, debitSrText, creditSrText;
 
-                          if (type == 'JV') {
-                            if (_selectedAcId == drAcId) {
-                              debitText = (data['credit'] ?? 0.0);
-                              creditText = 0.0;
-                              debitSrText = (data['creditsar'] ?? 0.0);
-                              creditSrText = 0.0;
+                            if (type == 'JV') {
+                              if (_selectedAcId == drAcId) {
+                                debitText = (data['credit'] ?? 0.0);
+                                creditText = 0.0;
+                                debitSrText = (data['creditsar'] ?? 0.0);
+                                creditSrText = 0.0;
+                              } else {
+                                debitText = 0.0;
+                                creditText = (data['debit'] ?? 0.0);
+                                debitSrText = 0.0;
+                                creditSrText = (data['debitsar'] ?? 0.0);
+                              }
                             } else {
-                              debitText = 0.0;
+                              debitText = (data['credit'] ?? 0.0);
                               creditText = (data['debit'] ?? 0.0);
-                              debitSrText = 0.0;
+                              debitSrText = (data['creditsar'] ?? 0.0);
                               creditSrText = (data['debitsar'] ?? 0.0);
                             }
+
+                            // Returning a valid DataRow
+                            return DataRow(
+                              cells: [
+                                if (visibleColumns.contains(0))
+                                  DataCell(
+                                    GestureDetector(
+                                      onTap: () {
+                                        if (voucherID.isNotEmpty) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) {
+                                                // Navigation logic for different voucher types
+                                                if (type == 'CP') {
+                                                  return VoucherCpvAdd(
+                                                    docId: voucherID,
+                                                    type: type,
+                                                    vDate: dateText,
+                                                    remarks: remarksText,
+                                                    drAcId: drAcId,
+                                                    crAcId: '',
+                                                    debit: data['debit'],
+                                                    debitSar: data['debitsar'],
+                                                    credit: data['credit'],
+                                                    creditSar: data['creditsar'],
+                                                  );
+                                                } else if (type == 'CR') {
+                                                  return VoucherCrvAdd(
+                                                    docId: voucherID,
+                                                    type: type,
+                                                    vDate: dateText,
+                                                    remarks: remarksText,
+                                                    drAcId: '',
+                                                    crAcId: crAcId,
+                                                    debit: data['debit'],
+                                                    debitSar: data['debitsar'],
+                                                    credit: data['credit'],
+                                                    creditSar: data['creditsar'],
+                                                  );
+                                                } else if (type == 'JV') {
+                                                  return VoucherJvAdd(
+                                                    docId: voucherID,
+                                                    type: type,
+                                                    vDate: dateText,
+                                                    remarks: remarksText,
+                                                    drAcId: drAcId,
+                                                    crAcId: crAcId,
+                                                    debit: data['debit'],
+                                                    debitSar: data['debitsar'],
+                                                    credit: data['credit'],
+                                                    creditSar: data['creditsar'],
+                                                  );
+                                                }
+                                                return const SizedBox.shrink(); // fallback in case no type matches
+                                              },
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(formattedDate),
+                                      ),
+                                    ),
+                                  ),
+                                if (visibleColumns.contains(1))
+                                  DataCell(
+                                    Container(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        _numberFormat.format(creditSrText),
+                                        style: const TextStyle(color: Colors.blue),
+                                      ),
+                                    ),
+                                  ),
+                                if (visibleColumns.contains(2))
+                                  DataCell(
+                                    Container(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        _numberFormat.format(debitSrText),
+                                        style: const TextStyle(color: Colors.blue),
+                                      ),
+                                    ),
+                                  ),
+                                if (visibleColumns.contains(3))
+                                  DataCell(
+                                    Container(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        _numberFormat1.format(creditText),
+                                        style: const TextStyle(color: Colors.green),
+                                      ),
+                                    ),
+                                  ),
+                                if (visibleColumns.contains(4))
+                                  DataCell(
+                                    Container(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        _numberFormat1.format(debitText),
+                                        style: const TextStyle(color: Colors.green),
+                                      ),
+                                    ),
+                                  ),
+                                if (visibleColumns.contains(5)) DataCell(Text(remarksText)),
+                              ],
+                            );
                           } else {
-                            debitText = (data['credit'] ?? 0.0);
-                            creditText = (data['debit'] ?? 0.0);
-                            debitSrText = (data['creditsar'] ?? 0.0);
-                            creditSrText = (data['debitsar'] ?? 0.0);
+                            // Handle case when `data` is null, returning an empty DataRow or skipping the row
+                            return const DataRow(cells: []);  // Or handle differently if necessary
                           }
+                        }).toList(),  // Convert to list here
 
-                          totalDebitPK += creditText;
-                          totalCreditPK += debitText;
-                          totalDebitSR += creditSrText;
-                          totalCreditSR += debitSrText;
-
-                          bfBalancePK = totalDebitPK - totalCreditPK;
-                          bfBalanceSR = totalDebitSR - totalCreditSR;
-
-                          // print('Voucher ID: $voucherID');
-                          // print('Type: $type');
-                          // print('Remarks: $remarksText');
-
-                          return DataRow(
-                            cells: [
-                              if (visibleColumns.contains(0))
-                                DataCell(
-                                  GestureDetector(
-                                    onTap: () {
-                                      if (voucherID.isNotEmpty) {
-                                        // print('Navigating with Voucher ID: $voucherID');
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) {
-                                              if (type == 'CP') {
-                                                return VoucherCpvAdd(
-                                                  docId: voucherID,
-                                                  type: type,
-                                                  vDate: dateText,
-                                                  remarks: remarksText,
-                                                  drAcId: drAcId,
-                                                  crAcId: '',
-                                                  debit: data['debit'],
-                                                  debitSar: data['debitsar'],
-                                                  credit: data['credit'],
-                                                  creditSar: data['creditsar'],
-                                                );
-                                              } else if (type == 'CR') {
-                                                return VoucherCrvAdd(
-                                                  docId: voucherID,
-                                                  type: type,
-                                                  vDate: dateText,
-                                                  remarks: remarksText,
-                                                  drAcId: '',
-                                                  crAcId: crAcId,
-                                                  debit: data['debit'],
-                                                  debitSar: data['debitsar'],
-                                                  credit: data['credit'],
-                                                  creditSar: data['creditsar'],
-                                                );
-                                              } else if (type == 'JV') {
-                                                return VoucherJvAdd(
-                                                  docId: voucherID,
-                                                  type: type,
-                                                  vDate: dateText,
-                                                  remarks: remarksText,
-                                                  drAcId: drAcId,
-                                                  crAcId: crAcId,
-                                                  debit: data['debit'],
-                                                  debitSar: data['debitsar'],
-                                                  credit: data['credit'],
-                                                  creditSar: data['creditsar'],
-                                                );
-                                              }
-                                              return const SizedBox.shrink(); // fallback if no type matches
-                                            },
-                                          ),
-                                        );
-                                      }
-                                    },
-                                    child: Container(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(formattedDate),
-                                    ),
-                                  ),
-                                ),
-                              if (visibleColumns.contains(1))
-                                DataCell(
-                                  Container(
-                                    alignment: Alignment.centerRight,
-                                    child: Text(
-                                      _numberFormat.format(creditSrText),
-                                      style: const TextStyle(color: Colors.blue),
-                                    ),
-                                  ),
-                                ),
-                              if (visibleColumns.contains(2))
-                                DataCell(
-                                  Container(
-                                    alignment: Alignment.centerRight,
-                                    child: Text(
-                                      _numberFormat.format(debitSrText),
-                                      style: const TextStyle(color: Colors.blue),
-                                    ),
-                                  ),
-                                ),
-                              if (visibleColumns.contains(3))
-                                DataCell(
-                                  Container(
-                                    alignment: Alignment.centerRight,
-                                    child: Text(
-                                      _numberFormat1.format(creditText),
-                                      style: const TextStyle(color: Colors.green),
-                                    ),
-                                  ),
-                                ),
-                              if (visibleColumns.contains(4))
-                                DataCell(
-                                  Container(
-                                    alignment: Alignment.centerRight,
-                                    child: Text(
-                                      _numberFormat1.format(debitText),
-                                      style: const TextStyle(color: Colors.green),
-                                    ),
-                                  ),
-                                ),
-                              if (visibleColumns.contains(5))
-                                DataCell(Text(remarksText)),
-                            ],
-                          );
-                        }),
-
-                        // Add the totals row
-                        DataRow(cells: [
-                          if (visibleColumns.contains(0))
-                            const DataCell(
-                              Text(
-                                'Totals',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.red,
-                                ),
-                              ),
-                            ),
-                          if (visibleColumns.contains(1))
-                            DataCell(
-                              Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat.format(totalDebitSR),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          if (visibleColumns.contains(2))
-                            DataCell(
-                              Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat.format(totalCreditSR),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          if (visibleColumns.contains(3))
-                            DataCell(
-                              Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat1.format(totalDebitPK),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          if (visibleColumns.contains(4))
-                            DataCell(
-                              Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat1.format(totalCreditPK),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          if (visibleColumns.contains(5))
-                            const DataCell(Text('')),
-                        ]),
-
-                        // Add the B/F Balance row
-                        DataRow(cells: [
-                          if (visibleColumns.contains(0))
-                            const DataCell(
-                              Text(
-                                'Balance',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.teal,
-                                ),
-                              ),
-                            ),
-                          if (visibleColumns.contains(1))
-                            const DataCell(Text('')),
-                          if (visibleColumns.contains(2))
-                            DataCell(
-                              Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat.format(bfBalanceSR),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.teal,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          if (visibleColumns.contains(3))
-                            const DataCell(Text('')),
-                          if (visibleColumns.contains(4))
-                            DataCell(
-                              Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  _numberFormat1.format(bfBalancePK),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.teal,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          if (visibleColumns.contains(5))
-                            const DataCell(Text('')),
-                        ]),
                       ],
                     ),
                   );
@@ -761,6 +815,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
         );
       },
     );
+
   }
 
   Future<Map<String, String?>> _getAccountNames(

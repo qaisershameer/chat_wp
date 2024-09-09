@@ -431,16 +431,16 @@ class RptTrialBalState extends State<RptTrialBal> {
         break;
       case 'SAR':
         myColumns = const [
-          DataColumn(label: Text('SR-Dr')),
-          DataColumn(label: Text('SR-Cr')),
+          DataColumn(label: Text('SR-Out')),
+          DataColumn(label: Text('SR-In')),
           DataColumn(label: Text('Account')),
         ];
         visibleColumns = [0, 1, 4];
         break;
       case 'PKR':
         myColumns = const [
-          DataColumn(label: Text('PK-Dr')),
-          DataColumn(label: Text('PK-Cr')),
+          DataColumn(label: Text('PK-Out')),
+          DataColumn(label: Text('PK-In')),
           DataColumn(label: Text('Account')),
         ];
         visibleColumns = [2, 3, 4];
@@ -483,63 +483,51 @@ class RptTrialBalState extends State<RptTrialBal> {
               } else if (!snapshot.hasData) {
                 return const Center(child: Text('No data available'));
               } else {
-
                 List<Map<String, double>> ledgerTotalsList = snapshot.data!;
 
-                // Calculate totals for all columns
+                // Initialize totals for all columns
                 double totalDebitSr = 0.0;
                 double totalCreditSr = 0.0;
                 double totalDebitPk = 0.0;
                 double totalCreditPk = 0.0;
 
+                // Define variables for the balance row
                 double displayBalanceSr = 0.0;
                 double displayBalancePk = 0.0;
 
+                // Create the detailed data rows (accounts list)
                 List<DataRow> dataRows = accountsList.asMap().entries.map<DataRow>((entry) {
                   int index = entry.key;
                   DocumentSnapshot document = entry.value;
-
                   Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
                   final _selectedAcId = document.id;
 
                   Map<String, double> totals = ledgerTotalsList[index];
 
+                  // Retrieve row-level totals from the API response
                   double totalDebitSrRow = totals['totalDebitSr'] ?? 0.0;
                   double totalCreditSrRow = totals['totalCreditSr'] ?? 0.0;
                   double totalDebitPkRow = totals['totalDebitPk'] ?? 0.0;
                   double totalCreditPkRow = totals['totalCreditPk'] ?? 0.0;
 
+                  // Calculate row-level balances
                   double bfSAR = totalDebitSrRow - totalCreditSrRow;
                   double bfPKR = totalDebitPkRow - totalCreditPkRow;
 
+                  // Calculate display values for debit/credit based on balance
                   double displayDebitSr = bfSAR > 0 ? bfSAR : 0;
                   double displayCreditSr = bfSAR < 0 ? bfSAR : 0;
+
                   double displayDebitPk = bfPKR > 0 ? bfPKR : 0;
                   double displayCreditPk = bfPKR < 0 ? bfPKR : 0;
 
-                  // Accumulate totals
+                  // Accumulate overall totals for debit and credit
                   totalDebitSr += displayDebitSr;
                   totalCreditSr += displayCreditSr;
                   totalDebitPk += displayDebitPk;
                   totalCreditPk += displayCreditPk;
 
-                  // b/f totals
-                  displayBalanceSr = totalDebitSr + totalCreditSr;
-                  displayBalancePk = totalDebitPk + totalCreditPk;
-
                   return DataRow(
-
-                    // Get Selected Row accountId to view ledger
-                    // selected: _selectedAcId == currentAcId,
-                    // onSelectChanged: (isSelected) {
-                    //   if (isSelected != null && isSelected) {
-                    //     setState(() {
-                    //       _selectedAcId = currentAcId;
-                    //     });
-                    //   }
-                    // },
-
                     cells: <DataCell>[
                       if (visibleColumns.contains(0))
                         DataCell(Text(
@@ -577,43 +565,76 @@ class RptTrialBalState extends State<RptTrialBal> {
                         DataCell(
                           GestureDetector(
                             onTap: () {
-                              // print('Navigating to VoucherCpvAdd with docId: $voucherID');
                               try {
-                                if (_selectedAcId!= '') {
+                                if (_selectedAcId != '') {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) {
-                                          return RptAcLedger(
-                                            accountId: _selectedAcId,
-                                          );
-                                        }
-                                      // return const SizedBox.shrink(); // Fallback if no type matches
+                                      builder: (context) {
+                                        return RptAcLedger(accountId: _selectedAcId);
+                                      },
                                     ),
                                   );
                                 }
-                              } catch (e) {
-                                // print('Error during navigation: $e');
-                              }
+                              } catch (e) {const Text('error loading record...');}
                             },
                             child: Container(
-                                alignment: Alignment.centerLeft,
-                                child: Text(data['accountName'] ?? '')),
+                              alignment: Alignment.centerLeft,
+                              child: Text(data['accountName'] ?? ''),
+                            ),
                           ),
                         ),
-                      // DataCell(Text(data['accountName'] ?? '')),
                     ],
                   );
                 }).toList();
 
-                // Add the total row
-                dataRows.add(DataRow(
+                // Calculate final display balances (b/f totals)
+                displayBalanceSr = totalDebitSr + totalCreditSr;
+                displayBalancePk = totalDebitPk + totalCreditPk;
+
+                // Add the balance row first
+                dataRows.insert(0, DataRow(
+                  color: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+                    return Colors.yellow.withOpacity(0.25); // Example color with transparency
+                  }),
+                  cells: <DataCell>[
+                    if (visibleColumns.contains(0)) const DataCell(Text(''),),
+                    if (visibleColumns.contains(1))
+                      DataCell(Text(
+                        _numberFormat.format(displayBalanceSr),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.teal,
+                        ),
+                      )),
+                    if (visibleColumns.contains(2)) const DataCell(Text(''),),
+                    if (visibleColumns.contains(3))
+                      DataCell(Text(
+                        _numberFormat1.format(displayBalancePk),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.teal,
+                        ),
+                      )),
+                    if (visibleColumns.contains(4))
+                      const DataCell(Text('B/F', style: TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: Colors.teal))),
+                  ],
+                ));
+
+                // Add the total row next
+                dataRows.insert(1, DataRow(
+                  color: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+                    return Colors.teal.withOpacity(0.25); // Example color with transparency
+                  }),
                   cells: <DataCell>[
                     if (visibleColumns.contains(0))
                       DataCell(Text(
                         _numberFormat.format(totalDebitSr),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
                           color: Colors.red,
                         ),
                       )),
@@ -622,6 +643,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                         _numberFormat.format(totalCreditSr),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
                           color: Colors.red,
                         ),
                       )),
@@ -630,6 +652,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                         _numberFormat1.format(totalDebitPk),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
                           color: Colors.red,
                         ),
                       )),
@@ -638,48 +661,16 @@ class RptTrialBalState extends State<RptTrialBal> {
                         _numberFormat1.format(totalCreditPk),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
                           color: Colors.red,
                         ),
                       )),
                     if (visibleColumns.contains(4))
-                      const DataCell(Text('Total', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red,))),
+                      const DataCell(Text('Total', style: TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: Colors.red))),
                   ],
                 ));
 
-                // Add the b/f balances row
-                dataRows.add(DataRow(
-
-                  cells: <DataCell>[
-
-                    if (visibleColumns.contains(0))
-                      const DataCell(Text(''),),
-
-                    if (visibleColumns.contains(1))
-                      DataCell(Text(
-                        _numberFormat.format(displayBalanceSr),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.teal,
-                        ),
-                      )),
-
-                    if (visibleColumns.contains(2))
-                      const DataCell(Text(''),),
-
-                    if (visibleColumns.contains(3))
-                      DataCell(Text(
-                        _numberFormat1.format(displayBalancePk),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.teal,
-                        ),
-                      )),
-
-                    if (visibleColumns.contains(4))
-                      const DataCell(Text('Balance', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal,))),
-                  ],
-                ));
-
+                // Display the data in a scrollable DataTable
                 return SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: SingleChildScrollView(
@@ -692,6 +683,8 @@ class RptTrialBalState extends State<RptTrialBal> {
               }
             },
           );
+
+
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
