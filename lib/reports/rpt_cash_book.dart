@@ -87,14 +87,16 @@ class RptCashBookState extends State<RptCashBook> {
         if (type == 'from') {
           _selectedDateFrom = pickedDate;
           // print(pickedDate);
-          _dateFromController.text = DateFormat('dd-MMM-yyyy').format(pickedDate);
+          _dateFromController.text =
+              DateFormat('dd-MMM-yyyy').format(pickedDate);
         } else if (type == 'to') {
           _selectedDateTo = pickedDate;
           _dateToController.text = DateFormat('dd-MMM-yyyy').format(pickedDate);
         }
       });
-    }else{
-      _dateFromController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
+    } else {
+      _dateFromController.text =
+          DateFormat('dd-MMM-yyyy').format(DateTime.now());
       _dateToController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());
     }
   }
@@ -173,10 +175,7 @@ class RptCashBookState extends State<RptCashBook> {
             padding: const EdgeInsets.only(right: 25.0, bottom: 16.0),
             child: Container(
               decoration: BoxDecoration(
-                color: Theme
-                    .of(context)
-                    .colorScheme
-                    .primary,
+                color: Theme.of(context).colorScheme.primary,
                 shape: BoxShape.circle,
               ),
               margin: const EdgeInsets.only(right: 10.0),
@@ -201,15 +200,20 @@ class RptCashBookState extends State<RptCashBook> {
                 ),
                 const SizedBox(width: 10.0),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width / 7.0, // Adjusted width
+                  width:
+                      MediaQuery.of(context).size.width / 7.0, // Adjusted width
                   child: DropdownButtonFormField<String>(
                     isExpanded: true,
-                    items: _accountType.map<DropdownMenuItem<String>>((String value) {
+                    items: _accountType
+                        .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(
                           value,
-                          style: const TextStyle(color: Colors.teal,fontSize: 12.0,),
+                          style: const TextStyle(
+                            color: Colors.teal,
+                            fontSize: 12.0,
+                          ),
                         ),
                       );
                     }).toList(),
@@ -240,13 +244,16 @@ class RptCashBookState extends State<RptCashBook> {
                 Expanded(
                   child: TextFormField(
                     controller: _dateFromController,
-                    keyboardType: TextInputType.none, // Disable// keyboard input
+                    keyboardType:
+                        TextInputType.none, // Disable// keyboard input
                     onTap: () {
                       FocusScope.of(context)
                           .requestFocus(FocusNode()); // Hide keyboard
                       _selectDate(context, 'from'); // Show date picker
                     },
-                    style: const TextStyle(fontSize: 12.0,), // Set font size to 12.0
+                    style: const TextStyle(
+                      fontSize: 12.0,
+                    ), // Set font size to 12.0
                     decoration: const InputDecoration(
                       icon: Icon(
                         Icons.calendar_month, // Changed to a Flutter icon
@@ -277,7 +284,9 @@ class RptCashBookState extends State<RptCashBook> {
                           .requestFocus(FocusNode()); // Hide keyboard
                       _selectDate(context, 'to'); // Show date picker
                     },
-                    style: const TextStyle(fontSize: 12.0,), // Set font size to 12.0
+                    style: const TextStyle(
+                      fontSize: 12.0,
+                    ), // Set font size to 12.0
                     decoration: const InputDecoration(
                       icon: Icon(
                         Icons.calendar_month, // Changed to a Flutter icon
@@ -301,15 +310,14 @@ class RptCashBookState extends State<RptCashBook> {
             if (_selectedReport != null) _rptCashBook(),
           ],
         ),
-
       ),
-
     );
   }
 
   StreamBuilder<QuerySnapshot<Object?>> _rptCashBook() {
     return StreamBuilder<QuerySnapshot>(
-      stream: _vouchers.getCashBookStream(kUserId, [kCRV, kCPV], _selectedDateFrom, _selectedDateTo), // Pass the list of types
+      stream: _vouchers.getCashBookStream(kUserId, [kCRV, kCPV],
+          _selectedDateFrom, _selectedDateTo), // Pass the list of types
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<DocumentSnapshot> accountsList = snapshot.data!.docs;
@@ -332,7 +340,8 @@ class RptCashBookState extends State<RptCashBook> {
 
                 // Calculate totals
                 for (var document in accountsList) {
-                  Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                  Map<String, dynamic> data =
+                      document.data() as Map<String, dynamic>;
                   totalDebitPK += (data['debit'] ?? 0.0);
                   totalCreditPK += (data['credit'] ?? 0.0);
                   totalDebitSR += (data['debitsar'] ?? 0.0);
@@ -393,11 +402,10 @@ class RptCashBookState extends State<RptCashBook> {
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
-
-                          columnSpacing: constraints.maxWidth / 15, // Adjust column spacing
+                          columnSpacing: constraints.maxWidth /
+                              15, // Adjust column spacing
                           columns: columns,
                           rows: <DataRow>[
-
                             // Add the B/F Balance row
                             // DataRow(cells: [
                             //   if (visibleColumns.contains(0)) const DataCell(Text('')),
@@ -439,101 +447,105 @@ class RptCashBookState extends State<RptCashBook> {
 
                             // Add the totals row
                             DataRow(
-                                color: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+                                color: WidgetStateProperty.resolveWith<Color>(
+                                    (Set<WidgetState> states) {
                                   // Return the color you want to use for the highlighted row
-                                  return Colors.teal.withOpacity(0.25); // Example color with transparency
+                                  return Colors.teal.withOpacity(
+                                      0.25); // Example color with transparency
                                 }),
-
                                 cells: [
-                              if (visibleColumns.contains(0))
-                                DataCell(Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat.format(bfBalanceSR),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FontStyle.italic,
-                                      color: Colors.blue,
-                                    ),
-                                  ),
-                                )),
+                                  if (visibleColumns.contains(0))
+                                    DataCell(Container(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        _numberFormat.format(bfBalanceSR),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontStyle: FontStyle.italic,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                    )),
 
-                              if (visibleColumns.contains(1))
-                                DataCell(Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat.format(totalDebitSR),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FontStyle.italic,
-                                      color: Colors.deepPurpleAccent,
-                                    ),
-                                  ),
-                                )),
-                              if (visibleColumns.contains(2))
-                                DataCell(Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat.format(totalCreditSR),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FontStyle.italic,
-                                      color: Colors.deepPurpleAccent,
-                                    ),
-                                  ),
-                                )),
-                              if (visibleColumns.contains(3))
-                                DataCell(Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat1.format(totalDebitPK),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.teal,
-                                    ),
-                                  ),
-                                )),
-                              if (visibleColumns.contains(4))
-                                DataCell(Container(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat1.format(totalCreditPK),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FontStyle.italic,
-                                      color: Colors.teal,
-                                    ),
-                                  ),
-                                )),
-                              if (visibleColumns.contains(5))
-                                DataCell(Container(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    _numberFormat1.format(bfBalancePK),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontStyle: FontStyle.italic,
-                                      color: Colors.green,
-                                    ),
-                                  ),
-                                )),
-                              if (visibleColumns.contains(6))
-                                const DataCell(Text(
-                                  'Total',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FontStyle.italic,
-                                    color: Colors.black,
-                                  ),
-                                )),
-                              // if (visibleColumns.contains(6)) const DataCell(Text('')),
-                            ]),
+                                  if (visibleColumns.contains(1))
+                                    DataCell(Container(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        _numberFormat.format(totalDebitSR),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontStyle: FontStyle.italic,
+                                          color: Colors.deepPurpleAccent,
+                                        ),
+                                      ),
+                                    )),
+                                  if (visibleColumns.contains(2))
+                                    DataCell(Container(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        _numberFormat.format(totalCreditSR),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontStyle: FontStyle.italic,
+                                          color: Colors.deepPurpleAccent,
+                                        ),
+                                      ),
+                                    )),
+                                  if (visibleColumns.contains(3))
+                                    DataCell(Container(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        _numberFormat1.format(totalDebitPK),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontStyle: FontStyle.italic,
+                                          color: Colors.teal,
+                                        ),
+                                      ),
+                                    )),
+                                  if (visibleColumns.contains(4))
+                                    DataCell(Container(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        _numberFormat1.format(totalCreditPK),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontStyle: FontStyle.italic,
+                                          color: Colors.teal,
+                                        ),
+                                      ),
+                                    )),
+                                  if (visibleColumns.contains(5))
+                                    DataCell(Container(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        _numberFormat1.format(bfBalancePK),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontStyle: FontStyle.italic,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                    )),
+                                  if (visibleColumns.contains(6))
+                                    const DataCell(Text(
+                                      'Total',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontStyle: FontStyle.italic,
+                                        color: Colors.black,
+                                      ),
+                                    )),
+                                  // if (visibleColumns.contains(6)) const DataCell(Text('')),
+                                ]),
 
                             // Add the detail row records
                             ...accountsList.map((document) {
-                              Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                              Map<String, dynamic> data =
+                                  document.data() as Map<String, dynamic>;
 
-                              final voucherID = document.id; // Use final here to ensure immutability
+                              final voucherID = document
+                                  .id; // Use final here to ensure immutability
                               // final data = document.data() as Map<String, dynamic>;
 
                               final creditSrText = (data['debitsar'] ?? 0.0);
@@ -543,19 +555,25 @@ class RptCashBookState extends State<RptCashBook> {
 
                               final drAcId = data['drAcId'] ?? '';
                               final crAcId = data['crAcId'] ?? '';
-                              final dateText = (data['date'] as Timestamp).toDate();
-                              final formattedDate = DateFormat('dd MMM').format(dateText);
+                              final dateText =
+                                  (data['date'] as Timestamp).toDate();
+                              final formattedDate =
+                                  DateFormat('dd MMM').format(dateText);
                               final remarksText = data['remarks'] ?? '';
                               final type = data['type'] ?? '';
 
                               final drAcName = accountNames[drAcId] ?? '';
                               final crAcName = accountNames[crAcId] ?? '';
 
-                              final accountDisplayName = drAcId.isNotEmpty ? drAcName : crAcName;
+                              final accountDisplayName =
+                                  drAcId.isNotEmpty ? drAcName : crAcName;
 
                               return DataRow(cells: [
                                 if (visibleColumns.contains(0))
-                                  DataCell(Text(formattedDate, style: const TextStyle(color: Colors.blueGrey,))),
+                                  DataCell(Text(formattedDate,
+                                      style: const TextStyle(
+                                        color: Colors.blueGrey,
+                                      ))),
                                 if (visibleColumns.contains(1))
                                   DataCell(Container(
                                     alignment: Alignment.centerRight,
@@ -601,76 +619,77 @@ class RptCashBookState extends State<RptCashBook> {
                                     ),
                                   )),
                                 if (visibleColumns.contains(5))
-                                  DataCell(
-                                      GestureDetector(
-                                        onTap: () {
-                                          // print('Navigating to VoucherCpvAdd with docId: $voucherID');
-                                          try {
-                                            if (voucherID.isNotEmpty) {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) {
-                                                    if (type == 'CP') {
-                                                      return VoucherCpvAdd(
-                                                        docId: voucherID,
-                                                        type: type,
-                                                        vDate: dateText,
-                                                        remarks: remarksText,
-                                                        drAcId: drAcId,
-                                                        crAcId: '',
-                                                        debit: data['debit'],
-                                                        debitSar: data['debitsar'],
-                                                        credit: data['credit'],
-                                                        creditSar: data['creditsar'],
-                                                      );
-                                                    } else if (type == 'CR') {
-                                                      return VoucherCrvAdd(
-                                                        docId: voucherID,
-                                                        type: type,
-                                                        vDate: dateText,
-                                                        remarks: remarksText,
-                                                        drAcId: '',
-                                                        crAcId: crAcId,
-                                                        debit: data['debit'],
-                                                        debitSar: data['debitsar'],
-                                                        credit: data['credit'],
-                                                        creditSar: data['creditsar'],
-                                                      );
-                                                    } else if (type == 'JV') {
-                                                      return VoucherJvAdd(
-                                                        docId: voucherID,
-                                                        type: type,
-                                                        vDate: dateText,
-                                                        remarks: remarksText,
-                                                        drAcId: drAcId,
-                                                        crAcId: crAcId,
-                                                        debit: data['debit'],
-                                                        debitSar: data['debitsar'],
-                                                        credit: data['credit'],
-                                                        creditSar: data['creditsar'],
-                                                      );
-                                                    }
-                                                    return const SizedBox.shrink(); // Fallback if no type matches
-                                                  },
-                                                ),
-                                              );
-                                            }
-                                          } catch (e) {
-                                            // print('Error during navigation: $e');
-                                          }
-                                        },
-                                        child: Container(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(accountDisplayName),
-                                        ),
-                                      )
-                                  ),
+                                  DataCell(GestureDetector(
+                                    onTap: () {
+                                      // print('Navigating to VoucherCpvAdd with docId: $voucherID');
+                                      try {
+                                        if (voucherID.isNotEmpty) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) {
+                                                if (type == 'CP') {
+                                                  return VoucherCpvAdd(
+                                                    docId: voucherID,
+                                                    type: type,
+                                                    vDate: dateText,
+                                                    remarks: remarksText,
+                                                    drAcId: drAcId,
+                                                    crAcId: '',
+                                                    debit: data['debit'],
+                                                    debitSar: data['debitsar'],
+                                                    credit: data['credit'],
+                                                    creditSar:
+                                                        data['creditsar'],
+                                                  );
+                                                } else if (type == 'CR') {
+                                                  return VoucherCrvAdd(
+                                                    docId: voucherID,
+                                                    type: type,
+                                                    vDate: dateText,
+                                                    remarks: remarksText,
+                                                    drAcId: '',
+                                                    crAcId: crAcId,
+                                                    debit: data['debit'],
+                                                    debitSar: data['debitsar'],
+                                                    credit: data['credit'],
+                                                    creditSar:
+                                                        data['creditsar'],
+                                                  );
+                                                } else if (type == 'JV') {
+                                                  return VoucherJvAdd(
+                                                    docId: voucherID,
+                                                    type: type,
+                                                    vDate: dateText,
+                                                    remarks: remarksText,
+                                                    drAcId: drAcId,
+                                                    crAcId: crAcId,
+                                                    debit: data['debit'],
+                                                    debitSar: data['debitsar'],
+                                                    credit: data['credit'],
+                                                    creditSar:
+                                                        data['creditsar'],
+                                                  );
+                                                }
+                                                return const SizedBox
+                                                    .shrink(); // Fallback if no type matches
+                                              },
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        // print('Error during navigation: $e');
+                                      }
+                                    },
+                                    child: Container(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(accountDisplayName),
+                                    ),
+                                  )),
                                 if (visibleColumns.contains(6))
                                   DataCell(Text(remarksText)),
                               ]);
                             }),
-
                           ],
                         ),
                       ),
@@ -690,7 +709,6 @@ class RptCashBookState extends State<RptCashBook> {
       },
     );
   }
-
 
   Future<Map<String, String?>> _getAccountNames(
       List<DocumentSnapshot> accountsList) async {
@@ -745,7 +763,8 @@ class RptCashBookState extends State<RptCashBook> {
 
     try {
       final snapshot = await _vouchers
-          .getCashBookStream(kUserId, [kCRV, kCPV], _selectedDateFrom, _selectedDateTo)
+          .getCashBookStream(
+              kUserId, [kCRV, kCPV], _selectedDateFrom, _selectedDateTo)
           .first;
       final accountsList = snapshot.docs;
 
@@ -863,16 +882,20 @@ class RptCashBookState extends State<RptCashBook> {
 // Helper method to create bold table cells
   pw.Widget _buildBoldCell(String text) {
     return pw.Container(
-      alignment: pw.Alignment.center, padding: const pw.EdgeInsets.all(8.0),
-      child: pw.Text(text,
-        style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold,
+      alignment: pw.Alignment.center,
+      padding: const pw.EdgeInsets.all(8.0),
+      child: pw.Text(
+        text,
+        style: pw.TextStyle(
+          fontSize: 10,
+          fontWeight: pw.FontWeight.bold,
         ),
       ),
     );
   }
 
-  List<List<String>> _getPdfTableData(List<DocumentSnapshot> accountsList,
-      Map<String, String?> accountNames) {
+  List<List<String>> _getPdfTableData(
+      List<DocumentSnapshot> accountsList, Map<String, String?> accountNames) {
     final data = <List<String>>[];
 
     // Adding table rows

@@ -193,18 +193,20 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildUserListItem(
       Map<String, dynamic> userData, BuildContext context) {
     // display all users except current user
-    if (userData['email'] != _authService.getCurrentUser()) {
+    if (userData['email'] != null &&
+        userData['uid'] != null &&
+        userData['email'] != _authService.getCurrentUser()) {
       return UserTile(
-        text: userData['email'],
-        onLongPress: () => showBlockBox(context, userData['uid']),
+        text: userData['email']!,
+        onLongPress: () => showBlockBox(context, userData['uid']!),
         onTap: () {
           // tapped on user and go to chat page
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ChatPage(
-                receiverEmail: userData['email'],
-                receiverID: userData['uid'],
+                receiverEmail: userData['email']!,
+                receiverID: userData['uid']!,
               ),
             ),
           );
@@ -214,5 +216,6 @@ class _HomeScreenState extends State<HomeScreen> {
       return Container();
     }
   }
+
 
 }

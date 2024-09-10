@@ -137,7 +137,7 @@ class MyDrawer extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 15.0, bottom: 15.0),
                 child: ListTile(
-                  title: const Text('WHATS APP UI/UX'),
+                  title: const Text('W H A T S  A P P'),
                   leading: Icon(
                     Icons.message,
                     color: Theme.of(context).colorScheme.primary,

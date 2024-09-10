@@ -1,3 +1,4 @@
+import 'package:chat_wp/components/my_cash_bank.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_wp/themes/const.dart';
@@ -51,6 +52,9 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
   final TextEditingController _pkrController = TextEditingController();
   final TextEditingController _sarController = TextEditingController();
   final TextEditingController _remarksController = TextEditingController();
+
+  // Track selected option
+  final List<bool> _isSelected = [true, false]; // Default: 'Cash' selected
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -308,91 +312,121 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
 
             // FORM SAVE
             Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Column(
                 children: [
-                  // Save Button
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_formKeyValue.currentState!.validate()) {
 
-                        // Convert date string to DateTime
-                        DateTime date = DateFormat('dd-MMM-yyyy').parse(_dateController.text);
+                  // First Row with Cash and Bank Buttons
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      CashBankToggle(),
 
-                        // Convert string to double
-                        double pkrAmount = double.tryParse(_pkrController.text) ?? 0.0;
-                        double sarAmount = double.tryParse(_sarController.text) ?? 0.0;
-
-                        if (_voucherId == null || _voucherId == '') {
-                          _voucher.addVoucher(
-                              kCPV,
-                              date,
-                              _remarksController.text,
-                              _selectedAcId!,
-                              '',
-                              pkrAmount,
-                              sarAmount,
-                              0,
-                              0,
-                              kUserId);
-                        } else {
-                          _voucher.updateVoucher(
-                              _voucherId,
-                              kCPV,
-                              date,
-                              _remarksController.text,
-                              _selectedAcId!,
-                              '',
-                              pkrAmount,
-                              sarAmount,
-                              0,
-                              0,
-                              kUserId);
-                        }
-
-                        const snackBar = SnackBar(
-                          content: Text(
-                            'Cash Payment saved successfully!',
-                            style: TextStyle(color: Colors.teal),
-                          ),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-                        _dateController.clear();
-                        _pkrController.clear();
-                        _remarksController.clear();
-
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: const Text('Save'),
+                    ],
                   ),
 
-                  // Delete Button
-                  ElevatedButton(
-                    child: const Text('Delete'),
-                    onPressed: () {
-                      if (_voucherId != null && _voucherId != '') {
-                        _deleteVoucherBox(context, _voucherId!);
-                      }
-                    },
+                  const SizedBox(height: 15.0), // Adding some space between the rows
+
+                  // Second Row with Show Selected Cash / Bank Account Name
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Center(child: Text('CASH ACCOUNT', style: TextStyle(fontSize: 15.0, color: Colors.red, fontWeight: FontWeight.bold),)),
+                    ],
                   ),
 
-                  // Cancel Button
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Cancel'),
+                  const SizedBox(height: 15.0), // Adding some space between the rows
+
+                  // Third Row with Save, Delete, Cancel Buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Save Button
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_formKeyValue.currentState!.validate()) {
+                            // Convert date string to DateTime
+                            DateTime date = DateFormat('dd-MMM-yyyy').parse(_dateController.text);
+
+                            // Convert string to double
+                            double pkrAmount = double.tryParse(_pkrController.text) ?? 0.0;
+                            double sarAmount = double.tryParse(_sarController.text) ?? 0.0;
+
+                            if (_voucherId == null || _voucherId == '') {
+                              _voucher.addVoucher(
+                                  kCPV,
+                                  date,
+                                  _remarksController.text,
+                                  _selectedAcId!,
+                                  '',
+                                  pkrAmount,
+                                  sarAmount,
+                                  0,
+                                  0,
+                                  kUserId);
+                            } else {
+                              _voucher.updateVoucher(
+                                  _voucherId,
+                                  kCPV,
+                                  date,
+                                  _remarksController.text,
+                                  _selectedAcId!,
+                                  '',
+                                  pkrAmount,
+                                  sarAmount,
+                                  0,
+                                  0,
+                                  kUserId);
+                            }
+
+                            const snackBar = SnackBar(
+                              content: Text(
+                                'Cash Payment saved successfully!',
+                                style: TextStyle(color: Colors.teal),
+                              ),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+                            _dateController.clear();
+                            _pkrController.clear();
+                            _remarksController.clear();
+
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: const Text('Save'),
+                      ),
+
+                      // Delete Button
+                      ElevatedButton(
+                        child: const Text('Delete'),
+                        onPressed: () {
+                          if (_voucherId != null && _voucherId != '') {
+                            _deleteVoucherBox(context, _voucherId!);
+                          }
+                        },
+                      ),
+
+                      // Cancel Button
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                    ],
                   ),
+
                 ],
               ),
             ),
 
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 12.0),
           ],
         ),
       ),
+
     );
   }
+
+
 }

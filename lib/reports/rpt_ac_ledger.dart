@@ -214,194 +214,256 @@ class RptAcLedgerState extends State<RptAcLedger> {
           ),
         ],
       ),
-      body: Form(
-        // key: _formKeyValue,
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-          children: <Widget>[
-            // REPORT TYPE Data COMBO, DATE FROM, DATE TO
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                const Icon(
-                  FontAwesomeIcons.database,
-                  size: 25.0,
-                  color: Colors.teal,
-                ),
-                const SizedBox(width: 10.0),
-                SizedBox(
-                  width:
-                  MediaQuery.of(context).size.width / 7.0, // Adjusted width
-                  child: DropdownButtonFormField<String>(
-                    isExpanded: true,
-                    items: _reportType
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(
-                          value,
-                          style: const TextStyle(
-                            color: Colors.teal,
-                            fontSize: 12.0,
+      body: Column(
+        children: [
+          // The form and the ListView
+          Expanded(
+            child: Form(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      const Icon(
+                        FontAwesomeIcons.database,
+                        size: 25.0,
+                        color: Colors.teal,
+                      ),
+                      const SizedBox(width: 10.0),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 7.0,
+                        child: DropdownButtonFormField<String>(
+                          isExpanded: true,
+                          items: _reportType
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(
+                                value,
+                                style: const TextStyle(
+                                  color: Colors.teal,
+                                  fontSize: 12.0,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (typeValue) {
+                            setState(() {
+                              if (_selectedReport != typeValue) {
+                                _selectedReport = typeValue;
+                              }
+                            });
+                          },
+                          value: _selectedReport,
+                          hint: const Text(
+                            'Style',
+                            style: TextStyle(color: Colors.teal, fontSize: 12.0),
+                          ),
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Please select a valid report style';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10.0),
+                      // Date FROM Text Field
+                      Expanded(
+                        child: TextFormField(
+                          controller: _dateFromController,
+                          keyboardType: TextInputType.none,
+                          onTap: () {
+                            FocusScope.of(context).requestFocus(FocusNode());
+                            _selectDate(context, 'from');
+                          },
+                          style: const TextStyle(fontSize: 12.0),
+                          decoration: const InputDecoration(
+                            icon: Icon(
+                              Icons.calendar_month,
+                              color: Colors.teal,
+                            ),
+                            hintText: 'Date From',
+                            labelText: 'From',
+                            labelStyle: TextStyle(color: Colors.teal),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Invalid Date From';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10.0),
+                      // Date To Text Field
+                      Expanded(
+                        child: TextFormField(
+                          controller: _dateToController,
+                          keyboardType: TextInputType.none,
+                          onTap: () {
+                            FocusScope.of(context).requestFocus(FocusNode());
+                            _selectDate(context, 'to');
+                          },
+                          style: const TextStyle(fontSize: 12.0),
+                          decoration: const InputDecoration(
+                            icon: Icon(
+                              Icons.calendar_month,
+                              color: Colors.teal,
+                            ),
+                            hintText: 'Date To',
+                            labelText: 'To',
+                            labelStyle: TextStyle(color: Colors.teal),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Invalid Date To';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5.0),
+                  // Account TYPE Data COMBO
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                        child: StreamBuilder<QuerySnapshot>(
+                          stream: _accounts.getAccountsStream(kUserId),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            }
+
+                            if (snapshot.hasError) {
+                              return Center(child: Text('Error: ${snapshot.error}'));
+                            }
+
+                            List<DocumentSnapshot> accountList =
+                                snapshot.data?.docs ?? [];
+
+                            return DropdownSearch<DocumentSnapshot>(
+                              items: accountList,
+                              itemAsString: (DocumentSnapshot document) {
+                                Map<String, dynamic> data =
+                                document.data() as Map<String, dynamic>;
+                                return data['accountName'];
+                              },
+                              selectedItem: accountList.isNotEmpty &&
+                                  accountList.any(
+                                          (document) => document.id == _selectedAcId)
+                                  ? accountList.firstWhere(
+                                      (document) => document.id == _selectedAcId)
+                                  : null,
+                              popupProps: const PopupProps.menu(
+                                showSearchBox: true,
+                                fit: FlexFit.loose,
+                                constraints: BoxConstraints.tightFor(),
+                              ),
+                              onChanged: (DocumentSnapshot? document) {
+                                if (document != null) {
+                                  setState(() {
+                                    _selectedAcId = document.id;
+                                    _selectedAcText = (document.data()
+                                    as Map<String, dynamic>)['accountName'];
+                                  });
+                                }
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5.0),
+                  if (_selectedAcId != '') rptLedger(),
+                ],
+              ),
+            ),
+          ),
+
+          // The buttons at the bottom of the screen
+          Padding(
+            // padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            // padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 12.0),  // Added bottom padding of 15.0
+            padding: const EdgeInsets.all(15.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red.shade900,
+                    ),
+                    child: const Text(
+                      'You Give -',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => VoucherCpvAdd(
+                            docId: '',
+                            type: '',
+                            vDate: vDate,
+                            remarks: 'Cash Paid.',
+                            drAcId: _selectedAcId!,
+                            crAcId: '',
+                            debit: 0.0,
+                            debitSar: 0.0,
+                            credit: 0.0,
+                            creditSar: 0.0,
                           ),
                         ),
                       );
-                    }).toList(),
-                    onChanged: (typeValue) {
-                      setState(() {
-                        if (_selectedReport != typeValue) {
-                          _selectedReport = typeValue;
-                        }
-                      });
-                    },
-                    value: _selectedReport,
-                    hint: const Text(
-                      'Style',
-                      style: TextStyle(color: Colors.teal, fontSize: 12.0),
-                    ),
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please select a valid report style';
-                      }
-                      return null;
                     },
                   ),
                 ),
-                const SizedBox(width: 10.0),
-                // Date FROM Text Field
-
+                const SizedBox(width: 5.0),
                 Expanded(
-                  child: TextFormField(
-                    controller: _dateFromController,
-                    keyboardType:
-                    TextInputType.none, // Disable// keyboard input
-                    onTap: () {
-                      FocusScope.of(context)
-                          .requestFocus(FocusNode()); // Hide keyboard
-                      _selectDate(context, 'from'); // Show date picker
-                    },
-                    style: const TextStyle(
-                      fontSize: 12.0,
-                    ), // Set font size to 12.0
-                    decoration: const InputDecoration(
-                      icon: Icon(
-                        Icons.calendar_month, // Changed to a Flutter icon
-                        color: Colors.teal,
-                      ),
-                      hintText: 'Date From',
-                      labelText: 'From',
-                      labelStyle: TextStyle(color: Colors.teal),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green.shade900,
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Invalid Date From';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-
-                const SizedBox(width: 10.0),
-
-                // Date To Text Field
-                Expanded(
-                  child: TextFormField(
-                    controller: _dateToController,
-                    keyboardType: TextInputType.none, // Disable keyboard input
-                    onTap: () {
-                      FocusScope.of(context)
-                          .requestFocus(FocusNode()); // Hide keyboard
-                      _selectDate(context, 'to'); // Show date picker
-                    },
-                    style: const TextStyle(
-                      fontSize: 12.0,
-                    ), // Set font size to 12.0
-                    decoration: const InputDecoration(
-                      icon: Icon(
-                        Icons.calendar_month, // Changed to a Flutter icon
-                        color: Colors.teal,
-                      ),
-                      hintText: 'Date To',
-                      labelText: 'To',
-                      labelStyle: TextStyle(color: Colors.teal),
+                    child: const Text(
+                      'You Got +',
+                      style: TextStyle(color: Colors.white),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Invalid Date To';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 5.0),
-
-            // Account TYPE Data COMBO
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: _accounts.getAccountsStream(kUserId),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      }
-
-                      List<DocumentSnapshot> accountList =
-                          snapshot.data?.docs ?? [];
-
-                      return DropdownSearch<DocumentSnapshot>(
-                        items: accountList,
-                        itemAsString: (DocumentSnapshot document) {
-                          Map<String, dynamic> data =
-                          document.data() as Map<String, dynamic>;
-                          return data[
-                          'accountName']; // or any other field you want to display
-                        },
-                        selectedItem: accountList.isNotEmpty &&
-                            accountList.any(
-                                    (document) => document.id == _selectedAcId)
-                            ? accountList.firstWhere(
-                                (document) => document.id == _selectedAcId)
-                            : null,
-                        popupProps: const PopupProps.menu(
-                          showSearchBox: true,
-                          fit: FlexFit.loose,
-                          constraints: BoxConstraints.tightFor(),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => VoucherCrvAdd(
+                            docId: '',
+                            type: '',
+                            vDate: vDate,
+                            remarks: 'Cash Paid.',
+                            drAcId: '',
+                            crAcId: _selectedAcId!,
+                            debit: 0.0,
+                            debitSar: 0.0,
+                            credit: 0.0,
+                            creditSar: 0.0,
+                          ),
                         ),
-                        onChanged: (DocumentSnapshot? document) {
-                          if (document != null) {
-                            setState(() {
-                              _selectedAcId = document.id;
-                              _selectedAcText = (document.data()
-                              as Map<String, dynamic>)['accountName'];
-                            });
-                          }
-                        },
                       );
                     },
                   ),
                 ),
               ],
             ),
-
-            const SizedBox(height: 5.0),
-            if (_selectedAcId != '') rptLedger()
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget rptLedger() {
-
     // print('A/c Id: $_selectedAcId');
     totalDebitPK = 0;
     totalCreditPK = 0;
@@ -462,7 +524,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
         }
 
         final documents = snapshot.data ?? [];
-        List<DocumentSnapshot> accountsList = documents.cast<DocumentSnapshot>();
+        List<DocumentSnapshot> accountsList =
+            documents.cast<DocumentSnapshot>();
 
         // First loop through the data to accumulate totals
         for (var document in accountsList) {
@@ -518,12 +581,13 @@ class RptAcLedgerState extends State<RptAcLedger> {
                       columnSpacing: constraints.maxWidth / 15,
                       columns: myColumns,
                       rows: [
-
                         // Add the totals row at the top
                         DataRow(
-                          color: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+                          color: WidgetStateProperty.resolveWith<Color>(
+                              (Set<WidgetState> states) {
                             // Return the color you want to use for the highlighted row
-                            return Colors.teal.withOpacity(0.25); // Example color with transparency
+                            return Colors.teal.withOpacity(
+                                0.25); // Example color with transparency
                           }),
                           cells: [
                             if (visibleColumns.contains(0))
@@ -613,7 +677,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           ],
                         ),
 
-
                         // Add the B/F Balance row at the top
                         // DataRow(cells: [
                         //   if (visibleColumns.contains(0))
@@ -665,11 +728,16 @@ class RptAcLedgerState extends State<RptAcLedger> {
                             final drAcId = data['drAcId'] ?? '';
                             final crAcId = data['crAcId'] ?? '';
                             final type = data['type'] ?? '';
-                            final dateText = (data['date'] as Timestamp).toDate();
-                            final formattedDate = DateFormat('dd MMM').format(dateText);
+                            final dateText =
+                                (data['date'] as Timestamp).toDate();
+                            final formattedDate =
+                                DateFormat('dd MMM').format(dateText);
                             final remarksText = data['remarks'] ?? '';
 
-                            double debitText, creditText, debitSrText, creditSrText;
+                            double debitText,
+                                creditText,
+                                debitSrText,
+                                creditSrText;
 
                             if (type == 'JV') {
                               if (_selectedAcId == drAcId) {
@@ -714,7 +782,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                                     debit: data['debit'],
                                                     debitSar: data['debitsar'],
                                                     credit: data['credit'],
-                                                    creditSar: data['creditsar'],
+                                                    creditSar:
+                                                        data['creditsar'],
                                                   );
                                                 } else if (type == 'CR') {
                                                   return VoucherCrvAdd(
@@ -727,7 +796,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                                     debit: data['debit'],
                                                     debitSar: data['debitsar'],
                                                     credit: data['credit'],
-                                                    creditSar: data['creditsar'],
+                                                    creditSar:
+                                                        data['creditsar'],
                                                   );
                                                 } else if (type == 'JV') {
                                                   return VoucherJvAdd(
@@ -740,10 +810,12 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                                     debit: data['debit'],
                                                     debitSar: data['debitsar'],
                                                     credit: data['credit'],
-                                                    creditSar: data['creditsar'],
+                                                    creditSar:
+                                                        data['creditsar'],
                                                   );
                                                 }
-                                                return const SizedBox.shrink(); // fallback in case no type matches
+                                                return const SizedBox
+                                                    .shrink(); // fallback in case no type matches
                                               },
                                             ),
                                           );
@@ -761,7 +833,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                       alignment: Alignment.centerRight,
                                       child: Text(
                                         _numberFormat.format(creditSrText),
-                                        style: const TextStyle(color: Colors.blue),
+                                        style:
+                                            const TextStyle(color: Colors.blue),
                                       ),
                                     ),
                                   ),
@@ -771,7 +844,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                       alignment: Alignment.centerRight,
                                       child: Text(
                                         _numberFormat.format(debitSrText),
-                                        style: const TextStyle(color: Colors.blue),
+                                        style:
+                                            const TextStyle(color: Colors.blue),
                                       ),
                                     ),
                                   ),
@@ -781,7 +855,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                       alignment: Alignment.centerRight,
                                       child: Text(
                                         _numberFormat1.format(creditText),
-                                        style: const TextStyle(color: Colors.green),
+                                        style: const TextStyle(
+                                            color: Colors.green),
                                       ),
                                     ),
                                   ),
@@ -791,19 +866,21 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                       alignment: Alignment.centerRight,
                                       child: Text(
                                         _numberFormat1.format(debitText),
-                                        style: const TextStyle(color: Colors.green),
+                                        style: const TextStyle(
+                                            color: Colors.green),
                                       ),
                                     ),
                                   ),
-                                if (visibleColumns.contains(5)) DataCell(Text(remarksText)),
+                                if (visibleColumns.contains(5))
+                                  DataCell(Text(remarksText)),
                               ],
                             );
                           } else {
                             // Handle case when `data` is null, returning an empty DataRow or skipping the row
-                            return const DataRow(cells: []);  // Or handle differently if necessary
+                            return const DataRow(
+                                cells: []); // Or handle differently if necessary
                           }
-                        }).toList(),  // Convert to list here
-
+                        }).toList(), // Convert to list here
                       ],
                     ),
                   );
@@ -815,9 +892,9 @@ class RptAcLedgerState extends State<RptAcLedger> {
         );
       },
     );
-
   }
 
+  // PDF CODING STARTING FROM THIS POINT FORWARD ///////////////////////////////////////
   Future<Map<String, String?>> _getAccountNames(
       List<DocumentSnapshot> accountsList) async {
     Map<String, String?> accountNames = {};
@@ -830,7 +907,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
     //   }
     // }
     accountNames['drAcId'] =
-    'QAISER SHAMEER'; // FOR UN-COMMIT ABOVE THEN REMOVE THIS LINE
+        'QAISER SHAMEER'; // FOR UN-COMMIT ABOVE THEN REMOVE THIS LINE
     return accountNames;
   }
 

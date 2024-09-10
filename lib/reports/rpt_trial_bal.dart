@@ -1,10 +1,10 @@
-import 'package:chat_wp/reports/rpt_ac_ledger.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:chat_wp/themes/const.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import 'package:chat_wp/reports/rpt_ac_ledger.dart';
 import 'package:chat_wp/services/accounts/area_service.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 import 'package:chat_wp/services/accounts/ac_voucher_service.dart';
@@ -165,7 +165,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                 const SizedBox(width: 10.0),
                 SizedBox(
                   width:
-                  MediaQuery.of(context).size.width / 7.0, // Adjusted width
+                      MediaQuery.of(context).size.width / 7.0, // Adjusted width
                   child: DropdownButtonFormField<String>(
                     isExpanded: true,
                     items: _reportType
@@ -208,7 +208,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                   child: TextFormField(
                     controller: _dateFromController,
                     keyboardType:
-                    TextInputType.none, // Disable// keyboard input
+                        TextInputType.none, // Disable// keyboard input
                     onTap: () {
                       FocusScope.of(context)
                           .requestFocus(FocusNode()); // Hide keyboard
@@ -339,10 +339,13 @@ class RptTrialBalState extends State<RptTrialBal> {
                         return Center(child: Text('Error: ${snapshot.error}'));
                       }
 
-                      List<DocumentSnapshot> areaList = snapshot.data?.docs ?? [];
-                      List<DropdownMenuItem<String>> dropdownItems = areaList.map((document) {
+                      List<DocumentSnapshot> areaList =
+                          snapshot.data?.docs ?? [];
+                      List<DropdownMenuItem<String>> dropdownItems =
+                          areaList.map((document) {
                         String docID = document.id;
-                        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                        Map<String, dynamic> data =
+                            document.data() as Map<String, dynamic>;
                         String areaText = data['area_name'];
 
                         return DropdownMenuItem<String>(
@@ -377,7 +380,8 @@ class RptTrialBalState extends State<RptTrialBal> {
                           : null;
 
                       // Ensure _selectedArea is valid or fallback to initialArea
-                      String? currentArea = dropdownItems.any((item) => item.value == _selectedArea)
+                      String? currentArea = dropdownItems
+                              .any((item) => item.value == _selectedArea)
                           ? _selectedArea
                           : initialArea;
 
@@ -398,7 +402,6 @@ class RptTrialBalState extends State<RptTrialBal> {
                     },
                   ),
                 ),
-
               ],
             ),
 
@@ -414,7 +417,6 @@ class RptTrialBalState extends State<RptTrialBal> {
   }
 
   StreamBuilder<QuerySnapshot<Object?>> _getAccounts() {
-
     List<DataColumn> myColumns;
     List<int> visibleColumns;
 
@@ -431,16 +433,16 @@ class RptTrialBalState extends State<RptTrialBal> {
         break;
       case 'SAR':
         myColumns = const [
-          DataColumn(label: Text('SR-Out')),
-          DataColumn(label: Text('SR-In')),
+          DataColumn(label: Text('Sr-Out')),
+          DataColumn(label: Text('Sr-In')),
           DataColumn(label: Text('Account')),
         ];
         visibleColumns = [0, 1, 4];
         break;
       case 'PKR':
         myColumns = const [
-          DataColumn(label: Text('PK-Out')),
-          DataColumn(label: Text('PK-In')),
+          DataColumn(label: Text('Pk-Out')),
+          DataColumn(label: Text('Pk-In')),
           DataColumn(label: Text('Account')),
         ];
         visibleColumns = [2, 3, 4];
@@ -453,12 +455,12 @@ class RptTrialBalState extends State<RptTrialBal> {
 
     return StreamBuilder<QuerySnapshot>(
       stream: _selectedAcType != null || _selectedArea != null
-      // ? _accounts.getAccountsTypeAreaStream(kUserId, _selectedAcType!)
-          ? _accounts.getAccountsTypeAreaStream(kUserId, _selectedAcType ?? 'ALL', _selectedArea ?? 'ALL')
+          // ? _accounts.getAccountsTypeAreaStream(kUserId, _selectedAcType!)
+          ? _accounts.getAccountsTypeAreaStream(
+              kUserId, _selectedAcType ?? 'ALL', _selectedArea ?? 'ALL')
           : _accounts.getAccountsStream(kUserId),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-
           List<DocumentSnapshot> accountsList = snapshot.data!.docs;
 
           // Create a Future for each row to fetch ledger totals
@@ -496,11 +498,13 @@ class RptTrialBalState extends State<RptTrialBal> {
                 double displayBalancePk = 0.0;
 
                 // Create the detailed data rows (accounts list)
-                List<DataRow> dataRows = accountsList.asMap().entries.map<DataRow>((entry) {
+                List<DataRow> dataRows =
+                    accountsList.asMap().entries.map<DataRow>((entry) {
                   int index = entry.key;
                   DocumentSnapshot document = entry.value;
-                  Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-                  final _selectedAcId = document.id;
+                  Map<String, dynamic> data =
+                      document.data() as Map<String, dynamic>;
+                  final selectedAcId = document.id;
 
                   Map<String, double> totals = ledgerTotalsList[index];
 
@@ -516,10 +520,10 @@ class RptTrialBalState extends State<RptTrialBal> {
 
                   // Calculate display values for debit/credit based on balance
                   double displayDebitSr = bfSAR > 0 ? bfSAR : 0;
-                  double displayCreditSr = bfSAR < 0 ? bfSAR : 0;
+                  double displayCreditSr = bfSAR < 0 ? -1 * (bfSAR) : 0;
 
                   double displayDebitPk = bfPKR > 0 ? bfPKR : 0;
-                  double displayCreditPk = bfPKR < 0 ? bfPKR : 0;
+                  double displayCreditPk = bfPKR < 0 ? -1 * (bfPKR) : 0;
 
                   // Accumulate overall totals for debit and credit
                   totalDebitSr += displayDebitSr;
@@ -530,35 +534,47 @@ class RptTrialBalState extends State<RptTrialBal> {
                   return DataRow(
                     cells: <DataCell>[
                       if (visibleColumns.contains(0))
-                        DataCell(Text(
-                          _numberFormat.format(displayDebitSr),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
+                        DataCell(Container(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            _numberFormat.format(displayDebitSr),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
                           ),
                         )),
                       if (visibleColumns.contains(1))
-                        DataCell(Text(
-                          _numberFormat.format(displayCreditSr),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
+                        DataCell(Container(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            _numberFormat.format(displayCreditSr),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
                           ),
                         )),
                       if (visibleColumns.contains(2))
-                        DataCell(Text(
-                          _numberFormat1.format(displayDebitPk),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
+                        DataCell(Container(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            _numberFormat1.format(displayDebitPk),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
                           ),
                         )),
                       if (visibleColumns.contains(3))
-                        DataCell(Text(
-                          _numberFormat1.format(displayCreditPk),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
+                        DataCell(Container(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            _numberFormat1.format(displayCreditPk),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
                           ),
                         )),
                       if (visibleColumns.contains(4))
@@ -571,12 +587,15 @@ class RptTrialBalState extends State<RptTrialBal> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) {
-                                        return RptAcLedger(accountId: _selectedAcId);
+                                        return RptAcLedger(
+                                            accountId: selectedAcId);
                                       },
                                     ),
                                   );
                                 }
-                              } catch (e) {const Text('error loading record...');}
+                              } catch (e) {
+                                const Text('error loading record...');
+                              }
                             },
                             child: Container(
                               alignment: Alignment.centerLeft,
@@ -589,86 +608,126 @@ class RptTrialBalState extends State<RptTrialBal> {
                 }).toList();
 
                 // Calculate final display balances (b/f totals)
-                displayBalanceSr = totalDebitSr + totalCreditSr;
-                displayBalancePk = totalDebitPk + totalCreditPk;
+                displayBalanceSr = totalDebitSr - totalCreditSr;
+                displayBalancePk = totalDebitPk - totalCreditPk;
 
                 // Add the balance row first
-                dataRows.insert(0, DataRow(
-                  color: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
-                    return Colors.yellow.withOpacity(0.25); // Example color with transparency
-                  }),
-                  cells: <DataCell>[
-                    if (visibleColumns.contains(0)) const DataCell(Text(''),),
-                    if (visibleColumns.contains(1))
-                      DataCell(Text(
-                        _numberFormat.format(displayBalanceSr),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FontStyle.italic,
-                          color: Colors.teal,
-                        ),
-                      )),
-                    if (visibleColumns.contains(2)) const DataCell(Text(''),),
-                    if (visibleColumns.contains(3))
-                      DataCell(Text(
-                        _numberFormat1.format(displayBalancePk),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FontStyle.italic,
-                          color: Colors.teal,
-                        ),
-                      )),
-                    if (visibleColumns.contains(4))
-                      const DataCell(Text('B/F', style: TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: Colors.teal))),
-                  ],
-                ));
+                dataRows.insert(
+                    0,
+                    DataRow(
+                      color: WidgetStateProperty.resolveWith<Color>(
+                          (Set<WidgetState> states) {
+                        return Colors.yellow.withOpacity(
+                            0.25); // Example color with transparency
+                      }),
+                      cells: <DataCell>[
+                        if (visibleColumns.contains(0))
+                          const DataCell(
+                            Text(''),
+                          ),
+                        if (visibleColumns.contains(1))
+                          DataCell(Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              _numberFormat.format(displayBalanceSr),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
+                                color: Colors.teal,
+                              ),
+                            ),
+                          )),
+                        if (visibleColumns.contains(2))
+                          const DataCell(
+                            Text(''),
+                          ),
+                        if (visibleColumns.contains(3))
+                          DataCell(Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              _numberFormat1.format(displayBalancePk),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
+                                color: Colors.teal,
+                              ),
+                            ),
+                          )),
+                        if (visibleColumns.contains(4))
+                          const DataCell(Text('B/F',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontStyle: FontStyle.italic,
+                                  color: Colors.teal))),
+                      ],
+                    ));
 
                 // Add the total row next
-                dataRows.insert(1, DataRow(
-                  color: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
-                    return Colors.teal.withOpacity(0.25); // Example color with transparency
-                  }),
-                  cells: <DataCell>[
-                    if (visibleColumns.contains(0))
-                      DataCell(Text(
-                        _numberFormat.format(totalDebitSr),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FontStyle.italic,
-                          color: Colors.red,
-                        ),
-                      )),
-                    if (visibleColumns.contains(1))
-                      DataCell(Text(
-                        _numberFormat.format(totalCreditSr),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FontStyle.italic,
-                          color: Colors.red,
-                        ),
-                      )),
-                    if (visibleColumns.contains(2))
-                      DataCell(Text(
-                        _numberFormat1.format(totalDebitPk),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FontStyle.italic,
-                          color: Colors.red,
-                        ),
-                      )),
-                    if (visibleColumns.contains(3))
-                      DataCell(Text(
-                        _numberFormat1.format(totalCreditPk),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontStyle: FontStyle.italic,
-                          color: Colors.red,
-                        ),
-                      )),
-                    if (visibleColumns.contains(4))
-                      const DataCell(Text('Total', style: TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: Colors.red))),
-                  ],
-                ));
+                dataRows.insert(
+                    1,
+                    DataRow(
+                      color: WidgetStateProperty.resolveWith<Color>(
+                          (Set<WidgetState> states) {
+                        return Colors.teal.withOpacity(
+                            0.25); // Example color with transparency
+                      }),
+                      cells: <DataCell>[
+                        if (visibleColumns.contains(0))
+                          DataCell(Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              _numberFormat.format(totalDebitSr),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
+                                color: Colors.red,
+                              ),
+                            ),
+                          )),
+                        if (visibleColumns.contains(1))
+                          DataCell(Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              _numberFormat.format(totalCreditSr),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
+                                color: Colors.red,
+                              ),
+                            ),
+                          )),
+                        if (visibleColumns.contains(2))
+                          DataCell(Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              _numberFormat1.format(totalDebitPk),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
+                                color: Colors.red,
+                              ),
+                            ),
+                          )),
+                        if (visibleColumns.contains(3))
+                          DataCell(Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              _numberFormat1.format(totalCreditPk),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
+                                color: Colors.red,
+                              ),
+                            ),
+                          )),
+                        if (visibleColumns.contains(4))
+                          const DataCell(Text('Total',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontStyle: FontStyle.italic,
+                                  color: Colors.red))),
+                      ],
+                    ));
 
                 // Display the data in a scrollable DataTable
                 return SingleChildScrollView(
@@ -683,8 +742,6 @@ class RptTrialBalState extends State<RptTrialBal> {
               }
             },
           );
-
-
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
@@ -704,7 +761,7 @@ class RptTrialBalState extends State<RptTrialBal> {
       // Fetch the documents from the stream
       final snapshot = await _vouchers
           .getAcTrialBalanceStream(
-          kUserId, accountId, _selectedDateFrom, _selectedDateTo)
+              kUserId, accountId, _selectedDateFrom, _selectedDateTo)
           .first;
 
       List<DocumentSnapshot> voucherList = snapshot.cast<DocumentSnapshot>();

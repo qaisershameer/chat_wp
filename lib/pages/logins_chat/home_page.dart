@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:chat_wp/themes/const.dart';
 import 'package:chat_wp/components/my_drawer.dart';
-import 'package:chat_wp/services/auth/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:chat_wp/reports/rpt_ac_ledger.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,6 +13,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String? _selectedAcId, _selectedAcType;
 
   // account services
   final AccountService _accounts = AccountService();
@@ -55,7 +56,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   getAccountStream() async {
-
     // var data = await _accounts.getAccountsStream(kUserId);
 
     var data = await FirebaseFirestore.instance
@@ -65,7 +65,6 @@ class _HomePageState extends State<HomePage> {
         .get();
 
     setState(() {
-
       _allAccounts = data.docs;
     });
     searchResultList();
@@ -112,16 +111,15 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-
           actions: [
             const Icon(Icons.search),
             const SizedBox(width: 10.0),
             PopupMenuButton(
               child: const Icon(Icons.more_vert_outlined),
               itemBuilder: (
-                  context,
-                  ) =>
-              [
+                context,
+              ) =>
+                  [
                 const PopupMenuItem(
                   value: '1',
                   child: Text('New Group'),
@@ -139,30 +137,40 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(width: 10.0),
           ],
         ),
-
         drawer: const MyDrawer(),
-
         body: TabBarView(
           children: [
             // 1st Menu Body Data CUSTOMERS
-            ListAccounts(searchResult: _searchResult,type: 'CUSTOMER',),
+            ListAccounts(
+              searchResult: _searchResult,
+              type: 'CUSTOMER',
+            ),
 
             // 2nd Menu Body Data SUPPLIERS
 
-            ListAccounts(searchResult: _searchResult,type: 'SUPPLIER',),
+            ListAccounts(
+              searchResult: _searchResult,
+              type: 'SUPPLIER',
+            ),
 
             // 3rd Menu Body Data BANKS
-            ListAccounts(searchResult: _searchResult,type: 'BANK',),
+            ListAccounts(
+              searchResult: _searchResult,
+              type: 'BANK',
+            ),
 
             // 4th Menu Body Data ALL ACCOUNTS
-            ListAccounts(searchResult: _searchResult,type: 'ALL',),
+            ListAccounts(
+              searchResult: _searchResult,
+              type: 'ALL',
+            ),
           ],
         ),
       ),
     );
   }
-
 }
+
 class ListAccounts extends StatefulWidget {
   const ListAccounts({
     super.key,
@@ -184,35 +192,56 @@ class _ListAccountsState extends State<ListAccounts> {
       itemCount: widget._searchResult.length,
       itemBuilder: (context, index) {
         // Check if the current item's type matches the passed type
-        bool matchesType=true;
-        if(widget.type!='ALL'){
-        matchesType = widget.type == widget._searchResult[index]['type'];
+        bool matchesType = true;
+        if (widget.type != 'ALL') {
+          matchesType = widget.type == widget._searchResult[index]['type'];
         }
 
         // If it matches, show the ListTile; otherwise, return a SizedBox.shrink()
-        return matchesType ? ListTile(
-          leading: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.green,
-                width: 3,
-              ),
-            ),
-            child: const CircleAvatar(
-              backgroundImage: AssetImage('images/imran_khan.jpg'),
-            ),
-          ),
-          title: Text(
-            widget._searchResult[index]['accountName'],
-          ),
-          subtitle: Text(
-            widget._searchResult[index]['phone'],
-          ),
-          trailing: Text(
-            widget._searchResult[index]['type'],
-          ),
-        ) : const SizedBox.shrink();
+        return matchesType
+            ? ListTile(
+                leading: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.green,
+                      width: 3,
+                    ),
+                  ),
+                  child: const CircleAvatar(
+                    backgroundImage: AssetImage('images/imran_khan.jpg'),
+                  ),
+                ),
+                title: Text(
+                  widget._searchResult[index]['accountName'],
+                ),
+                subtitle: Text(
+                  widget._searchResult[index]['phone'],
+                ),
+                trailing: Text(
+                  widget._searchResult[index]['type'],
+                ),
+                onTap: () {
+                  try {
+                    final accountId = widget._searchResult[index]
+                        .id; // Access the document ID directly
+                    if (accountId != '') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return RptAcLedger(
+                                accountId:
+                                    accountId); // Pass the document ID (accountId)
+                          },
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    const Text('Error loading record...');
+                  }
+                })
+            : const SizedBox.shrink();
       },
     );
   }

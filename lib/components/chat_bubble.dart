@@ -1,7 +1,7 @@
-import 'package:chat_wp/services/chat/chat_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../themes/theme_provider.dart';
+import 'package:chat_wp/services/chat/chat_service.dart';
 
 class ChatBubble extends StatelessWidget {
   final String message;
