@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart'; // Import TypeAhead package
+// import 'package:flutter_typeahead/flutter_typeahead.dart'; // Import TypeAhead package
 
 class AccountSearch extends StatefulWidget {
   final String userId;
@@ -12,8 +12,8 @@ class AccountSearch extends StatefulWidget {
 }
 
 class AccountSearchState extends State<AccountSearch> {
-  String? _selectedAcId;
-  String? _selectedAcText;
+  // String? _selectedAcId;
+  // String? _selectedAcText;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class AccountSearchState extends State<AccountSearch> {
           return Center(child: Text('Error: ${snapshot.error}'));
         }
 
-        List<DocumentSnapshot> accountList = snapshot.data?.docs ?? [];
+        // List<DocumentSnapshot> accountList = snapshot.data?.docs ?? [];
 
         // return TypeAheadFormField(
         //   textFieldConfiguration: TextFieldConfiguration(

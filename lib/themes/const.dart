@@ -14,6 +14,9 @@ import '../../services/auth/auth_service.dart';
   String kCRV = 'CR';
   String kJV = 'JV';
 
+  String kCash = 'CASH';
+  String kBank = 'BANK';
+
   final DateTime stDate = DateTime(DateTime.now().year, 7, 1);
   final String kStartDate = DateFormat('dd-MMM-yyyy').format(stDate);
 

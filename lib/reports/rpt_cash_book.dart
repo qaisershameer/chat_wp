@@ -381,10 +381,10 @@ class RptCashBookState extends State<RptCashBook> {
                     break;
                   case 'PKR':
                     columns = const [
+                      DataColumn(label: Text('Date')),
                       DataColumn(label: Text('Pk-Out')),
                       DataColumn(label: Text('Pk-In')),
                       DataColumn(label: Text('Account')),
-                      DataColumn(label: Text('Date')),
                       DataColumn(label: Text('Remarks')),
                     ];
                     visibleColumns = [0, 3, 4, 5, 6];
@@ -457,8 +457,8 @@ class RptCashBookState extends State<RptCashBook> {
                                   if (visibleColumns.contains(0))
                                     DataCell(Container(
                                       alignment: Alignment.centerRight,
-                                      child: Text(
-                                        _numberFormat.format(bfBalanceSR),
+                                      child: Text(_selectedReport != 'PKR' ?
+                                      _numberFormat1.format(bfBalanceSR) : '',
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontStyle: FontStyle.italic,
@@ -518,8 +518,8 @@ class RptCashBookState extends State<RptCashBook> {
                                   if (visibleColumns.contains(5))
                                     DataCell(Container(
                                       alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        _numberFormat1.format(bfBalancePK),
+                                      child: Text(_selectedReport != 'SAR' ?
+                                      _numberFormat1.format(bfBalancePK) : '',
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontStyle: FontStyle.italic,

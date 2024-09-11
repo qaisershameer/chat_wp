@@ -442,7 +442,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                             docId: '',
                             type: '',
                             vDate: vDate,
-                            remarks: 'Cash Paid.',
+                            remarks: 'Cash Received.',
                             drAcId: '',
                             crAcId: _selectedAcId!,
                             debit: 0.0,
@@ -531,7 +531,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
         for (var document in accountsList) {
           final data = document.data() as Map<String, dynamic>;
           final drAcId = data['drAcId'] ?? '';
-          final crAcId = data['crAcId'] ?? '';
+          // final crAcId = data['crAcId'] ?? '';
           final type = data['type'] ?? '';
 
           double debitText, creditText, debitSrText, creditSrText;
@@ -594,8 +594,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               DataCell(
                                 Container(
                                   alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _numberFormat.format(bfBalanceSR),
+                                  child: Text(_selectedReport != 'PKR' ?
+                                    _numberFormat.format(bfBalanceSR) : '',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontStyle: FontStyle.italic,
@@ -664,8 +664,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               DataCell(
                                 Container(
                                   alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    _numberFormat1.format(bfBalancePK),
+                                  child: Text(_selectedReport != 'SAR' ?
+                                    _numberFormat1.format(bfBalancePK) : '',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontStyle: FontStyle.italic,
@@ -880,7 +880,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                             return const DataRow(
                                 cells: []); // Or handle differently if necessary
                           }
-                        }).toList(), // Convert to list here
+                        }), // Convert to list here
                       ],
                     ),
                   );
@@ -1079,7 +1079,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
       Map<String, dynamic> dataRow = document.data() as Map<String, dynamic>;
 
       String drAcId = dataRow['drAcId'] ?? '';
-      String crAcId = dataRow['crAcId'] ?? '';
+      // String crAcId = dataRow['crAcId'] ?? '';
       DateTime dateText = (dataRow['date'] as Timestamp).toDate();
       String formattedDate = DateFormat('dd MM yy').format(dateText);
       String remarksText = dataRow['remarks'] ?? '';
@@ -1090,10 +1090,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
       creditSrText = (dataRow['creditsar'] ?? 0.0);
       debitSrText = (dataRow['debitsar'] ?? 0.0);
 
-      String? drAcName = accountNames[drAcId] ?? '';
-      String? crAcName = accountNames[crAcId] ?? '';
+      // String? drAcName = accountNames[drAcId] ?? '';
+      // String? crAcName = accountNames[crAcId] ?? '';
 
-      String accountDisplayName = drAcId.isNotEmpty ? drAcName : crAcName;
+      // String accountDisplayName = drAcId.isNotEmpty ? drAcName : crAcName;
 
       data.add([
         formattedDate,

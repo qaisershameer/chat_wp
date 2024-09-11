@@ -173,9 +173,7 @@ class AcVoucherService {
     final stream2 = query2.snapshots().map((snapshot) => snapshot.docs);
 
     return Rx.combineLatest2(stream1, stream2, (docs1, docs2) {
-      final combinedDocs = <QueryDocumentSnapshot>[]
-        ..addAll(docs1)
-        ..addAll(docs2);
+      final combinedDocs = <QueryDocumentSnapshot>[...docs1, ...docs2];
 
       combinedDocs.sort((a, b) => b['date'].compareTo(a['date']));
 
@@ -239,9 +237,7 @@ class AcVoucherService {
     final stream2 = query2.snapshots().map((snapshot) => snapshot.docs);
 
     return Rx.combineLatest2(stream1, stream2, (docs1, docs2) {
-      final combinedDocs = <QueryDocumentSnapshot>[]
-        ..addAll(docs1)
-        ..addAll(docs2);
+      final combinedDocs = <QueryDocumentSnapshot>[...docs1, ...docs2];
 
       combinedDocs.sort((a, b) => b['date'].compareTo(a['date']));
 
@@ -294,9 +290,7 @@ class AcVoucherService {
     final stream2 = query2.snapshots().map((snapshot) => snapshot.docs);
 
     return Rx.combineLatest2(stream1, stream2, (docs1, docs2) {
-      final combinedDocs = <QueryDocumentSnapshot>[]
-        ..addAll(docs1)
-        ..addAll(docs2);
+      final combinedDocs = <QueryDocumentSnapshot>[...docs1, ...docs2];
 
       combinedDocs.sort((a, b) => b['drAcId'].compareTo(a['crAcId']));
 

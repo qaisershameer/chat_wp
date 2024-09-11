@@ -11,18 +11,18 @@ class _ApExampleState extends State<ApExample> {
 
   final TextEditingController _selectedItem = TextEditingController();
 
-  final List _fruits = [
-    'Apple',
-    'Banana',
-    'Orange',
-    'Grapes',
-    'Strawberry',
-    'Pineapple',
-    'Watermelon',
-    'Mangoes',
-    'Kiwi',
-    'Blueberry',
-  ];
+  // final List _fruits = [
+  //   'Apple',
+  //   'Banana',
+  //   'Orange',
+  //   'Grapes',
+  //   'Strawberry',
+  //   'Pineapple',
+  //   'Watermelon',
+  //   'Mangoes',
+  //   'Kiwi',
+  //   'Blueberry',
+  // ];
 
   final List<Map<String, dynamic>> _allCoffeeData = [
     {

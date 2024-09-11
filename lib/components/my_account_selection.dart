@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 Future<List<Map<String, dynamic>>> fetchBanks(String userId, String type) async {
   try {
-    // Fetch data from Firestore with specified conditions
     final QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('accounts')
         .where('uid', isEqualTo: userId)
@@ -11,7 +10,6 @@ Future<List<Map<String, dynamic>>> fetchBanks(String userId, String type) async 
         .orderBy('accountName', descending: false) // Order by accountName in ascending order
         .get();
 
-    // Map the documents to a list of maps
     return snapshot.docs.map((doc) => {
       'id': doc.id,
       'accountName': doc['accountName'],
@@ -22,11 +20,12 @@ Future<List<Map<String, dynamic>>> fetchBanks(String userId, String type) async 
   }
 }
 
-void showBankSelectionDialog(BuildContext context, String userId, String type) async {
+Future<bool> showBankSelectionDialog(
+    BuildContext context, String userId, String type, Function(String, String) onBankSelected) async {
   final List<Map<String, dynamic>> banks = await fetchBanks(userId, type);
   final TextEditingController searchController = TextEditingController();
 
-  showDialog(
+  return showDialog<bool>(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
@@ -40,15 +39,11 @@ void showBankSelectionDialog(BuildContext context, String userId, String type) a
                 controller: searchController,
                 decoration: const InputDecoration(labelText: 'Search'),
                 onChanged: (text) {
-                  // Trigger a rebuild to filter the list
                   (context as Element).markNeedsBuild();
                 },
               ),
-              // ConstrainedBox to prevent ListView from growing indefinitely
               ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxHeight: 300, // Adjust this height based on your requirements
-                ),
+                constraints: const BoxConstraints(maxHeight: 300),
                 child: SingleChildScrollView(
                   child: StreamBuilder<List<Map<String, dynamic>>>(
                     stream: Stream.fromFuture(Future.value(banks)),
@@ -71,7 +66,8 @@ void showBankSelectionDialog(BuildContext context, String userId, String type) a
                           return ListTile(
                             title: Text(bank['accountName']),
                             onTap: () {
-                              Navigator.of(context).pop(bank['id']);
+                              Navigator.of(context).pop(true); // Indicate that a bank was selected
+                              onBankSelected(bank['id'], bank['accountName']);
                             },
                           );
                         }).toList(),
@@ -85,12 +81,10 @@ void showBankSelectionDialog(BuildContext context, String userId, String type) a
         ),
       );
     },
-  ).then((selectedId) {
-    if (selectedId != null) {
-      // Handle the selected bank ID
-      print('Selected Bank ID: $selectedId');
+  ).then((selected) {
+    if (selected == null) {
+      return false; // Return false if the dialog was dismissed
     }
+    return selected; // Return true if a bank was selected
   });
 }
-
-

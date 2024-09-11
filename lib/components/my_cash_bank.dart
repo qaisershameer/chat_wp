@@ -3,17 +3,38 @@ import 'package:chat_wp/themes/const.dart';
 import 'package:chat_wp/components/my_account_selection.dart';
 
 class CashBankToggle extends StatefulWidget {
-  const CashBankToggle({super.key});
+  final void Function(int selectedIndex, String? bankId, String? bankName)? onSelectionChanged;
+
+  const CashBankToggle({super.key, this.onSelectionChanged});
 
   @override
   CashBankToggleState createState() => CashBankToggleState();
-
 }
 
 class CashBankToggleState extends State<CashBankToggle> {
   final List<bool> _isSelected = [true, false];
   String userId = kUserId; // Replace with actual user ID
   String type = 'BANK'; // Replace with actual type
+
+  void _handleBankSelection(String bankId, String bankName) {
+    if (widget.onSelectionChanged != null) {
+      widget.onSelectionChanged!(1, bankId, bankName); // 1 indicates BANK is selected
+    }
+  }
+
+  void _showBankDialog() async {
+    final bankSelected = await showBankSelectionDialog(context, userId, type, _handleBankSelection);
+    if (!bankSelected) {
+      setState(() {
+        // Reset toggle button to 'CASH'
+        _isSelected[0] = true;
+        _isSelected[1] = false;
+      });
+      if (widget.onSelectionChanged != null) {
+        widget.onSelectionChanged!(0, null, null); // 0 indicates CASH is selected
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +48,11 @@ class CashBankToggleState extends State<CashBankToggle> {
             }
 
             if (index == 1) {
-              showBankSelectionDialog(context, userId, type);
+              _showBankDialog();
+            } else {
+              if (widget.onSelectionChanged != null) {
+                widget.onSelectionChanged!(index, null, null);
+              }
             }
           });
         },
@@ -38,11 +63,11 @@ class CashBankToggleState extends State<CashBankToggle> {
         children: const [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 30.0),
-            child: Text('Cash'),
+            child: Text('CASH'),
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 30.0),
-            child: Text('Bank'),
+            child: Text('BANK'),
           ),
         ],
       ),

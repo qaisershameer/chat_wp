@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:chat_wp/models/area.dart';
-import 'package:chat_wp/services/accounts/area_service.dart';
+// import 'package:chat_wp/services/accounts/area_service.dart';
 
 class AreaDropdown extends StatefulWidget {
   const AreaDropdown({super.key});
@@ -10,7 +10,7 @@ class AreaDropdown extends StatefulWidget {
 }
 
 class AreaDropdownState extends State<AreaDropdown> {
-  final AreaService _areaService = AreaService();
+  // final AreaService _areaService = AreaService();
 
   final List<Area> _areas = [];
   Area? _selectedArea;

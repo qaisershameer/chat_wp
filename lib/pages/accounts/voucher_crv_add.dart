@@ -45,6 +45,9 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
 
   String? _voucherId, _selectedAcId, _selectedAcText;
 
+  String _selectedBankId = ''; // Initialize with an empty string
+  String _selectedBankText = 'CASH ACCOUNT'; // Initialize with default text
+
   final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
 
   final TextEditingController _dateController = TextEditingController();
@@ -66,6 +69,24 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
       });
     }
   }
+
+  void _updateSelection(int selectedIndex, String? bankId, String? bankName) {
+    setState(() {
+      if (selectedIndex == 0) {
+        // Handle CASH selection
+        _selectedBankId = '';
+        _selectedBankText = 'CASH ACCOUNT';
+      } else if (selectedIndex == 1) {
+        // Handle BANK selection
+        if (bankId != null && bankName != null) {
+          _selectedBankId = bankId;
+          _selectedBankText = bankName;
+        }
+      }
+      // print('Updated _selectedBankText: $_selectedBankText');
+    });
+  }
+
 
   @override
   void initState() {
@@ -160,7 +181,7 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                 hintText: 'Select Date',
                 labelText: 'Date',
                 labelStyle:
-                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -194,16 +215,22 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                         return Center(child: Text('Error: ${snapshot.error}'));
                       }
 
-                      List<DocumentSnapshot> accountList = snapshot.data?.docs ?? [];
+                      List<DocumentSnapshot> accountList =
+                          snapshot.data?.docs ?? [];
 
                       return DropdownSearch<DocumentSnapshot>(
                         items: accountList,
                         itemAsString: (DocumentSnapshot document) {
-                          Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-                          return data['accountName']; // or any other field you want to display
+                          Map<String, dynamic> data =
+                              document.data() as Map<String, dynamic>;
+                          return data[
+                              'accountName']; // or any other field you want to display
                         },
-                        selectedItem: accountList.isNotEmpty && accountList.any((document) => document.id == _selectedAcId)
-                            ? accountList.firstWhere((document) => document.id == _selectedAcId)
+                        selectedItem: accountList.isNotEmpty &&
+                                accountList.any(
+                                    (document) => document.id == _selectedAcId)
+                            ? accountList.firstWhere(
+                                (document) => document.id == _selectedAcId)
                             : null,
                         popupProps: const PopupProps.menu(
                           showSearchBox: true,
@@ -214,7 +241,8 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                           if (document != null) {
                             setState(() {
                               _selectedAcId = document.id;
-                              _selectedAcText = (document.data() as Map<String, dynamic>)['accountName'];
+                              _selectedAcText = (document.data()
+                                  as Map<String, dynamic>)['accountName'];
                             });
                           }
                         },
@@ -230,7 +258,9 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
             // SAR Number Text Field
             TextFormField(
               controller: _sarController,
-              onTap: () => _sarController.selection = TextSelection(baseOffset: 0, extentOffset: _sarController.value.text.length),
+              onTap: () => _sarController.selection = TextSelection(
+                  baseOffset: 0,
+                  extentOffset: _sarController.value.text.length),
               decoration: const InputDecoration(
                 icon: Icon(
                   FontAwesomeIcons.moneyBillTransfer,
@@ -239,7 +269,7 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                 hintText: 'Enter SAR amount',
                 labelText: 'SAR Amount',
                 labelStyle:
-                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -257,7 +287,9 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
             // PKR Amount Number Text Field
             TextFormField(
               controller: _pkrController,
-              onTap: () => _pkrController.selection = TextSelection(baseOffset: 0, extentOffset: _pkrController.value.text.length),
+              onTap: () => _pkrController.selection = TextSelection(
+                  baseOffset: 0,
+                  extentOffset: _pkrController.value.text.length),
               decoration: const InputDecoration(
                 icon: Icon(
                   FontAwesomeIcons.moneyBill,
@@ -266,7 +298,7 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                 hintText: 'Enter PKR Amount',
                 labelText: 'PKR Amount',
                 labelStyle:
-                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -284,7 +316,9 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
             // Remarks Multi Line Text Field
             TextFormField(
               controller: _remarksController,
-              onTap: () => _remarksController.selection = TextSelection(baseOffset: 0, extentOffset: _remarksController.value.text.length),
+              onTap: () => _remarksController.selection = TextSelection(
+                  baseOffset: 0,
+                  extentOffset: _remarksController.value.text.length),
               keyboardType: TextInputType.text,
               decoration: const InputDecoration(
                 icon: Icon(
@@ -294,7 +328,7 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                 hintText: 'Enter Voucher Remarks',
                 labelText: 'Remarks',
                 labelStyle:
-                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -310,27 +344,36 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
             Center(
               child: Column(
                 children: [
-
                   // First Row with Cash and Bank Buttons
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      CashBankToggle(),
-
+                      CashBankToggle(
+                        onSelectionChanged: _updateSelection,
+                      ),
                     ],
                   ),
 
-                  const SizedBox(height: 15.0), // Adding some space between the rows
+                  const SizedBox(
+                      height: 15.0), // Adding some space between the rows
 
                   // Second Row with Show Selected Cash / Bank Account Name
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Center(child: Text('CASH ACCOUNT', style: TextStyle(fontSize: 15.0, color: Colors.red, fontWeight: FontWeight.bold),)),
+                      Center(
+                          child: Text(
+                        _selectedBankText,
+                        style: const TextStyle(
+                            fontSize: 15.0,
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold),
+                      )),
                     ],
                   ),
 
-                  const SizedBox(height: 15.0), // Adding some space between the rows
+                  const SizedBox(
+                      height: 15.0), // Adding some space between the rows
 
                   // Third Row with Save, Delete, Cancel Buttons
                   Row(
@@ -341,46 +384,68 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                         onPressed: () {
                           if (_formKeyValue.currentState!.validate()) {
                             // Convert date string to DateTime
-                            DateTime date = DateFormat('dd-MMM-yyyy').parse(_dateController.text);
+                            DateTime date = DateFormat('dd-MMM-yyyy')
+                                .parse(_dateController.text);
 
                             // Convert string to double
-                            double pkrAmount = double.tryParse(_pkrController.text) ?? 0.0;
-                            double sarAmount = double.tryParse(_sarController.text) ?? 0.0;
+                            double pkrAmount =
+                                double.tryParse(_pkrController.text) ?? 0.0;
+                            double sarAmount =
+                                double.tryParse(_sarController.text) ?? 0.0;
 
                             if (_voucherId == null || _voucherId == '') {
                               _voucher.addVoucher(
-                                  kCPV,
+                                  // _selectedBankId == '' ? kCRV : kJV,
+                                  // date,
+                                  // _remarksController.text,
+                                  // _selectedBankId == '' ? '': _selectedBankId,
+                                  // _selectedAcId!,
+                                  // _selectedBankId == '' ? 0 : pkrAmount,
+                                  // _selectedBankId == '' ? 0 : sarAmount,
+                                  // pkrAmount,
+                                  // sarAmount,
+                                  kCRV,
                                   date,
                                   _remarksController.text,
-                                  _selectedAcId!,
                                   '',
+                                  _selectedAcId!,
+                                  0,
+                                  0,
                                   pkrAmount,
                                   sarAmount,
-                                  0,
-                                  0,
                                   kUserId);
                             } else {
                               _voucher.updateVoucher(
                                   _voucherId,
-                                  kCPV,
+                                  // _selectedBankId == '' ? kCRV : kJV,
+                                  // date,
+                                  // _remarksController.text,
+                                  // _selectedBankId == '' ? '': _selectedBankId,
+                                  // _selectedAcId!,
+                                  // _selectedBankId == '' ? 0 : pkrAmount,
+                                  // _selectedBankId == '' ? 0 : sarAmount,
+                                  // pkrAmount,
+                                  // sarAmount,
+                                  kCRV,
                                   date,
                                   _remarksController.text,
-                                  _selectedAcId!,
                                   '',
+                                  _selectedAcId!,
+                                  0,
+                                  0,
                                   pkrAmount,
                                   sarAmount,
-                                  0,
-                                  0,
                                   kUserId);
                             }
 
                             const snackBar = SnackBar(
                               content: Text(
-                                'Cash Payment saved successfully!',
+                                'Cash Receipt saved successfully!',
                                 style: TextStyle(color: Colors.teal),
                               ),
                             );
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
 
                             _dateController.clear();
                             _pkrController.clear();
@@ -411,7 +476,6 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                       ),
                     ],
                   ),
-
                 ],
               ),
             ),

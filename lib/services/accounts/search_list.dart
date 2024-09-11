@@ -22,7 +22,7 @@ class _SearchListState extends State<SearchList> {
   ];
 
   late List<Map<String, dynamic>> _foundUsers = [];
-  final TextEditingController _selectedItem = TextEditingController();
+  // final TextEditingController _selectedItem = TextEditingController();
 
   @override
   void initState() {
