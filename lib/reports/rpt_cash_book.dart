@@ -131,6 +131,7 @@ class RptCashBookState extends State<RptCashBook> {
                   builder: (context) => VoucherCrvAdd(
                     docId: '',
                     type: '',
+                    acType: kBank,
                     vDate: vDate,
                     remarks: 'Cash Received.',
                     drAcId: '',
@@ -646,6 +647,7 @@ class RptCashBookState extends State<RptCashBook> {
                                                   return VoucherCrvAdd(
                                                     docId: voucherID,
                                                     type: type,
+                                                    acType: kBank,
                                                     vDate: dateText,
                                                     remarks: remarksText,
                                                     drAcId: '',

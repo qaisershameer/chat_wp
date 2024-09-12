@@ -182,10 +182,10 @@ class ListAccounts extends StatefulWidget {
   final String type;
 
   @override
-  State<ListAccounts> createState() => _ListAccountsState();
+  State<ListAccounts> createState() => ListAccountsState();
 }
 
-class _ListAccountsState extends State<ListAccounts> {
+class ListAccountsState extends State<ListAccounts> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -223,16 +223,18 @@ class _ListAccountsState extends State<ListAccounts> {
                 ),
                 onTap: () {
                   try {
-                    final accountId = widget._searchResult[index]
-                        .id; // Access the document ID directly
+                    final accountId = widget._searchResult[index].id; // Access the document ID directly
+                    final selectedAcType = widget._searchResult[index]['type'];
+
+                    // print('Account Type: $selectedAcType');
+
                     if (accountId != '') {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) {
                             return RptAcLedger(
-                                accountId:
-                                    accountId); // Pass the document ID (accountId)
+                                accountId: accountId, accountType: selectedAcType,); // Pass the document ID (accountId)
                           },
                         ),
                       );

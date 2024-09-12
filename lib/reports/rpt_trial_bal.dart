@@ -588,7 +588,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                                     MaterialPageRoute(
                                       builder: (context) {
                                         return RptAcLedger(
-                                            accountId: selectedAcId);
+                                            accountId: selectedAcId, accountType: _selectedAcType!);
                                       },
                                     ),
                                   );

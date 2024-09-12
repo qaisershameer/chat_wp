@@ -14,7 +14,7 @@ class CashBankToggle extends StatefulWidget {
 class CashBankToggleState extends State<CashBankToggle> {
   final List<bool> _isSelected = [true, false];
   String userId = kUserId; // Replace with actual user ID
-  String type = 'BANK'; // Replace with actual type
+  String type = kBank; // Replace with actual type
 
   void _handleBankSelection(String bankId, String bankName) {
     if (widget.onSelectionChanged != null) {

@@ -18,7 +18,8 @@ import 'package:printing/printing.dart';
 
 class RptAcLedger extends StatefulWidget {
   final String accountId;
-  const RptAcLedger({super.key, required this.accountId});
+  final String accountType;
+  const RptAcLedger({super.key, required this.accountId, required this.accountType});
 
   @override
   State<RptAcLedger> createState() => RptAcLedgerState();
@@ -29,7 +30,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
   final AcVoucherService _vouchers = AcVoucherService();
   // final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
 
-  String? _selectedAcId, _selectedAcText, _selectedReport;
+  String? _selectedAcId, _selectedAcText, _selectedAcType, _selectedReport;
   // bool _showData = false;
 
   final TextEditingController _dateFromController = TextEditingController();
@@ -109,6 +110,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
     super.initState();
     // Initialize the text controllers with data from the previous screen
     _selectedAcId = widget.accountId;
+    _selectedAcType = widget.accountType;
     _selectedReport = 'SAR';
     // _dateFromController.text = DateFormat('dd-MMM-yyyy').format(DateTime.now());    // OKAY WORKING but i change below line
     _dateFromController.text = kStartDate; // SESSION START DATE
@@ -138,6 +140,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                   builder: (context) => VoucherCrvAdd(
                     docId: '',
                     type: '',
+                    acType: kBank,
                     vDate: vDate,
                     remarks: 'Cash Received.',
                     drAcId: '',
@@ -441,6 +444,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           builder: (context) => VoucherCrvAdd(
                             docId: '',
                             type: '',
+                            acType: kBank,
                             vDate: vDate,
                             remarks: 'Cash Received.',
                             drAcId: '',
@@ -465,10 +469,20 @@ class RptAcLedgerState extends State<RptAcLedger> {
 
   Widget rptLedger() {
     // print('A/c Id: $_selectedAcId');
+
+    // Numeric Fields Double Variables
+    debitText = 0;
+    creditText = 0;
+    debitSrText = 0;
+    creditSrText = 0;
+
+    // Calculate totals Double Variables
     totalDebitPK = 0;
     totalCreditPK = 0;
     totalDebitSR = 0;
     totalCreditSR = 0;
+
+    // Calculate b/f balances Double Variables
     bfBalancePK = 0;
     bfBalanceSR = 0;
 
@@ -789,6 +803,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                                   return VoucherCrvAdd(
                                                     docId: voucherID,
                                                     type: type,
+                                                    acType: kBank,
                                                     vDate: dateText,
                                                     remarks: remarksText,
                                                     drAcId: '',

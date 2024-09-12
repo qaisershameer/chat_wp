@@ -1,4 +1,3 @@
-import 'package:chat_wp/components/my_cash_bank.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_wp/themes/const.dart';
@@ -8,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 import 'package:chat_wp/services/accounts/ac_voucher_service.dart';
+import 'package:chat_wp/components/my_cash_bank.dart';
 
 class VoucherCpvAdd extends StatefulWidget {
   final String docId;
@@ -45,6 +45,8 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
   final AcVoucherService _voucher = AcVoucherService();
 
   String? _voucherId, _selectedAcId, _selectedAcText;
+  String _selectedBankId = ''; // Initialize with an empty string
+  String _selectedBankText = 'CASH ACCOUNT'; // Initialize with default text
 
   final GlobalKey<FormState> _formKeyValue = GlobalKey<FormState>();
 
@@ -69,6 +71,23 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
         _dateController.text = DateFormat('dd-MMM-yyyy').format(pickedDate);
       });
     }
+  }
+
+  void _updateSelection(int selectedIndex, String? bankId, String? bankName) {
+    setState(() {
+      if (selectedIndex == 0) {
+        // Handle CASH selection
+        _selectedBankId = '';
+        _selectedBankText = 'CASH ACCOUNT';
+      } else if (selectedIndex == 1) {
+        // Handle BANK selection
+        if (bankId != null && bankName != null) {
+          _selectedBankId = bankId;
+          _selectedBankText = bankName;
+        }
+      }
+      // print('Updated _selectedBankText: $_selectedBankText');
+    });
   }
 
   @override
@@ -316,10 +335,12 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
                 children: [
 
                   // First Row with Cash and Bank Buttons
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      CashBankToggle(),
+                      CashBankToggle(
+                        onSelectionChanged: _updateSelection,
+                      ),
 
                     ],
                   ),
@@ -353,28 +374,36 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
 
                             if (_voucherId == null || _voucherId == '') {
                               _voucher.addVoucher(
-                                  kCPV,
+                                  _selectedBankId == '' ? kCPV : kJV,
                                   date,
                                   _remarksController.text,
-                                  _selectedAcId!,
-                                  '',
-                                  pkrAmount,
-                                  sarAmount,
-                                  0,
-                                  0,
+
+                                  _selectedAcId!,                               // debit account id
+                                  _selectedBankId == '' ? '': _selectedBankId,  // credit account id
+
+                                  pkrAmount,                                    // debit pkr amount
+                                  sarAmount,                                    // debit sar amount
+
+                                  _selectedBankId == '' ? 0 : pkrAmount,        // credit pkr amount
+                                  _selectedBankId == '' ? 0 : sarAmount,        // credit sar amount
+
                                   kUserId);
                             } else {
                               _voucher.updateVoucher(
                                   _voucherId,
-                                  kCPV,
+                                  _selectedBankId == '' ? kCPV : kJV,
                                   date,
                                   _remarksController.text,
-                                  _selectedAcId!,
-                                  '',
-                                  pkrAmount,
-                                  sarAmount,
-                                  0,
-                                  0,
+
+                                  _selectedAcId!,                               // debit account id
+                                  _selectedBankId == '' ? '': _selectedBankId,  // credit account id
+
+                                  pkrAmount,                                    // debit pkr amount
+                                  sarAmount,                                    // debit sar amount
+
+                                  _selectedBankId == '' ? 0 : pkrAmount,        // credit pkr amount
+                                  _selectedBankId == '' ? 0 : sarAmount,        // credit sar amount
+
                                   kUserId);
                             }
 

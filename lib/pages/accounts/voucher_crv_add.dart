@@ -11,6 +11,7 @@ import 'package:chat_wp/components/my_cash_bank.dart';
 class VoucherCrvAdd extends StatefulWidget {
   final String docId;
   final String type;
+  final String acType;
   final DateTime vDate;
   final String remarks;
 
@@ -25,6 +26,7 @@ class VoucherCrvAdd extends StatefulWidget {
     super.key,
     required this.docId,
     required this.type,
+    required this.acType,
     required this.vDate,
     required this.remarks,
     required this.drAcId,
@@ -44,6 +46,8 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
   final AcVoucherService _voucher = AcVoucherService();
 
   String? _voucherId, _selectedAcId, _selectedAcText;
+
+  String? _selectedAcType = 'BANK'; // Initialize with default text
 
   String _selectedBankId = ''; // Initialize with an empty string
   String _selectedBankText = 'CASH ACCOUNT'; // Initialize with default text
@@ -95,6 +99,7 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
     _voucherId = widget.docId;
     _dateController.text = DateFormat('dd-MMM-yyyy').format(widget.vDate);
     _remarksController.text = widget.remarks;
+    _selectedAcType = widget.acType;
     _selectedAcId = widget.crAcId;
     _pkrController.text = widget.credit.toString();
     _sarController.text = widget.creditSar.toString();
@@ -241,8 +246,11 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                           if (document != null) {
                             setState(() {
                               _selectedAcId = document.id;
-                              _selectedAcText = (document.data()
-                                  as Map<String, dynamic>)['accountName'];
+                              _selectedAcText = (document.data() as Map<String, dynamic>)['accountName'];
+                              _selectedAcType = (document.data() as Map<String, dynamic>)['type'];
+
+                              // print('Ac Type: $_selectedAcType');
+
                             });
                           }
                         },
@@ -395,46 +403,36 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
 
                             if (_voucherId == null || _voucherId == '') {
                               _voucher.addVoucher(
-                                  // _selectedBankId == '' ? kCRV : kJV,
-                                  // date,
-                                  // _remarksController.text,
-                                  // _selectedBankId == '' ? '': _selectedBankId,
-                                  // _selectedAcId!,
-                                  // _selectedBankId == '' ? 0 : pkrAmount,
-                                  // _selectedBankId == '' ? 0 : sarAmount,
-                                  // pkrAmount,
-                                  // sarAmount,
-                                  kCRV,
+                                  _selectedBankId == '' ? kCRV : kJV,
                                   date,
                                   _remarksController.text,
-                                  '',
-                                  _selectedAcId!,
-                                  0,
-                                  0,
-                                  pkrAmount,
-                                  sarAmount,
+
+                                  _selectedBankId == '' ? '': _selectedBankId,  // debit account id
+                                  _selectedAcId!,                               // credit account id
+
+                                  _selectedBankId == '' ? 0 : pkrAmount,        // debit pkr amount
+                                  _selectedBankId == '' ? 0 : sarAmount,        // debit sar amount
+
+                                  pkrAmount,                                    // credit pkr amount
+                                  sarAmount,                                    // credit sar amount
+
                                   kUserId);
                             } else {
                               _voucher.updateVoucher(
                                   _voucherId,
-                                  // _selectedBankId == '' ? kCRV : kJV,
-                                  // date,
-                                  // _remarksController.text,
-                                  // _selectedBankId == '' ? '': _selectedBankId,
-                                  // _selectedAcId!,
-                                  // _selectedBankId == '' ? 0 : pkrAmount,
-                                  // _selectedBankId == '' ? 0 : sarAmount,
-                                  // pkrAmount,
-                                  // sarAmount,
-                                  kCRV,
+                                  _selectedBankId == '' ? kCRV : kJV,
                                   date,
                                   _remarksController.text,
-                                  '',
-                                  _selectedAcId!,
-                                  0,
-                                  0,
-                                  pkrAmount,
-                                  sarAmount,
+
+                                  _selectedBankId == '' ? '': _selectedBankId,  // debit account id
+                                  _selectedAcId!,                               // credit account id
+
+                                  _selectedBankId == '' ? 0 : pkrAmount,        // debit pkr amount
+                                  _selectedBankId == '' ? 0 : sarAmount,        // debit sar amount
+
+                                  pkrAmount,                                    // credit pkr amount
+                                  sarAmount,                                    // credit sar amount
+
                                   kUserId);
                             }
 

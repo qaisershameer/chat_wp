@@ -73,6 +73,7 @@ class VoucherCrvInfoState extends State<VoucherCrvInfo> {
                       builder: (context) => VoucherCrvAdd(
                         docId: '',
                         type: '',
+                        acType: '',
                         vDate: vDate,
                         remarks: 'Cash Received.',
                         drAcId: '',
@@ -151,6 +152,7 @@ class VoucherCrvInfoState extends State<VoucherCrvInfo> {
                                       builder: (context) => VoucherCrvAdd(
                                         docId: docID,
                                         type: kCRV,
+                                        acType: kBank,
                                         vDate: dateText,
                                         remarks: remarksText,
                                         drAcId: '',
