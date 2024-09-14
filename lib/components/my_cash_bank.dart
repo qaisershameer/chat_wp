@@ -3,18 +3,27 @@ import 'package:chat_wp/themes/const.dart';
 import 'package:chat_wp/components/my_account_selection.dart';
 
 class CashBankToggle extends StatefulWidget {
-  final void Function(int selectedIndex, String? bankId, String? bankName)? onSelectionChanged;
+  final void Function(int selectedIndex, String? bankId, String? bankName,)? onSelectionChanged;
+  final String acType;
 
-  const CashBankToggle({super.key, this.onSelectionChanged});
+  const CashBankToggle({super.key, this.onSelectionChanged, required this.acType});
 
   @override
   CashBankToggleState createState() => CashBankToggleState();
+
 }
 
 class CashBankToggleState extends State<CashBankToggle> {
   final List<bool> _isSelected = [true, false];
   String userId = kUserId; // Replace with actual user ID
   String type = kBank; // Replace with actual type
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the text controllers with data from the previous screen
+    type = widget.acType;
+  }
 
   void _handleBankSelection(String bankId, String bankName) {
     if (widget.onSelectionChanged != null) {
@@ -60,14 +69,14 @@ class CashBankToggleState extends State<CashBankToggle> {
         selectedColor: Colors.white,
         fillColor: Colors.teal,
         color: Colors.black,
-        children: const [
-          Padding(
+        children:  [
+          const Padding(
             padding: EdgeInsets.symmetric(horizontal: 30.0),
             child: Text('CASH'),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 30.0),
-            child: Text('BANK'),
+            padding: const EdgeInsets.symmetric(horizontal: 30.0),
+            child: Text(type== kBank ? 'ACCOUNT' : 'BANK'),
           ),
         ],
       ),

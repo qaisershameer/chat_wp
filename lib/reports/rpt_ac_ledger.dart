@@ -120,6 +120,16 @@ class RptAcLedgerState extends State<RptAcLedger> {
     DateTime now = DateTime.now();
     // getDate(DateTime(now.year, now.month, now.day), 'from'); // OKAY WORKING but i change below line
     getDate(DateTime(now.year, 1, 1), 'from');
+
+    // total fields doing empty 0 blank on load screen
+    totalDebitPK = 0;
+    totalCreditPK = 0;
+    totalDebitSR = 0;
+    totalCreditSR = 0;
+
+    bfBalancePK = 0;
+    bfBalanceSR = 0;
+
   }
 
   @override
@@ -140,7 +150,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                   builder: (context) => VoucherCrvAdd(
                     docId: '',
                     type: '',
-                    acType: kBank,
+                    acType: _selectedAcType!,
                     vDate: vDate,
                     remarks: 'Cash Received.',
                     drAcId: '',
@@ -164,6 +174,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                   builder: (context) => VoucherCpvAdd(
                     docId: '',
                     type: '',
+                    acType: _selectedAcType!,
                     vDate: vDate,
                     remarks: 'Cash Paid.',
                     drAcId: _selectedAcId!,
@@ -413,6 +424,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           builder: (context) => VoucherCpvAdd(
                             docId: '',
                             type: '',
+                            acType: _selectedAcType!,
                             vDate: vDate,
                             remarks: 'Cash Paid.',
                             drAcId: _selectedAcId!,
@@ -444,7 +456,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           builder: (context) => VoucherCrvAdd(
                             docId: '',
                             type: '',
-                            acType: kBank,
+                            acType: _selectedAcType!,
                             vDate: vDate,
                             remarks: 'Cash Received.',
                             drAcId: '',
@@ -476,15 +488,15 @@ class RptAcLedgerState extends State<RptAcLedger> {
     debitSrText = 0;
     creditSrText = 0;
 
-    // Calculate totals Double Variables
-    totalDebitPK = 0;
-    totalCreditPK = 0;
-    totalDebitSR = 0;
-    totalCreditSR = 0;
-
-    // Calculate b/f balances Double Variables
-    bfBalancePK = 0;
-    bfBalanceSR = 0;
+    // // Calculate totals Double Variables
+    // totalDebitPK = 0;
+    // totalCreditPK = 0;
+    // totalDebitSR = 0;
+    // totalCreditSR = 0;
+    //
+    // // Calculate b/f balances Double Variables
+    // bfBalancePK = 0;
+    // bfBalanceSR = 0;
 
     List<DataColumn> myColumns;
     List<int> visibleColumns;
@@ -540,39 +552,51 @@ class RptAcLedgerState extends State<RptAcLedger> {
         final documents = snapshot.data ?? [];
         List<DocumentSnapshot> accountsList =
             documents.cast<DocumentSnapshot>();
+        // Calculate totals Double Variables
+        totalDebitPK = 0;
+        totalCreditPK = 0;
+        totalDebitSR = 0;
+        totalCreditSR = 0;
+
+        // Calculate b/f balances Double Variables
+        bfBalancePK = 0;
+        bfBalanceSR = 0;
 
         // First loop through the data to accumulate totals
         for (var document in accountsList) {
           final data = document.data() as Map<String, dynamic>;
           final drAcId = data['drAcId'] ?? '';
-          // final crAcId = data['crAcId'] ?? '';
+          final crAcId = data['crAcId'] ?? '';
           final type = data['type'] ?? '';
 
           double debitText, creditText, debitSrText, creditSrText;
 
+          // print('Selected_Ledger_Id: $_selectedAcId');
+          // print('debit_id: $drAcId');
+
           if (type == 'JV') {
             if (_selectedAcId == drAcId) {
-              debitText = (data['credit'] ?? 0.0);
+              debitText = (data['debit'] ?? 0.0);
+              debitSrText = (data['debitsar'] ?? 0.0);
               creditText = 0.0;
-              debitSrText = (data['creditsar'] ?? 0.0);
               creditSrText = 0.0;
             } else {
               debitText = 0.0;
-              creditText = (data['debit'] ?? 0.0);
               debitSrText = 0.0;
-              creditSrText = (data['debitsar'] ?? 0.0);
+              creditText = (data['credit'] ?? 0.0);
+              creditSrText = (data['creditsar'] ?? 0.0);
             }
           } else {
-            debitText = (data['credit'] ?? 0.0);
-            creditText = (data['debit'] ?? 0.0);
-            debitSrText = (data['creditsar'] ?? 0.0);
-            creditSrText = (data['debitsar'] ?? 0.0);
+            debitText = (data['debit'] ?? 0.0);
+            debitSrText = (data['debitsar'] ?? 0.0);
+            creditText = (data['credit'] ?? 0.0);
+            creditSrText = (data['creditsar'] ?? 0.0);
           }
 
-          totalDebitPK += creditText;
-          totalCreditPK += debitText;
-          totalDebitSR += creditSrText;
-          totalCreditSR += debitSrText;
+          totalDebitPK += debitText;
+          totalCreditPK += creditText;
+          totalDebitSR += debitSrText;
+          totalCreditSR += creditSrText;
         }
 
         // Calculate the balances after looping through the data
@@ -691,49 +715,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           ],
                         ),
 
-                        // Add the B/F Balance row at the top
-                        // DataRow(cells: [
-                        //   if (visibleColumns.contains(0))
-                        //     const DataCell(
-                        //       Text(
-                        //         'B/F',
-                        //         style: TextStyle(
-                        //           fontWeight: FontWeight.bold,
-                        //           color: Colors.teal,
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   if (visibleColumns.contains(1)) const DataCell(Text('')),
-                        //   if (visibleColumns.contains(2))
-                        //     DataCell(
-                        //       Container(
-                        //         alignment: Alignment.centerRight,
-                        //         child: Text(
-                        //           _numberFormat.format(bfBalanceSR),
-                        //           style: const TextStyle(
-                        //             fontWeight: FontWeight.bold,
-                        //             color: Colors.teal,
-                        //           ),
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   if (visibleColumns.contains(3)) const DataCell(Text('')),
-                        //   if (visibleColumns.contains(4))
-                        //     DataCell(
-                        //       Container(
-                        //         alignment: Alignment.centerRight,
-                        //         child: Text(
-                        //           _numberFormat1.format(bfBalancePK),
-                        //           style: const TextStyle(
-                        //             fontWeight: FontWeight.bold,
-                        //             color: Colors.teal,
-                        //           ),
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   if (visibleColumns.contains(5)) const DataCell(Text('')),
-                        // ]),
-
                         ...accountsList.map((document) {
                           final voucherID = document.id;
                           final data = document.data() as Map<String, dynamic>;
@@ -742,34 +723,29 @@ class RptAcLedgerState extends State<RptAcLedger> {
                             final drAcId = data['drAcId'] ?? '';
                             final crAcId = data['crAcId'] ?? '';
                             final type = data['type'] ?? '';
-                            final dateText =
-                                (data['date'] as Timestamp).toDate();
-                            final formattedDate =
-                                DateFormat('dd MMM').format(dateText);
+                            final dateText = (data['date'] as Timestamp).toDate();
+                            final formattedDate = DateFormat('dd MMM').format(dateText);
                             final remarksText = data['remarks'] ?? '';
 
-                            double debitText,
-                                creditText,
-                                debitSrText,
-                                creditSrText;
+                            double debitText, creditText, debitSrText, creditSrText;
 
                             if (type == 'JV') {
                               if (_selectedAcId == drAcId) {
-                                debitText = (data['credit'] ?? 0.0);
+                                debitText = (data['debit'] ?? 0.0);
+                                debitSrText = (data['debitsar'] ?? 0.0);
                                 creditText = 0.0;
-                                debitSrText = (data['creditsar'] ?? 0.0);
                                 creditSrText = 0.0;
                               } else {
                                 debitText = 0.0;
-                                creditText = (data['debit'] ?? 0.0);
                                 debitSrText = 0.0;
-                                creditSrText = (data['debitsar'] ?? 0.0);
+                                creditText = (data['credit'] ?? 0.0);
+                                creditSrText = (data['creditsar'] ?? 0.0);
                               }
                             } else {
-                              debitText = (data['credit'] ?? 0.0);
-                              creditText = (data['debit'] ?? 0.0);
-                              debitSrText = (data['creditsar'] ?? 0.0);
-                              creditSrText = (data['debitsar'] ?? 0.0);
+                              debitText = (data['debit'] ?? 0.0);
+                              creditText = (data['credit'] ?? 0.0);
+                              debitSrText = (data['debitsar'] ?? 0.0);
+                              creditSrText = (data['creditsar'] ?? 0.0);
                             }
 
                             // Returning a valid DataRow
@@ -789,6 +765,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                                   return VoucherCpvAdd(
                                                     docId: voucherID,
                                                     type: type,
+                                                    acType: _selectedAcType!,
                                                     vDate: dateText,
                                                     remarks: remarksText,
                                                     drAcId: drAcId,
@@ -803,7 +780,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                                   return VoucherCrvAdd(
                                                     docId: voucherID,
                                                     type: type,
-                                                    acType: kBank,
+                                                    acType: _selectedAcType!,
                                                     vDate: dateText,
                                                     remarks: remarksText,
                                                     drAcId: '',
@@ -825,8 +802,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                                     debit: data['debit'],
                                                     debitSar: data['debitsar'],
                                                     credit: data['credit'],
-                                                    creditSar:
-                                                        data['creditsar'],
+                                                    creditSar: data['creditsar'],
                                                   );
                                                 }
                                                 return const SizedBox
@@ -847,7 +823,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                     Container(
                                       alignment: Alignment.centerRight,
                                       child: Text(
-                                        _numberFormat.format(creditSrText),
+                                        _numberFormat.format(debitSrText),
                                         style:
                                             const TextStyle(color: Colors.blue),
                                       ),
@@ -858,7 +834,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                     Container(
                                       alignment: Alignment.centerRight,
                                       child: Text(
-                                        _numberFormat.format(debitSrText),
+                                        _numberFormat.format(creditSrText),
                                         style:
                                             const TextStyle(color: Colors.blue),
                                       ),
@@ -869,7 +845,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                     Container(
                                       alignment: Alignment.centerRight,
                                       child: Text(
-                                        _numberFormat1.format(creditText),
+                                        _numberFormat1.format(debitText),
                                         style: const TextStyle(
                                             color: Colors.green),
                                       ),
@@ -880,7 +856,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                     Container(
                                       alignment: Alignment.centerRight,
                                       child: Text(
-                                        _numberFormat1.format(debitText),
+                                        _numberFormat1.format(creditText),
                                         style: const TextStyle(
                                             color: Colors.green),
                                       ),

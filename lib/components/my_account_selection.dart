@@ -1,24 +1,43 @@
+import 'package:chat_wp/themes/const.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+
 Future<List<Map<String, dynamic>>> fetchBanks(String userId, String type) async {
   try {
-    final QuerySnapshot snapshot = await FirebaseFirestore.instance
+    // Initialize a query reference
+    Query query = FirebaseFirestore.instance
         .collection('accounts')
-        .where('uid', isEqualTo: userId)
-        .where('type', isEqualTo: type)
-        .orderBy('accountName', descending: false) // Order by accountName in ascending order
-        .get();
+        .where('uid', isEqualTo: userId);
 
+    // Apply additional condition based on type
+    if (type != kBank) {
+          // query = query.where('type', isNotEqualTo: type);
+          query = query.where('type', isEqualTo: kBank);
+        }
+    // else {
+    //       query = query.where('type', isEqualTo: kBank);
+    //     }
+
+
+    query = query.orderBy('accountName', descending: false); // Order by accountName in ascending order
+
+    print('my_account_sel_type: $type');
+
+    // Execute the query
+    final QuerySnapshot snapshot = await query.get();
+
+    // Map documents to the desired format
     return snapshot.docs.map((doc) => {
       'id': doc.id,
       'accountName': doc['accountName'],
     }).toList();
   } catch (e) {
-    print('Error fetching banks: $e');
+    // print('Error fetching banks: $e');
     return [];
   }
 }
+
 
 Future<bool> showBankSelectionDialog(
     BuildContext context, String userId, String type, Function(String, String) onBankSelected) async {

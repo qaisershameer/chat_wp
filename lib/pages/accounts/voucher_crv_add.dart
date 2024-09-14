@@ -358,6 +358,7 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                     children: [
                       CashBankToggle(
                         onSelectionChanged: _updateSelection,
+                        acType: _selectedAcType!,
                       ),
                     ],
                   ),
@@ -396,10 +397,8 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
                                 .parse(_dateController.text);
 
                             // Convert string to double
-                            double pkrAmount =
-                                double.tryParse(_pkrController.text) ?? 0.0;
-                            double sarAmount =
-                                double.tryParse(_sarController.text) ?? 0.0;
+                            double pkrAmount = double.tryParse(_pkrController.text) ?? 0.0;
+                            double sarAmount =double.tryParse(_sarController.text) ?? 0.0;
 
                             if (_voucherId == null || _voucherId == '') {
                               _voucher.addVoucher(

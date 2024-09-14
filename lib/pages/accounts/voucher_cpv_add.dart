@@ -12,6 +12,7 @@ import 'package:chat_wp/components/my_cash_bank.dart';
 class VoucherCpvAdd extends StatefulWidget {
   final String docId;
   final String type;
+  final String acType;
   final DateTime vDate;
   final String remarks;
 
@@ -26,6 +27,7 @@ class VoucherCpvAdd extends StatefulWidget {
     super.key,
     required this.docId,
     required this.type,
+    required this.acType,
     required this.vDate,
     required this.remarks,
     required this.drAcId,
@@ -45,6 +47,8 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
   final AcVoucherService _voucher = AcVoucherService();
 
   String? _voucherId, _selectedAcId, _selectedAcText;
+
+  String? _selectedAcType = 'BANK'; // Initialize with default text
   String _selectedBankId = ''; // Initialize with an empty string
   String _selectedBankText = 'CASH ACCOUNT'; // Initialize with default text
 
@@ -97,6 +101,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
     _voucherId = widget.docId;
     _dateController.text = DateFormat('dd-MMM-yyyy').format(widget.vDate);
     _remarksController.text = widget.remarks;
+    _selectedAcType = widget.acType;
     _selectedAcId = widget.drAcId;
     _pkrController.text = widget.debit.toString();
     _sarController.text = widget.debitSar.toString();
@@ -340,6 +345,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
                     children: [
                       CashBankToggle(
                         onSelectionChanged: _updateSelection,
+                        acType: _selectedAcType!,
                       ),
 
                     ],
@@ -348,10 +354,17 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
                   const SizedBox(height: 15.0), // Adding some space between the rows
 
                   // Second Row with Show Selected Cash / Bank Account Name
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Center(child: Text('CASH ACCOUNT', style: TextStyle(fontSize: 15.0, color: Colors.red, fontWeight: FontWeight.bold),)),
+                      Center(
+                          child: Text(
+                            _selectedBankText,
+                            style: const TextStyle(
+                                fontSize: 15.0,
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold),
+                          )),
                     ],
                   ),
 

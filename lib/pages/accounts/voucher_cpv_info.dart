@@ -1,4 +1,3 @@
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_wp/themes/const.dart';
@@ -74,6 +73,7 @@ class VoucherCpvInfoState extends State<VoucherCpvInfo> {
                       builder: (context) => VoucherCpvAdd(
                         docId: '',
                         type: '',
+                        acType: kBank,
                         vDate: vDate,
                         remarks: 'Cash Paid.',
                         drAcId: '',
@@ -153,6 +153,7 @@ class VoucherCpvInfoState extends State<VoucherCpvInfo> {
                                       builder: (context) => VoucherCpvAdd(
                                         docId: docID,
                                         type: kCPV,
+                                        acType: kBank,
                                         vDate: dateText,
                                         remarks: remarksText,
                                         drAcId: acId,
