@@ -41,9 +41,11 @@ class AccountsDashboard extends StatelessWidget {
 
                     },
                     icon: const Icon(
-                      Icons.account_balance_rounded,
+                      // Icons.account_balance_rounded,
+                      Icons.home,
                       color: Colors.white,
-                    ))),
+                    )),
+            ),
           )
         ],
       ),

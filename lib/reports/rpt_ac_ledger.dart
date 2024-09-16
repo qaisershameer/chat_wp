@@ -236,6 +236,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 children: <Widget>[
+                  // REPORT TYPE Data COMBO
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
@@ -282,7 +283,9 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           },
                         ),
                       ),
+
                       const SizedBox(width: 10.0),
+
                       // Date FROM Text Field
                       Expanded(
                         child: TextFormField(
@@ -310,7 +313,9 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           },
                         ),
                       ),
+
                       const SizedBox(width: 10.0),
+
                       // Date To Text Field
                       Expanded(
                         child: TextFormField(
@@ -408,6 +413,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
             padding: const EdgeInsets.all(15.0),
             child: Row(
               children: [
+                // YOU GIVE BUTTON
                 Expanded(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -440,6 +446,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                   ),
                 ),
                 const SizedBox(width: 5.0),
+                // YOU GOT BUTTON
                 Expanded(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -616,6 +623,14 @@ class RptAcLedgerState extends State<RptAcLedger> {
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: DataTable(
+
+                      headingRowColor:WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+                        // Return the color you want to use for the highlighted row
+                        return Colors.grey.withOpacity(0.5); // Example color with transparency
+                      }),
+
+                      border: TableBorder.all(color: Colors.grey),
+
                       columnSpacing: constraints.maxWidth / 15,
                       columns: myColumns,
                       rows: [
@@ -748,7 +763,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                               creditSrText = (data['creditsar'] ?? 0.0);
                             }
 
-                            // Returning a valid DataRow
+                            // Returning a valid Detail Record DataRow
                             return DataRow(
                               cells: [
                                 if (visibleColumns.contains(0))

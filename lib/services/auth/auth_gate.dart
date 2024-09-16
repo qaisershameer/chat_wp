@@ -1,4 +1,5 @@
-import 'package:chat_wp/pages/accounts/acc_dashboard.dart';
+import 'package:chat_wp/pages/logins_chat/home_page.dart';
+// import 'package:chat_wp/pages/accounts/acc_dashboard.dart';
 import 'package:chat_wp/services/auth/login_or_register.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -15,8 +16,8 @@ class AuthGate extends StatelessWidget {
 
           // user is logged in
           if(snapshopt.hasData){
-            // 'return HomePage();
-            return const AccountsDashboard();
+            return const HomePage();
+            // return const AccountsDashboard();
           }
 
           // user is not logged in

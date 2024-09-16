@@ -531,6 +531,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                   totalDebitPk += displayDebitPk;
                   totalCreditPk += displayCreditPk;
 
+                  // Detail Account Row Entry
                   return DataRow(
                     cells: <DataCell>[
                       if (visibleColumns.contains(0))
@@ -666,11 +667,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                 dataRows.insert(
                     1,
                     DataRow(
-                      color: WidgetStateProperty.resolveWith<Color>(
-                          (Set<WidgetState> states) {
-                        return Colors.teal.withOpacity(
-                            0.25); // Example color with transparency
-                      }),
+                      color: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {return Colors.teal.withOpacity(0.25); }), // Example color with transparency
                       cells: <DataCell>[
                         if (visibleColumns.contains(0))
                           DataCell(Container(
@@ -734,6 +731,14 @@ class RptTrialBalState extends State<RptTrialBal> {
                   scrollDirection: Axis.horizontal,
                   child: SingleChildScrollView(
                     child: DataTable(
+
+                      border: TableBorder.all(color: Colors.grey),
+
+                      headingRowColor:WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
+                        // Return the color you want to use for the highlighted row
+                        return Colors.grey.withOpacity(0.5); // Example color with transparency
+                      }),
+
                       columns: myColumns,
                       rows: dataRows,
                     ),

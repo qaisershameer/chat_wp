@@ -13,7 +13,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   // chat & auth services
   final ChatService _chatService = ChatService();
   final AuthService _authService = AuthService();
@@ -27,28 +26,28 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Block User'),
-          content: const Text('Are you sure! want to block this user?'),
-          actions: [
-            // cancel button
-            TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel')),
+              title: const Text('Block User'),
+              content: const Text('Are you sure! want to block this user?'),
+              actions: [
+                // cancel button
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel')),
 
-            // unblock button
-            TextButton(
-                onPressed: () {
-                  _chatService.blockUser(userId);
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('User blocked!'),
-                    ),
-                  );
-                },
-                child: const Text('Block')),
-          ],
-        ));
+                // unblock button
+                TextButton(
+                    onPressed: () {
+                      _chatService.blockUser(userId);
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('User blocked!'),
+                        ),
+                      );
+                    },
+                    child: const Text('Block')),
+              ],
+            ));
   }
 
   @override
@@ -76,16 +75,15 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-
           actions: [
             const Icon(Icons.search),
             const SizedBox(width: 10.0),
             PopupMenuButton(
               child: const Icon(Icons.more_vert_outlined),
               itemBuilder: (
-                  context,
-                  ) =>
-              [
+                context,
+              ) =>
+                  [
                 const PopupMenuItem(
                   value: '1',
                   child: Text('New Group'),
@@ -103,9 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(width: 10.0),
           ],
         ),
-
         drawer: const MyDrawer(),
-
         body: TabBarView(
           children: [
             // 1st Menu Body Data Camera
@@ -116,20 +112,28 @@ class _HomeScreenState extends State<HomeScreen> {
             ListView.builder(
                 itemCount: 100,
                 itemBuilder: (context, index) {
-                  return const ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: AssetImage('images/qaiser.jpg'),
+                  return ListTile(
+                    leading: Container(
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.teal,
+                            width: 3,
+                          )),
+                      child: const CircleAvatar(
+                        backgroundImage: AssetImage('images/qaiser.jpg'),
+                      ),
                     ),
-                    title: Text('Qaiser Shameer'),
-                    subtitle: Text('Have you not follow my Orders!'),
-                    trailing: Text('12:45 PM'),
+                    title: const Text('Qaiser Shameer'),
+                    subtitle: const Text('Have you not follow my Orders!'),
+                    trailing: const Text('12:45 PM'),
                   );
                 }),
 
             // 3rd Menu Body Data Status
             ListView.builder(
                 itemCount: 100,
-                itemBuilder: (context, index){
+                itemBuilder: (context, index) {
                   return ListTile(
                     leading: Container(
                         decoration: BoxDecoration(
@@ -137,11 +141,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             border: Border.all(
                               color: Colors.green,
                               width: 3,
-                            )
-                        ),
-                        child: const CircleAvatar(backgroundImage: AssetImage('images/imran_khan.jpg'),)),
-                    title: Text(index % 2 == 0 ? 'Imran Khan' : 'Pakistan Tahreek-e-Insaf'),
-                    subtitle:Text('$index minutes ago'),
+                            )),
+                        child: const CircleAvatar(
+                          backgroundImage: AssetImage('images/imran_khan.jpg'),
+                        )),
+                    title: Text(index % 2 == 0
+                        ? 'Imran Khan'
+                        : 'Pakistan Tahreek-e-Insaf'),
+                    subtitle: Text('$index minutes ago'),
                   );
                 }),
 
@@ -149,13 +156,24 @@ class _HomeScreenState extends State<HomeScreen> {
             ListView.builder(
                 itemCount: 100,
                 itemBuilder: (context, index) {
-                  return  ListTile(
-                    leading: const CircleAvatar(
-                      backgroundImage: AssetImage('images/qaiser1.jfif'),
+                  return ListTile(
+                    leading: Container(
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.blueAccent,
+                            width: 3,
+                          )),
+                      child: const CircleAvatar(
+                        backgroundImage: AssetImage('images/qaiser1.jfif'),
+                      ),
                     ),
                     title: const Text('Qurban Raza'),
-                    subtitle: Text(index % 2 == 0 ? 'You missed a Audio Call $index minutes ago' : 'You missed a Video Call $index minutes ago'),
-                    trailing: Icon(index % 2 == 0 ? Icons.phone: Icons.video_call ),
+                    subtitle: Text(index % 2 == 0
+                        ? 'You missed a Audio Call $index minutes ago'
+                        : 'You missed a Video Call $index minutes ago'),
+                    trailing:
+                        Icon(index % 2 == 0 ? Icons.phone : Icons.video_call),
                   );
                 }),
           ],
@@ -216,6 +234,4 @@ class _HomeScreenState extends State<HomeScreen> {
       return Container();
     }
   }
-
-
 }
