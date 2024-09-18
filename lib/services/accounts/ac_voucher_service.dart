@@ -163,20 +163,24 @@ class AcVoucherService {
             .orderBy('date', descending: true)
             .orderBy('timestamp', descending: true);
 
-    // final query2 = _vouchers
-    //     .where('uid', isEqualTo: userId)
-    //     .where('crAcId', isEqualTo: accId)
-    //     .orderBy('date', descending: true)
-    //     .orderBy('timestamp', descending: true);
-
     final stream1 = query1.snapshots().map((snapshot) => snapshot.docs);
     final stream2 = query2.snapshots().map((snapshot) => snapshot.docs);
 
     return Rx.combineLatest2(stream1, stream2, (docs1, docs2) {
       final combinedDocs = <QueryDocumentSnapshot>[...docs1, ...docs2];
 
-      combinedDocs.sort((a, b) => b['date'].compareTo(a['date']));
-      combinedDocs.sort((a, b) => b['timestamp'].compareTo(a['timestamp']));
+      // Sort by date OR timestamp only 1 line Uncommit for Sorting...
+      // combinedDocs.sort((a, b) => b['date'].compareTo(a['date']));
+      // combinedDocs.sort((a, b) => b['timestamp'].compareTo(a['timestamp']));
+
+      // Sort by date and then timestamp
+      combinedDocs.sort((a, b) {
+        int dateComparison = b['date'].compareTo(a['date']);
+        if (dateComparison != 0) {
+          return dateComparison;
+        }
+        return b['timestamp'].compareTo(a['timestamp']);
+      });
 
       return combinedDocs;
     });
