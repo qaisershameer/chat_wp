@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:chat_wp/components/my_drawer.dart';
 import 'package:chat_wp/components/my_list_tile.dart';
+import 'package:chat_wp/pages/logins_chat/home_page.dart';
 
 class InventoryDashboard extends StatelessWidget {
   const InventoryDashboard({super.key});
@@ -18,7 +19,7 @@ class InventoryDashboard extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 25.0, bottom: 12.0, top: 5.0),
-            // logout button
+            // Home button
             child: Container(
                 decoration: const BoxDecoration(
                   color: Colors.teal,
@@ -26,11 +27,22 @@ class InventoryDashboard extends StatelessWidget {
                 ),
                 margin: const EdgeInsets.only(right: 10.0),
                 child: IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // navigate to settings page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HomePage(),
+                        ),
+                      );
+
+                    },
                     icon: const Icon(
-                      Icons.account_balance_rounded,
+                      // Icons.account_balance_rounded,
+                      Icons.home,
                       color: Colors.white,
-                    ))),
+                    )),
+            ),
           )
         ],
       ),

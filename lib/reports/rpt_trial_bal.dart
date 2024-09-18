@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:chat_wp/reports/rpt_ac_ledger.dart';
+import 'package:chat_wp/pages/logins_chat/home_page.dart';
 import 'package:chat_wp/services/accounts/area_service.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 import 'package:chat_wp/services/accounts/ac_voucher_service.dart';
@@ -127,9 +128,20 @@ class RptTrialBalState extends State<RptTrialBal> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
-            // onPressed: _printPdf,
-            onPressed: () {},
+            onPressed: () {
+              // navigate to settings page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomePage(),
+                ),
+              );
+            },
+            icon: const Icon(
+              // Icons.account_balance_rounded,
+              Icons.home,
+              color: Colors.teal,
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.print),
@@ -441,6 +453,7 @@ class RptTrialBalState extends State<RptTrialBal> {
         break;
       case 'PKR':
         myColumns = const [
+          // DataColumn(label: Expanded(child: Container(alignment: Alignment.center,child: Text('Pk-Out'), // Heading for the first column), ),),
           DataColumn(label: Text('Pk-Out')),
           DataColumn(label: Text('Pk-In')),
           DataColumn(label: Text('Account')),
@@ -623,9 +636,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                       }),
                       cells: <DataCell>[
                         if (visibleColumns.contains(0))
-                          const DataCell(
-                            Text(''),
-                          ),
+                          const DataCell(Text(''),),
                         if (visibleColumns.contains(1))
                           DataCell(Container(
                             alignment: Alignment.centerRight,
@@ -633,7 +644,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                               _numberFormat.format(displayBalanceSr),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontStyle: FontStyle.italic,
+                                // fontStyle: FontStyle.italic,
                                 color: Colors.teal,
                               ),
                             ),
@@ -649,7 +660,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                               _numberFormat1.format(displayBalancePk),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontStyle: FontStyle.italic,
+                                // fontStyle: FontStyle.italic,
                                 color: Colors.teal,
                               ),
                             ),
@@ -658,7 +669,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                           const DataCell(Text('B/F',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontStyle: FontStyle.italic,
+                                  // fontStyle: FontStyle.italic,
                                   color: Colors.teal))),
                       ],
                     ));
@@ -676,7 +687,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                               _numberFormat.format(totalDebitSr),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontStyle: FontStyle.italic,
+                                // fontStyle: FontStyle.italic,
                                 color: Colors.red,
                               ),
                             ),
@@ -688,7 +699,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                               _numberFormat.format(totalCreditSr),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontStyle: FontStyle.italic,
+                                // fontStyle: FontStyle.italic,
                                 color: Colors.red,
                               ),
                             ),
@@ -700,7 +711,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                               _numberFormat1.format(totalDebitPk),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontStyle: FontStyle.italic,
+                                // fontStyle: FontStyle.italic,
                                 color: Colors.red,
                               ),
                             ),
@@ -712,7 +723,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                               _numberFormat1.format(totalCreditPk),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontStyle: FontStyle.italic,
+                                // fontStyle: FontStyle.italic,
                                 color: Colors.red,
                               ),
                             ),
@@ -721,7 +732,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                           const DataCell(Text('Total',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontStyle: FontStyle.italic,
+                                  // fontStyle: FontStyle.italic,
                                   color: Colors.red))),
                       ],
                     ));
@@ -733,6 +744,10 @@ class RptTrialBalState extends State<RptTrialBal> {
                     child: DataTable(
 
                       border: TableBorder.all(color: Colors.grey),
+                      headingRowHeight: 30.0,
+                      dataRowMinHeight: 30.0,
+                      dataRowMaxHeight: 35.0,
+                      columnSpacing: 10.0,
 
                       headingRowColor:WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
                         // Return the color you want to use for the highlighted row
@@ -741,6 +756,7 @@ class RptTrialBalState extends State<RptTrialBal> {
 
                       columns: myColumns,
                       rows: dataRows,
+
                     ),
                   ),
                 );
@@ -784,21 +800,21 @@ class RptTrialBalState extends State<RptTrialBal> {
 
         if (type == 'JV') {
           if (accountId == drAcId) {
-            debitText = (data['credit'] ?? 0.0);
+            debitText = (data['debit'] ?? 0.0);
             creditText = 0.0;
-            debitSrText = (data['creditsar'] ?? 0.0);
+            debitSrText = (data['debitsar'] ?? 0.0);
             creditSrText = 0.0;
           } else {
             debitText = 0.0;
-            creditText = (data['debit'] ?? 0.0);
+            creditText = (data['credit'] ?? 0.0);
             debitSrText = 0.0;
-            creditSrText = (data['debitsar'] ?? 0.0);
+            creditSrText = (data['creditsar'] ?? 0.0);
           }
         } else {
-          debitText = (data['credit'] ?? 0.0);
-          creditText = (data['debit'] ?? 0.0);
-          debitSrText = (data['creditsar'] ?? 0.0);
-          creditSrText = (data['debitsar'] ?? 0.0);
+          debitText = (data['debit'] ?? 0.0);
+          creditText = (data['credit'] ?? 0.0);
+          debitSrText = (data['debitsar'] ?? 0.0);
+          creditSrText = (data['creditsar'] ?? 0.0);
         }
 
         totalDebitPK += creditText;

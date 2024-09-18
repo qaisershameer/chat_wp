@@ -1,13 +1,14 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:chat_wp/themes/const.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:chat_wp/pages/accounts/voucher_crv_add.dart';
 import 'package:chat_wp/pages/accounts/voucher_cpv_add.dart';
 import 'package:chat_wp/pages/accounts/voucher_jv_add.add.dart';
 
-import 'package:chat_wp/themes/const.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:chat_wp/pages/logins_chat/home_page.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 import 'package:chat_wp/services/accounts/ac_voucher_service.dart';
 
@@ -122,53 +123,70 @@ class RptCashBookState extends State<RptCashBook> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.receipt_long_rounded),
-            // icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => VoucherCrvAdd(
-                    docId: '',
-                    type: '',
-                    acType: kBank,
-                    vDate: vDate,
-                    remarks: 'Cash Received.',
-                    drAcId: '',
-                    crAcId: '',
-                    debit: 0,
-                    debitSar: 0,
-                    credit: 0,
-                    creditSar: 0,
+              onPressed: () {
+                // navigate to settings page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HomePage(),
                   ),
-                ),
-              );
-            },
+                );
+              },
+              icon: const Icon(
+                // Icons.account_balance_rounded,
+                Icons.home,
+                color: Colors.teal,
+              ),
           ),
-          IconButton(
-            icon: const Icon(Icons.payment_rounded),
-            // icon: const Icon(Icons.exposure_minus_1),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => VoucherCpvAdd(
-                    docId: '',
-                    type: '',
-                    acType: kBank,
-                    vDate: vDate,
-                    remarks: 'Cash Paid.',
-                    drAcId: '',
-                    crAcId: '',
-                    debit: 0,
-                    debitSar: 0,
-                    credit: 0,
-                    creditSar: 0,
-                  ),
-                ),
-              );
-            },
-          ),
+
+          // IconButton(
+          //   icon: const Icon(Icons.receipt_long_rounded),
+          //   // icon: const Icon(Icons.add),
+          //   onPressed: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (context) => VoucherCrvAdd(
+          //           docId: '',
+          //           type: '',
+          //           acType: kBank,
+          //           vDate: vDate,
+          //           remarks: 'Cash Received.',
+          //           drAcId: '',
+          //           crAcId: '',
+          //           debit: 0,
+          //           debitSar: 0,
+          //           credit: 0,
+          //           creditSar: 0,
+          //         ),
+          //       ),
+          //     );
+          //   },
+          // ),
+          // IconButton(
+          //   icon: const Icon(Icons.payment_rounded),
+          //   // icon: const Icon(Icons.exposure_minus_1),
+          //   onPressed: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (context) => VoucherCpvAdd(
+          //           docId: '',
+          //           type: '',
+          //           acType: kBank,
+          //           vDate: vDate,
+          //           remarks: 'Cash Paid.',
+          //           drAcId: '',
+          //           crAcId: '',
+          //           debit: 0,
+          //           debitSar: 0,
+          //           credit: 0,
+          //           creditSar: 0,
+          //         ),
+          //       ),
+          //     );
+          //   },
+          // ),
           IconButton(
             icon: const Icon(Icons.print),
             onPressed: _printPdf,
@@ -411,21 +429,28 @@ class RptCashBookState extends State<RptCashBook> {
                           }),
 
                           border: TableBorder.all(color: Colors.grey),
+                          headingRowHeight: 30.0,
+                          dataRowMinHeight: 30.0,
+                          dataRowMaxHeight: 35.0,
 
-                          columnSpacing: constraints.maxWidth /
-                              15, // Adjust column spacing
+                          columnSpacing: constraints.maxWidth / 50, // Adjust column spacing
+
                           columns: columns,
                           rows: <DataRow>[
-                            // Add the totals row
+
+                            // Add the B/F Balances row
                             DataRow(
                                 color: WidgetStateProperty.resolveWith<Color>(
-                                    (Set<WidgetState> states) {
-                                  // Return the color you want to use for the highlighted row
-                                  return Colors.teal.withOpacity(
-                                      0.25); // Example color with transparency
-                                }),
+                                        (Set<WidgetState> states) {
+                                      // Return the color you want to use for the highlighted row
+                                      return Colors.yellow.withOpacity(0.25); // Example color with transparency
+                                    }),
                                 cells: [
                                   if (visibleColumns.contains(0))
+                                    const DataCell(Text('',)),
+                                  if (visibleColumns.contains(1))
+                                    const DataCell(Text('',)),
+                                  if (visibleColumns.contains(2))
                                     DataCell(Container(
                                       alignment: Alignment.centerRight,
                                       child: Text(
@@ -434,11 +459,51 @@ class RptCashBookState extends State<RptCashBook> {
                                             : '',
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontStyle: FontStyle.italic,
+                                          // fontStyle: FontStyle.italic,
                                           color: Colors.blue,
                                         ),
                                       ),
                                     )),
+                                  if (visibleColumns.contains(3))
+                                    const DataCell(Text('',)),
+                                  if (visibleColumns.contains(4))
+                                    DataCell(Container(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        _selectedReport != 'SAR'
+                                            ? _numberFormat1.format(bfBalancePK)
+                                            : '',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          // fontStyle: FontStyle.italic,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                    )),
+                                  if (visibleColumns.contains(5))
+                                    const DataCell(Text(
+                                      ' B/F',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        // fontStyle: FontStyle.italic,
+                                        color: Colors.teal,
+                                      ),
+                                    )),
+                                  if (visibleColumns.contains(6))
+                                    const DataCell(Text('',)),
+                                  // if (visibleColumns.contains(6)) const DataCell(Text('')),
+                                ]),
+
+                            // Add the totals row
+                            DataRow(
+                                color: WidgetStateProperty.resolveWith<Color>(
+                                    (Set<WidgetState> states) {
+                                  // Return the color you want to use for the highlighted row
+                                  return Colors.teal.withOpacity(0.25); // Example color with transparency
+                                }),
+                                cells: [
+                                  if (visibleColumns.contains(0))
+                                    const DataCell(Text('',)),
 
                                   if (visibleColumns.contains(1))
                                     DataCell(Container(
@@ -447,7 +512,7 @@ class RptCashBookState extends State<RptCashBook> {
                                         _numberFormat.format(totalDebitSR),
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontStyle: FontStyle.italic,
+                                          // fontStyle: FontStyle.italic,
                                           color: Colors.deepPurpleAccent,
                                         ),
                                       ),
@@ -459,7 +524,7 @@ class RptCashBookState extends State<RptCashBook> {
                                         _numberFormat.format(totalCreditSR),
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontStyle: FontStyle.italic,
+                                          // fontStyle: FontStyle.italic,
                                           color: Colors.deepPurpleAccent,
                                         ),
                                       ),
@@ -471,7 +536,7 @@ class RptCashBookState extends State<RptCashBook> {
                                         _numberFormat1.format(totalDebitPK),
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontStyle: FontStyle.italic,
+                                          // fontStyle: FontStyle.italic,
                                           color: Colors.teal,
                                         ),
                                       ),
@@ -483,34 +548,23 @@ class RptCashBookState extends State<RptCashBook> {
                                         _numberFormat1.format(totalCreditPK),
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          fontStyle: FontStyle.italic,
+                                          // fontStyle: FontStyle.italic,
                                           color: Colors.teal,
                                         ),
                                       ),
                                     )),
                                   if (visibleColumns.contains(5))
-                                    DataCell(Container(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        _selectedReport != 'SAR'
-                                            ? _numberFormat1.format(bfBalancePK)
-                                            : '',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontStyle: FontStyle.italic,
-                                          color: Colors.green,
-                                        ),
-                                      ),
-                                    )),
-                                  if (visibleColumns.contains(6))
                                     const DataCell(Text(
-                                      'Total',
+                                      ' Total',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontStyle: FontStyle.italic,
-                                        color: Colors.black,
+                                        // fontStyle: FontStyle.italic,
+                                        color: Colors.black54,
                                       ),
-                                    )),
+                                    )
+                                    ),
+                                  if (visibleColumns.contains(6))
+                                    const DataCell(Text('',)),
                                   // if (visibleColumns.contains(6)) const DataCell(Text('')),
                                 ]),
 
@@ -533,7 +587,7 @@ class RptCashBookState extends State<RptCashBook> {
                               final dateText =
                                   (data['date'] as Timestamp).toDate();
                               final formattedDate =
-                                  DateFormat('dd MMM').format(dateText);
+                                  DateFormat('ddMMM').format(dateText);
                               final remarksText = data['remarks'] ?? '';
                               final type = data['type'] ?? '';
 
@@ -551,17 +605,20 @@ class RptCashBookState extends State<RptCashBook> {
 
                                   cells: [
                                     if (visibleColumns.contains(0))
-                                      DataCell(Text(formattedDate,
-                                          style: const TextStyle(
-                                            color: Colors.blueGrey,
-                                          ))),
+                                      DataCell(Container(
+                                        alignment: Alignment.center,
+                                        child: Text(formattedDate,
+                                            style: const TextStyle(
+                                              color: Colors.blueGrey,
+                                            )),
+                                      )),
                                     if (visibleColumns.contains(1))
                                       DataCell(Container(
                                         alignment: Alignment.centerRight,
                                         child: Text(
                                           _numberFormat.format(creditSrText),
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            // fontWeight: FontWeight.bold,
                                             color: Colors.blue,
                                           ),
                                         ),
@@ -572,7 +629,7 @@ class RptCashBookState extends State<RptCashBook> {
                                         child: Text(
                                           _numberFormat.format(debitSrText),
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            // fontWeight: FontWeight.bold,
                                             color: Colors.blue,
                                           ),
                                         ),
@@ -583,7 +640,7 @@ class RptCashBookState extends State<RptCashBook> {
                                         child: Text(
                                           _numberFormat1.format(creditText),
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            // fontWeight: FontWeight.bold,
                                             color: Colors.green,
                                           ),
                                         ),
@@ -594,7 +651,7 @@ class RptCashBookState extends State<RptCashBook> {
                                         child: Text(
                                           _numberFormat1.format(debitText),
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                            // fontWeight: FontWeight.bold,
                                             color: Colors.green,
                                           ),
                                         ),

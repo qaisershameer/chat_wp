@@ -1,7 +1,7 @@
 name: chat_wp
 description: "Chats App PK like WhatsApp Theme. www.qrdpro.com"
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 2024.09.16+1
+version: 2024.09.18+1
 
 environment:
   sdk: '>=3.4.4 <4.0.0'

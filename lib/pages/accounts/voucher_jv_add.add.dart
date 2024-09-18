@@ -338,8 +338,7 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
                       }
                       return null;
                     },
-                  ),
-                ),
+                  ),),
 
               ],
             ),
@@ -349,7 +348,6 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
             // PKR Debit and Credit Amounts Row
             Row(
               children: [
-
                 Expanded(
                   child: TextFormField(
                     controller: _pkrCrController,
@@ -374,7 +372,6 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
                     },
                   ),
                 ),
-
                 const SizedBox(width: 10.0),
 
                 Expanded(
@@ -401,8 +398,6 @@ class VoucherJvAddState extends State<VoucherJvAdd> {
                     },
                   ),
                 ),
-
-
               ],
             ),
 

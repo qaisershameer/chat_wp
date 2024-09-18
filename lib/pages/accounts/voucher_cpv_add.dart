@@ -198,7 +198,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
               },
             ),
 
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 12.0),
 
             // Account Data COMBO
             Row(
@@ -253,67 +253,79 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
               ],
             ),
 
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 12.0),
 
-            // SAR Number Text Field
-            TextFormField(
-              controller: _sarController,
-              onTap: () => _sarController.selection = TextSelection(baseOffset: 0, extentOffset: _sarController.value.text.length),
-              decoration: const InputDecoration(
-                icon: Icon(
-                  FontAwesomeIcons.moneyBillTransfer,
-                  color: Colors.teal,
+            
+            Row(
+              children: [
+                
+                // SAR Number Text Field    
+                Expanded(
+                  child: TextFormField(
+                    controller: _sarController,
+                    onTap: () => _sarController.selection = TextSelection(baseOffset: 0, extentOffset: _sarController.value.text.length),
+                    decoration: const InputDecoration(
+                      icon: Icon(
+                        FontAwesomeIcons.moneyBillTransfer,
+                        color: Colors.teal,
+                      ),
+                      hintText: 'Enter SAR amount',
+                      labelText: 'SAR Amount',
+                      labelStyle:
+                          TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a valid SAR amount';
+                      } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
+                        return 'Please enter a valid SAR amount';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
-                hintText: 'Enter SAR amount',
-                labelText: 'SAR Amount',
-                labelStyle:
-                    TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a valid SAR amount';
-                } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
-                  return 'Please enter a valid SAR amount';
-                }
-                return null;
-              },
-            ),
+                
+                const SizedBox(width: 12.0),
 
-            const SizedBox(height: 20.0),
-
-            // PKR Amount Number Text Field
-            TextFormField(
-              controller: _pkrController,
-              onTap: () => _pkrController.selection = TextSelection(baseOffset: 0, extentOffset: _pkrController.value.text.length),
-              decoration: const InputDecoration(
-                icon: Icon(
-                  FontAwesomeIcons.moneyBill,
-                  color: Colors.teal,
+                // PKR Amount Number Text Field
+                Expanded(
+                  child: TextFormField(
+                    controller: _pkrController,
+                    onTap: () => _pkrController.selection = TextSelection(baseOffset: 0, extentOffset: _pkrController.value.text.length),
+                    decoration: const InputDecoration(
+                      icon: Icon(
+                        FontAwesomeIcons.moneyBill,
+                        color: Colors.teal,
+                      ),
+                      hintText: 'Enter PKR Amount',
+                      labelText: 'PKR Amount',
+                      labelStyle:
+                      TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a valid PKR amount';
+                      } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
+                        return 'Please enter a valid PKR Amount';
+                      }
+                      return null;
+                    },
+                  ),
                 ),
-                hintText: 'Enter PKR Amount',
-                labelText: 'PKR Amount',
-                labelStyle:
-                TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a valid PKR amount';
-                } else if (!RegExp(r'^\+?[0-9.]').hasMatch(value)) {
-                  return 'Please enter a valid PKR Amount';
-                }
-                return null;
-              },
+                
+              ],
             ),
-
-            const SizedBox(height: 20.0),
+            
+            const SizedBox(height: 12.0),
 
             // Remarks Multi Line Text Field
             TextFormField(
               controller: _remarksController,
               onTap: () => _remarksController.selection = TextSelection(baseOffset: 0, extentOffset: _remarksController.value.text.length),
               keyboardType: TextInputType.text,
+              // textCapitalization: TextCapitalization.words,
               decoration: const InputDecoration(
                 icon: Icon(
                   FontAwesomeIcons.pencil,
@@ -332,7 +344,7 @@ class VoucherCpvAddState extends State<VoucherCpvAdd> {
               },
             ),
 
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 12.0),
 
             // FORM SAVE
             Center(

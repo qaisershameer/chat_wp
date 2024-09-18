@@ -176,6 +176,7 @@ class AcVoucherService {
       final combinedDocs = <QueryDocumentSnapshot>[...docs1, ...docs2];
 
       combinedDocs.sort((a, b) => b['date'].compareTo(a['date']));
+      combinedDocs.sort((a, b) => b['timestamp'].compareTo(a['timestamp']));
 
       return combinedDocs;
     });

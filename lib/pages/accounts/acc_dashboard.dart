@@ -28,9 +28,6 @@ class AccountsDashboard extends StatelessWidget {
                 margin: const EdgeInsets.only(right: 10.0),
                 child: IconButton(
                     onPressed: () {
-                      // // pop the drawer
-                      // Navigator.pop(context);
-
                       // navigate to settings page
                       Navigator.push(
                         context,
