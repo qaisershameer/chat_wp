@@ -369,8 +369,8 @@ class RptCashBookState extends State<RptCashBook> {
                 }
 
                 // Calculate B/F Balance
-                bfBalancePK = totalCreditPK - totalDebitPK;
-                bfBalanceSR = totalCreditSR - totalDebitSR;
+                bfBalancePK = totalDebitPK - totalCreditPK;
+                bfBalanceSR = totalDebitSR - totalCreditSR;
 
                 // Determine columns to display based on _selectedReport
                 List<DataColumn> columns = [];
@@ -573,8 +573,7 @@ class RptCashBookState extends State<RptCashBook> {
                               Map<String, dynamic> data =
                                   document.data() as Map<String, dynamic>;
 
-                              final voucherID = document
-                                  .id; // Use final here to ensure immutability
+                              final voucherID = document.id; // Use final here to ensure immutability
                               // final data = document.data() as Map<String, dynamic>;
 
                               final creditSrText = (data['debitsar'] ?? 0.0);
@@ -586,8 +585,7 @@ class RptCashBookState extends State<RptCashBook> {
                               final crAcId = data['crAcId'] ?? '';
                               final dateText =
                                   (data['date'] as Timestamp).toDate();
-                              final formattedDate =
-                                  DateFormat('ddMMM').format(dateText);
+                              final formattedDate = DateFormat('ddMMM').format(dateText);
                               final remarksText = data['remarks'] ?? '';
                               final type = data['type'] ?? '';
 

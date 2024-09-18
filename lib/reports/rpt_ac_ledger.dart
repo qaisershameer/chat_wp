@@ -144,7 +144,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
         actions: [
           IconButton(
             onPressed: () {
-              // navigate to settings page
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -153,85 +152,12 @@ class RptAcLedgerState extends State<RptAcLedger> {
               );
             },
             icon: const Icon(
-              // Icons.account_balance_rounded,
               Icons.home,
               color: Colors.teal,
             ),
           ),
-          // IconButton(
-          //   icon: const Icon(Icons.receipt_long_rounded),
-          //   // icon: const Icon(Icons.add),
-          //   onPressed: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (context) => VoucherCrvAdd(
-          //           docId: '',
-          //           type: '',
-          //           acType: _selectedAcType!,
-          //           vDate: vDate,
-          //           remarks: 'Cash Received.',
-          //           drAcId: '',
-          //           crAcId: _selectedAcId!,
-          //           debit: 0,
-          //           debitSar: 0,
-          //           credit: 0,
-          //           creditSar: 0,
-          //         ),
-          //       ),
-          //     );
-          //   },
-          // ),
-          // IconButton(
-          //   icon: const Icon(Icons.payment_rounded),
-          //   // icon: const Icon(Icons.exposure_minus_1),
-          //   onPressed: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (context) => VoucherCpvAdd(
-          //           docId: '',
-          //           type: '',
-          //           acType: _selectedAcType!,
-          //           vDate: vDate,
-          //           remarks: 'Cash Paid.',
-          //           drAcId: _selectedAcId!,
-          //           crAcId: '',
-          //           debit: 0,
-          //           debitSar: 0,
-          //           credit: 0,
-          //           creditSar: 0,
-          //         ),
-          //       ),
-          //     );
-          //   },
-          // ),
-          // IconButton(
-          //   icon: const Icon(Icons.ac_unit_sharp),
-          //   // icon: const Icon(Icons.safety_divider),
-          //   onPressed: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (context) => VoucherJvAdd(
-          //           docId: '',
-          //           type: '',
-          //           vDate: vDate,
-          //           remarks: 'Amount Transferred.',
-          //           drAcId: _selectedAcId!,
-          //           crAcId: _selectedAcId!,
-          //           debit: 0,
-          //           debitSar: 0,
-          //           credit: 0,
-          //           creditSar: 0,
-          //         ),
-          //       ),
-          //     );
-          //   },
-          // ),
           IconButton(
             icon: const Icon(Icons.print),
-            // onPressed: _printPdf,
             onPressed: () {},
           ),
           Padding(
@@ -248,13 +174,11 @@ class RptAcLedgerState extends State<RptAcLedger> {
       ),
       body: Column(
         children: [
-          // The form and the ListView
           Expanded(
             child: Form(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 children: <Widget>[
-                  // REPORT TYPE Data COMBO
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
@@ -301,10 +225,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           },
                         ),
                       ),
-
                       const SizedBox(width: 10.0),
-
-                      // Date FROM Text Field
                       Expanded(
                         child: TextFormField(
                           controller: _dateFromController,
@@ -331,10 +252,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           },
                         ),
                       ),
-
                       const SizedBox(width: 10.0),
-
-                      // Date To Text Field
                       Expanded(
                         child: TextFormField(
                           controller: _dateToController,
@@ -364,7 +282,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
                     ],
                   ),
                   const SizedBox(height: 5.0),
-                  // Account TYPE Data COMBO
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
@@ -373,16 +290,14 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           stream: _accounts.getAccountsStream(kUserId),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const Center(
-                                  child: CircularProgressIndicator());
+                              return const Center(child: CircularProgressIndicator());
                             }
 
                             if (snapshot.hasError) {
                               return Center(child: Text('Error: ${snapshot.error}'));
                             }
 
-                            List<DocumentSnapshot> accountList =
-                                snapshot.data?.docs ?? [];
+                            List<DocumentSnapshot> accountList = snapshot.data?.docs ?? [];
 
                             return DropdownSearch<DocumentSnapshot>(
                               items: accountList,
@@ -392,8 +307,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                 return data['accountName'];
                               },
                               selectedItem: accountList.isNotEmpty &&
-                                  accountList.any(
-                                          (document) => document.id == _selectedAcId)
+                                  accountList.any((document) => document.id == _selectedAcId)
                                   ? accountList.firstWhere(
                                       (document) => document.id == _selectedAcId)
                                   : null,
@@ -406,8 +320,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                 if (document != null) {
                                   setState(() {
                                     _selectedAcId = document.id;
-                                    _selectedAcText = (document.data()
-                                    as Map<String, dynamic>)['accountName'];
+                                    _selectedAcText = (document.data() as Map<String, dynamic>)['accountName'];
                                   });
                                 }
                               },
@@ -418,20 +331,16 @@ class RptAcLedgerState extends State<RptAcLedger> {
                     ],
                   ),
                   const SizedBox(height: 5.0),
-                  if (_selectedAcId != '') rptLedger(),
+                  // Include rptLedger conditionally
+                  if (_selectedAcId!='') ...[rptLedger(),],
                 ],
               ),
             ),
           ),
-
-          // The buttons at the bottom of the screen
           Padding(
-            // padding: const EdgeInsets.symmetric(horizontal: 15.0),
-            // padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 12.0),  // Added bottom padding of 15.0
             padding: const EdgeInsets.all(15.0),
             child: Row(
               children: [
-                // YOU GIVE BUTTON
                 Expanded(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -464,7 +373,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
                   ),
                 ),
                 const SizedBox(width: 5.0),
-                // YOU GOT BUTTON
                 Expanded(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -502,6 +410,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
         ],
       ),
     );
+
   }
 
   Widget rptLedger() {
@@ -686,7 +595,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                 const DataCell(Text('',)),
                               if (visibleColumns.contains(4))
                                 DataCell(Container(
-                                  alignment: Alignment.centerLeft,
+                                  alignment: Alignment.centerRight,
                                   child: Text(
                                     _selectedReport != 'SAR'
                                         ? _numberFormat1.format(bfBalancePK)
@@ -1185,15 +1094,13 @@ class RptAcLedgerState extends State<RptAcLedger> {
       if (type == 'JV') {
         if (_selectedAcId == drAcId) {
           debitText = debitText;
-          creditText = 0.0;
-
           debitSrText = debitSrText;
+          creditText = 0.0;
           creditSrText = 0.0;
         } else {
           debitText = 0.0;
-          creditText = creditText;
-
           debitSrText = 0.0;
+          creditText = creditText;
           creditSrText = creditSrText;
         }
       } else {

@@ -799,29 +799,34 @@ class RptTrialBalState extends State<RptTrialBal> {
         double debitText, creditText, debitSrText, creditSrText;
 
         if (type == 'JV') {
-          if (accountId == drAcId) {
+          if (_selectedAcId == drAcId) {
             debitText = (data['debit'] ?? 0.0);
-            creditText = 0.0;
             debitSrText = (data['debitsar'] ?? 0.0);
+            creditText = 0.0;
             creditSrText = 0.0;
           } else {
             debitText = 0.0;
-            creditText = (data['credit'] ?? 0.0);
             debitSrText = 0.0;
+            creditText = (data['credit'] ?? 0.0);
             creditSrText = (data['creditsar'] ?? 0.0);
           }
         } else {
           debitText = (data['debit'] ?? 0.0);
-          creditText = (data['credit'] ?? 0.0);
           debitSrText = (data['debitsar'] ?? 0.0);
+          creditText = (data['credit'] ?? 0.0);
           creditSrText = (data['creditsar'] ?? 0.0);
         }
 
-        totalDebitPK += creditText;
-        totalCreditPK += debitText;
-        totalDebitSR += creditSrText;
-        totalCreditSR += debitSrText;
+        totalDebitPK += debitText;
+        totalCreditPK += creditText;
+        totalDebitSR += debitSrText;
+        totalCreditSR += creditSrText;
       }
+
+      // Calculate the balances after looping through the data
+      bfBalancePK = totalDebitPK - totalCreditPK;
+      bfBalanceSR = totalDebitSR - totalCreditSR;
+
     } catch (error) {
       // Handle errors if needed
       // print('Error: $error');
