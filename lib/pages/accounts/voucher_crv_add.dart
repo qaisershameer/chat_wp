@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:chat_wp/themes/const.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 import 'package:chat_wp/services/accounts/ac_voucher_service.dart';
+import 'package:chat_wp/pages/logins_chat/home_page.dart';
 import 'package:chat_wp/components/my_cash_bank.dart';
 
 class VoucherCrvAdd extends StatefulWidget {
@@ -153,8 +155,24 @@ class VoucherCrvAddState extends State<VoucherCrvAdd> {
             style: TextStyle(color: Colors.white),
           ),
         ),
-        actions: const <Widget>[
+        actions: <Widget>[
           IconButton(
+            onPressed: () {
+              // navigate to settings page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomePage(),
+                ),
+              );
+            },
+            icon: const Icon(
+              // Icons.account_balance_rounded,
+              Icons.home,
+              color: Colors.white,
+            ),
+          ),
+          const IconButton(
             icon: Icon(
               FontAwesomeIcons.coins,
               color: Colors.white,

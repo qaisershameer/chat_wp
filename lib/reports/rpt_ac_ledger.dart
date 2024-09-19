@@ -144,6 +144,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
         actions: [
           IconButton(
             onPressed: () {
+              // navigate to settings page
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -152,12 +153,15 @@ class RptAcLedgerState extends State<RptAcLedger> {
               );
             },
             icon: const Icon(
+              // Icons.account_balance_rounded,
               Icons.home,
               color: Colors.teal,
             ),
           ),
+
           IconButton(
             icon: const Icon(Icons.print),
+            // onPressed: _printPdf,
             onPressed: () {},
           ),
           Padding(
@@ -172,13 +176,16 @@ class RptAcLedgerState extends State<RptAcLedger> {
           ),
         ],
       ),
+
       body: Column(
         children: [
+          // The form and the ListView
           Expanded(
             child: Form(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 15.0),
                 children: <Widget>[
+                  // REPORT TYPE Data COMBO
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
@@ -225,7 +232,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           },
                         ),
                       ),
+
                       const SizedBox(width: 10.0),
+
+                      // Date FROM Text Field
                       Expanded(
                         child: TextFormField(
                           controller: _dateFromController,
@@ -252,7 +262,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           },
                         ),
                       ),
+
                       const SizedBox(width: 10.0),
+
+                      // Date To Text Field
                       Expanded(
                         child: TextFormField(
                           controller: _dateToController,
@@ -282,6 +295,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
                     ],
                   ),
                   const SizedBox(height: 5.0),
+
+                  // Account Name Data COMBO
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
@@ -290,14 +305,16 @@ class RptAcLedgerState extends State<RptAcLedger> {
                           stream: _accounts.getAccountsStream(kUserId),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const Center(child: CircularProgressIndicator());
+                              return const Center(
+                                  child: CircularProgressIndicator());
                             }
 
                             if (snapshot.hasError) {
                               return Center(child: Text('Error: ${snapshot.error}'));
                             }
 
-                            List<DocumentSnapshot> accountList = snapshot.data?.docs ?? [];
+                            List<DocumentSnapshot> accountList =
+                                snapshot.data?.docs ?? [];
 
                             return DropdownSearch<DocumentSnapshot>(
                               items: accountList,
@@ -307,7 +324,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                 return data['accountName'];
                               },
                               selectedItem: accountList.isNotEmpty &&
-                                  accountList.any((document) => document.id == _selectedAcId)
+                                  accountList.any(
+                                          (document) => document.id == _selectedAcId)
                                   ? accountList.firstWhere(
                                       (document) => document.id == _selectedAcId)
                                   : null,
@@ -321,6 +339,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                   setState(() {
                                     _selectedAcId = document.id;
                                     _selectedAcText = (document.data() as Map<String, dynamic>)['accountName'];
+                                    _selectedAcType = (document.data() as Map<String, dynamic>)['type'];
                                   });
                                 }
                               },
@@ -331,16 +350,20 @@ class RptAcLedgerState extends State<RptAcLedger> {
                     ],
                   ),
                   const SizedBox(height: 5.0),
-                  // Include rptLedger conditionally
-                  if (_selectedAcId!='') ...[rptLedger(),],
+                  if (_selectedAcId != '') rptLedger(),
                 ],
               ),
             ),
           ),
+
+          // The buttons at the bottom of the screen
           Padding(
+            // padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            // padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 12.0),  // Added bottom padding of 15.0
             padding: const EdgeInsets.all(15.0),
             child: Row(
               children: [
+                // YOU GIVE BUTTON
                 Expanded(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -373,6 +396,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                   ),
                 ),
                 const SizedBox(width: 5.0),
+                // YOU GOT BUTTON
                 Expanded(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -410,7 +434,6 @@ class RptAcLedgerState extends State<RptAcLedger> {
         ],
       ),
     );
-
   }
 
   Widget rptLedger() {
@@ -438,30 +461,30 @@ class RptAcLedgerState extends State<RptAcLedger> {
     switch (_selectedReport) {
       case 'ALL':
         myColumns = const [
-          DataColumn(label: Text('Date', textAlign: TextAlign.center,)),
-          DataColumn(label: Text('Sr-Out', textAlign: TextAlign.center,)),
-          DataColumn(label: Text('Sr-In', textAlign: TextAlign.center,)),
-          DataColumn(label: Text('Pk-Out', textAlign: TextAlign.center,)),
-          DataColumn(label: Text('Pk-In', textAlign: TextAlign.center,)),
-          DataColumn(label: Text('Remarks', textAlign: TextAlign.center,)),
+          DataColumn(label: Text('Date', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(label: Text('Sr-Out', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(label: Text('Sr-In', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(label: Text('Pk-Out', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(label: Text('Pk-In', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(label: Text('Remarks', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
         ];
         visibleColumns = [0, 1, 2, 3, 4, 5];
         break;
       case 'SAR':
         myColumns = const [
-          DataColumn(label: Text('Date', textAlign: TextAlign.center,)),
-          DataColumn(label: Text('Sr-Out', textAlign: TextAlign.center,)),
-          DataColumn(label: Text('Sr-In', textAlign: TextAlign.center,)),
-          DataColumn(label: Text('Remarks', textAlign: TextAlign.center,)),
+          DataColumn(label: Text('Date', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(label: Text('Sr-Out', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(label: Text('Sr-In', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(label: Text('Remarks', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
         ];
         visibleColumns = [0, 1, 2, 5];
         break;
       case 'PKR':
         myColumns = const [
-          DataColumn(label: Text('Date', textAlign: TextAlign.center,)),
-          DataColumn(label: Text('Pk-Out', textAlign: TextAlign.center,)),
-          DataColumn(label: Text('Pk-In', textAlign: TextAlign.center,)),
-          DataColumn(label: Text('Remarks', textAlign: TextAlign.center,)),
+          DataColumn(label: Text('Date', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(label: Text('Pk-Out', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(label: Text('Pk-In', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(label: Text('Remarks', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
         ];
         visibleColumns = [0, 3, 4, 5];
         break;
@@ -557,6 +580,9 @@ class RptAcLedgerState extends State<RptAcLedger> {
                       }),
 
                       border: TableBorder.all(color: Colors.grey),
+
+                      headingTextStyle: const TextStyle(fontWeight: FontWeight.bold,),
+
                       headingRowHeight: 30.0,
                       dataRowMinHeight: 30.0,
                       dataRowMaxHeight: 35.0,
@@ -595,7 +621,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                 const DataCell(Text('',)),
                               if (visibleColumns.contains(4))
                                 DataCell(Container(
-                                  alignment: Alignment.centerRight,
+                                  alignment: Alignment.centerLeft,
                                   child: Text(
                                     _selectedReport != 'SAR'
                                         ? _numberFormat1.format(bfBalancePK)
@@ -1094,13 +1120,15 @@ class RptAcLedgerState extends State<RptAcLedger> {
       if (type == 'JV') {
         if (_selectedAcId == drAcId) {
           debitText = debitText;
-          debitSrText = debitSrText;
           creditText = 0.0;
+
+          debitSrText = debitSrText;
           creditSrText = 0.0;
         } else {
           debitText = 0.0;
-          debitSrText = 0.0;
           creditText = creditText;
+
+          debitSrText = 0.0;
           creditSrText = creditSrText;
         }
       } else {

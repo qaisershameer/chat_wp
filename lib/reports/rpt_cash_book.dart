@@ -138,55 +138,6 @@ class RptCashBookState extends State<RptCashBook> {
                 color: Colors.teal,
               ),
           ),
-
-          // IconButton(
-          //   icon: const Icon(Icons.receipt_long_rounded),
-          //   // icon: const Icon(Icons.add),
-          //   onPressed: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (context) => VoucherCrvAdd(
-          //           docId: '',
-          //           type: '',
-          //           acType: kBank,
-          //           vDate: vDate,
-          //           remarks: 'Cash Received.',
-          //           drAcId: '',
-          //           crAcId: '',
-          //           debit: 0,
-          //           debitSar: 0,
-          //           credit: 0,
-          //           creditSar: 0,
-          //         ),
-          //       ),
-          //     );
-          //   },
-          // ),
-          // IconButton(
-          //   icon: const Icon(Icons.payment_rounded),
-          //   // icon: const Icon(Icons.exposure_minus_1),
-          //   onPressed: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (context) => VoucherCpvAdd(
-          //           docId: '',
-          //           type: '',
-          //           acType: kBank,
-          //           vDate: vDate,
-          //           remarks: 'Cash Paid.',
-          //           drAcId: '',
-          //           crAcId: '',
-          //           debit: 0,
-          //           debitSar: 0,
-          //           credit: 0,
-          //           creditSar: 0,
-          //         ),
-          //       ),
-          //     );
-          //   },
-          // ),
           IconButton(
             icon: const Icon(Icons.print),
             onPressed: _printPdf,
@@ -429,6 +380,9 @@ class RptCashBookState extends State<RptCashBook> {
                           }),
 
                           border: TableBorder.all(color: Colors.grey),
+
+                          headingTextStyle: const TextStyle(fontWeight: FontWeight.bold,),
+
                           headingRowHeight: 30.0,
                           dataRowMinHeight: 30.0,
                           dataRowMaxHeight: 35.0,
@@ -573,7 +527,8 @@ class RptCashBookState extends State<RptCashBook> {
                               Map<String, dynamic> data =
                                   document.data() as Map<String, dynamic>;
 
-                              final voucherID = document.id; // Use final here to ensure immutability
+                              final voucherID = document
+                                  .id; // Use final here to ensure immutability
                               // final data = document.data() as Map<String, dynamic>;
 
                               final creditSrText = (data['debitsar'] ?? 0.0);
@@ -585,7 +540,8 @@ class RptCashBookState extends State<RptCashBook> {
                               final crAcId = data['crAcId'] ?? '';
                               final dateText =
                                   (data['date'] as Timestamp).toDate();
-                              final formattedDate = DateFormat('ddMMM').format(dateText);
+                              final formattedDate =
+                                  DateFormat('ddMMM').format(dateText);
                               final remarksText = data['remarks'] ?? '';
                               final type = data['type'] ?? '';
 

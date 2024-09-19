@@ -175,6 +175,8 @@ class RptTrialBalState extends State<RptTrialBal> {
                   color: Colors.teal,
                 ),
                 const SizedBox(width: 10.0),
+
+                // REPORT TYPE Data COMBO
                 SizedBox(
                   width:
                       MediaQuery.of(context).size.width / 7.0, // Adjusted width
@@ -213,9 +215,10 @@ class RptTrialBalState extends State<RptTrialBal> {
                     },
                   ),
                 ),
-                const SizedBox(width: 10.0),
-                // Date FROM Text Field
 
+                const SizedBox(width: 10.0),
+
+                // Date FROM Text Field
                 Expanded(
                   child: TextFormField(
                     controller: _dateFromController,
@@ -597,6 +600,9 @@ class RptTrialBalState extends State<RptTrialBal> {
                             onTap: () {
                               try {
                                 if (_selectedAcId != '') {
+                                  if (_selectedAcType == null || _selectedAcType == ''){
+                                    _selectedAcType = 'ALL';
+                                  }
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -645,7 +651,7 @@ class RptTrialBalState extends State<RptTrialBal> {
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 // fontStyle: FontStyle.italic,
-                                color: Colors.teal,
+                                color: Colors.blue,
                               ),
                             ),
                           )),
@@ -743,6 +749,8 @@ class RptTrialBalState extends State<RptTrialBal> {
                   child: SingleChildScrollView(
                     child: DataTable(
 
+                      headingTextStyle: const TextStyle(fontWeight: FontWeight.bold,),
+
                       border: TableBorder.all(color: Colors.grey),
                       headingRowHeight: 30.0,
                       dataRowMinHeight: 30.0,
@@ -822,11 +830,6 @@ class RptTrialBalState extends State<RptTrialBal> {
         totalDebitSR += debitSrText;
         totalCreditSR += creditSrText;
       }
-
-      // Calculate the balances after looping through the data
-      bfBalancePK = totalDebitPK - totalCreditPK;
-      bfBalanceSR = totalDebitSR - totalCreditSR;
-
     } catch (error) {
       // Handle errors if needed
       // print('Error: $error');

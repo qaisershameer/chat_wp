@@ -169,7 +169,6 @@ class AcVoucherService {
     return Rx.combineLatest2(stream1, stream2, (docs1, docs2) {
       final combinedDocs = <QueryDocumentSnapshot>[...docs1, ...docs2];
 
-      // Sort by date OR timestamp only 1 line Uncommit for Sorting...
       // combinedDocs.sort((a, b) => b['date'].compareTo(a['date']));
       // combinedDocs.sort((a, b) => b['timestamp'].compareTo(a['timestamp']));
 
@@ -245,6 +244,15 @@ class AcVoucherService {
       final combinedDocs = <QueryDocumentSnapshot>[...docs1, ...docs2];
 
       combinedDocs.sort((a, b) => b['date'].compareTo(a['date']));
+
+      // // Sort by date and then timestamp
+      // combinedDocs.sort((a, b) {
+      //   int dateComparison = b['date'].compareTo(a['date']);
+      //   if (dateComparison != 0) {
+      //     return dateComparison;
+      //   }
+      //   return b['timestamp'].compareTo(a['timestamp']);
+      // });
 
       return combinedDocs;
     });

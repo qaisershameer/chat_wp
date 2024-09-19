@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:chat_wp/components/my_drawer.dart';
+import 'package:chat_wp/components/user_tile.dart';
 import 'package:chat_wp/services/auth/auth_service.dart';
 import 'package:chat_wp/services/chat/chat_service.dart';
 import 'package:chat_wp/pages/logins_chat/chat_page.dart';
-import 'package:chat_wp/components/user_tile.dart';
+import 'package:chat_wp/pages/logins_chat/home_page.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String id = 'home_screen';
@@ -74,8 +75,29 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Text('Calls'),
               ),
             ],
+
+            indicatorColor: Colors.white, // Change the indicator color here
+            labelColor: Colors.black,     // Change the selected tab color here
+            unselectedLabelColor: Colors.white, // Change the unselected tab color here
+
           ),
           actions: [
+            IconButton(
+              onPressed: () {
+                // navigate to settings page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HomePage(),
+                  ),
+                );
+              },
+              icon: const Icon(
+                // Icons.account_balance_rounded,
+                Icons.home,
+                color: Colors.black,
+              ),
+            ),
             const Icon(Icons.search),
             const SizedBox(width: 10.0),
             PopupMenuButton(
