@@ -25,7 +25,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace = "com.qrdpro.chat_wp"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 34 // flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -39,6 +39,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdk = 23 // flutter.minSdkVersion
+//        targetSdk = 34 // flutter.targetSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
@@ -55,7 +56,7 @@ android {
 
 dependencies {
     // Import the Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:33.2.0')
+    implementation platform('com.google.firebase:firebase-bom:33.3.0')
 }
 
 apply plugin: 'com.google.gms.google-services'

@@ -2,7 +2,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_wp/themes/const.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:chat_wp/pages/accounts/voucher_jv_add.add.dart';
+import 'package:chat_wp/pages/accounts/voucher_jv_add.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 import 'package:chat_wp/services/accounts/ac_voucher_service.dart';
 

@@ -6,7 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:chat_wp/pages/accounts/voucher_crv_add.dart';
 import 'package:chat_wp/pages/accounts/voucher_cpv_add.dart';
-import 'package:chat_wp/pages/accounts/voucher_jv_add.add.dart';
+import 'package:chat_wp/pages/accounts/voucher_jv_add.dart';
 
 import 'package:chat_wp/pages/logins_chat/home_page.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';

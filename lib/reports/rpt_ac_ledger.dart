@@ -12,7 +12,7 @@ import 'package:chat_wp/services/accounts/ac_voucher_service.dart';
 import 'package:chat_wp/pages/logins_chat/home_page.dart';
 import 'package:chat_wp/pages/accounts/voucher_crv_add.dart';
 import 'package:chat_wp/pages/accounts/voucher_cpv_add.dart';
-import 'package:chat_wp/pages/accounts/voucher_jv_add.add.dart';
+import 'package:chat_wp/pages/accounts/voucher_jv_add.dart';
 
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -737,7 +737,7 @@ class RptAcLedgerState extends State<RptAcLedger> {
                             final type = data['type'] ?? '';
                             final dateText = (data['date'] as Timestamp).toDate();
                             final formattedDate = DateFormat('ddMMM').format(dateText);
-                            final remarksText = data['remarks'] ?? '';
+                            remarksText = type + ': ' + data['remarks'] ?? '';
 
                             double debitText, creditText, debitSrText, creditSrText;
 
@@ -753,11 +753,18 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                 creditText = (data['credit'] ?? 0.0);
                                 creditSrText = (data['creditsar'] ?? 0.0);
                               }
+
+                              // remarksText = data['remarks'] ?? '';
+
                             } else {
+
                               debitText = (data['debit'] ?? 0.0);
                               creditText = (data['credit'] ?? 0.0);
                               debitSrText = (data['debitsar'] ?? 0.0);
                               creditSrText = (data['creditsar'] ?? 0.0);
+
+                              // remarksText = data['remarks'] ?? '';
+
                             }
 
                             // Returning a valid Detail Record DataRow

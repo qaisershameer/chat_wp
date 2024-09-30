@@ -1,18 +1,18 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_wp/themes/const.dart';
-import 'package:chat_wp/components/my_drawer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:chat_wp/services/accounts/account_service.dart';
+import 'package:chat_wp/pages/accounts/account_add.dart';
 
 import 'package:chat_wp/pages/accounts/acc_dashboard.dart';
-import 'package:chat_wp/pages/inventory/a_inv_dashboard.dart';
+// import 'package:chat_wp/pages/inventory/a_inv_dashboard.dart';
 import 'package:chat_wp/pages/logins_chat/settings_page.dart';
 
 import 'package:chat_wp/reports/rpt_cash_book.dart';
 import 'package:chat_wp/reports/rpt_ac_ledger.dart';
 import 'package:chat_wp/reports/rpt_trial_bal.dart';
-
 
 class HomePage extends StatefulWidget {
   static const String id = 'home_screen';
@@ -22,7 +22,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   // String? _selectedAcId, _selectedAcType;
   // account services
   final AccountService _accounts = AccountService();
@@ -99,15 +98,28 @@ class _HomePageState extends State<HomePage> {
       length: 4,
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false, // Prevents the back arrow from showing
           backgroundColor: Colors.teal,
-          title: const Text('admin'),
+          // title: const Text('admin'),
+
+          // leading: null,
+
+          title: SizedBox(
+            width: 300, // Adjust this width as needed
+            child: CupertinoSearchTextField(
+              controller: _searchController,
+              backgroundColor: Colors.white,
+            ),
+          ),
+
           bottom: const TabBar(
+            // title: const Text('Account Ledger'),
             tabs: [
               Tab(
-                child: Text('Customers'),
+                child: Text('Customer'),
               ),
               Tab(
-                child: Text('Suppliers'),
+                child: Text('Supplier'),
               ),
               Tab(
                 child: Text('Banks'),
@@ -118,78 +130,92 @@ class _HomePageState extends State<HomePage> {
             ],
 
             indicatorColor: Colors.white, // Change the indicator color here
-            labelColor: Colors.black,     // Change the selected tab color here
-            unselectedLabelColor: Colors.white, // Change the unselected tab color here
-
+            labelColor: Colors.black, // Change the selected tab color here
+            unselectedLabelColor:
+                Colors.white, // Change the unselected tab color here
           ),
           actions: [
-            IconButton(
-              onPressed: () {
-                // navigate to Accounts Dash Board
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AccountsDashboard(),
-                  ),
-                );
-              },
-              icon: const Icon(
-                Icons.account_balance_rounded,
-                color: Colors.black,
+            SizedBox(
+              width: 35,
+              child: IconButton(
+                onPressed: () {
+                  // navigate to Accounts Dash Board
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AccountsDashboard(),
+                    ),
+                  );
+                },
+                icon: const Icon(
+                  Icons.account_balance_rounded,
+                  color: Colors.black,
+                ),
               ),
             ),
 
-            const SizedBox(width: 3.0),
-
-            IconButton(
-              onPressed: () {
-                // navigate to Accounts Dash Board
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const InventoryDashboard(),
-                  ),
-                );
-              },
-              icon: const Icon(
-                Icons.inventory_outlined,
-                color: Colors.black,
+            SizedBox(
+              width: 35,
+              child: IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AccountAdd(
+                        docId: '',
+                        name: '',
+                        phone: '',
+                        email: '',
+                        type: '',
+                        currency: '',
+                        area: '',
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(
+                  Icons.add,
+                  color: Colors.black,
+                ),
               ),
             ),
 
-            const SizedBox(width: 3.0),
 
-            IconButton(
-              onPressed: () {
-                // navigate to Accounts Dash Board
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const RptCashBook(),
-                  ),
-                );
-              },
-              icon: const Icon(
-                Icons.payment_rounded,
-                color: Colors.black,
+            SizedBox(
+              width: 35,
+              child: IconButton(
+                onPressed: () {
+                  // navigate to Accounts Dash Board
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RptCashBook(),
+                    ),
+                  );
+                },
+                icon: const Icon(
+                  Icons.payment_rounded,
+                  color: Colors.black,
+                ),
               ),
             ),
 
-            const SizedBox(width: 3.0),
-
-            IconButton(
-              onPressed: () {
-                // navigate to Accounts Dash Board
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const RptTrialBal(),
-                  ),
-                );
-              },
-              icon: const Icon(
-                Icons.table_chart,
-                color: Colors.black,
+            SizedBox(
+              width: 35.0,
+              child: IconButton(
+                onPressed: () {
+                  // navigate to Accounts Dash Board
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RptTrialBal(),
+                    ),
+                  );
+                },
+                icon: const Icon(
+                  Icons.table_chart,
+                  color: Colors.black,
+                ),
               ),
             ),
 
@@ -207,7 +233,8 @@ class _HomePageState extends State<HomePage> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const RptCashBook()),
+                      MaterialPageRoute(
+                          builder: (context) => const RptCashBook()),
                     );
                   },
                 ),
@@ -217,19 +244,21 @@ class _HomePageState extends State<HomePage> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const RptTrialBal()),
+                      MaterialPageRoute(
+                          builder: (context) => const RptTrialBal()),
                     );
                   },
                 ),
                 PopupMenuItem(
-                    value: '3',
-                    child: const Text('Settings'),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SettingsPage()),
-                      );
-                    },
+                  value: '3',
+                  child: const Text('Settings'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SettingsPage()),
+                    );
+                  },
                 ),
                 const PopupMenuItem(
                   value: '3',
@@ -237,12 +266,13 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-            const SizedBox(width: 10.0),
+            const SizedBox(width: 2.0),
           ],
         ),
-        drawer: const MyDrawer(),
-        body: TabBarView(
 
+        // drawer: const MyDrawer(),
+
+        body: TabBarView(
           children: [
             // 1st Menu Body Data CUSTOMERS
             ListAccounts(

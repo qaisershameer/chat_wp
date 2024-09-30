@@ -798,7 +798,7 @@ class RptTrialBalState extends State<RptTrialBal> {
       for (var document in voucherList) {
         final data = document.data() as Map<String, dynamic>;
         final drAcId = data['drAcId'] ?? '';
-        // final crAcId = data['crAcId'] ?? '';
+        final crAcId = data['crAcId'] ?? '';
         final type = data['type'] ?? '';
 
         // print('DrAcID: $drAcId');
@@ -807,7 +807,7 @@ class RptTrialBalState extends State<RptTrialBal> {
         double debitText, creditText, debitSrText, creditSrText;
 
         if (type == 'JV') {
-          if (_selectedAcId == drAcId) {
+          if (accountId == drAcId) {
             debitText = (data['debit'] ?? 0.0);
             debitSrText = (data['debitsar'] ?? 0.0);
             creditText = 0.0;
