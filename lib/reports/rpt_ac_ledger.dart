@@ -9,7 +9,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 import 'package:chat_wp/services/accounts/ac_voucher_service.dart';
 
-import 'package:chat_wp/pages/logins_chat/home_page.dart';
+import 'package:chat_wp/pages/accounts/home_page.dart';
 import 'package:chat_wp/pages/accounts/voucher_crv_add.dart';
 import 'package:chat_wp/pages/accounts/voucher_cpv_add.dart';
 import 'package:chat_wp/pages/accounts/voucher_jv_add.dart';
@@ -466,27 +466,30 @@ class RptAcLedgerState extends State<RptAcLedger> {
           DataColumn(label: Text('Sr-In', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
           DataColumn(label: Text('Pk-Out', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
           DataColumn(label: Text('Pk-In', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(label: Text('VC', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
           DataColumn(label: Text('Remarks', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
         ];
-        visibleColumns = [0, 1, 2, 3, 4, 5];
+        visibleColumns = [0, 1, 2, 3, 4, 5, 6];
         break;
       case 'SAR':
         myColumns = const [
           DataColumn(label: Text('Date', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
           DataColumn(label: Text('Sr-Out', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
           DataColumn(label: Text('Sr-In', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(label: Text('VC', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
           DataColumn(label: Text('Remarks', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
         ];
-        visibleColumns = [0, 1, 2, 5];
+        visibleColumns = [0, 1, 2, 5, 6];
         break;
       case 'PKR':
         myColumns = const [
           DataColumn(label: Text('Date', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
           DataColumn(label: Text('Pk-Out', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
           DataColumn(label: Text('Pk-In', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
+          DataColumn(label: Text('VC', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
           DataColumn(label: Text('Remarks', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold))),
         ];
-        visibleColumns = [0, 3, 4, 5];
+        visibleColumns = [0, 3, 4, 5, 6];
         break;
       default:
         myColumns = const [];
@@ -724,6 +727,8 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                 ),
                               )
                               ),
+                            if (visibleColumns.contains(6))
+                              const DataCell(Text('',)),
                           ],
                         ),
 
@@ -735,9 +740,10 @@ class RptAcLedgerState extends State<RptAcLedger> {
                             final drAcId = data['drAcId'] ?? '';
                             final crAcId = data['crAcId'] ?? '';
                             final type = data['type'] ?? '';
+                            final remarksText = data['remarks'] ?? '';
                             final dateText = (data['date'] as Timestamp).toDate();
-                            final formattedDate = DateFormat('ddMMM').format(dateText);
-                            remarksText = type + ': ' + data['remarks'] ?? '';
+                            final formattedDate = DateFormat('dd MMM').format(dateText);
+                            // final remarks = '$type\n . $remarksText';
 
                             double debitText, creditText, debitSrText, creditSrText;
 
@@ -884,6 +890,12 @@ class RptAcLedgerState extends State<RptAcLedger> {
                                     ),
                                   ),
                                 if (visibleColumns.contains(5))
+                                  DataCell(Container(
+                                    alignment: Alignment.center,
+                                    child: Text(type, style: const TextStyle(
+                                        color: Colors.red),),
+                                  )),
+                                if (visibleColumns.contains(6))
                                   DataCell(Text(remarksText)),
                               ],
                             );

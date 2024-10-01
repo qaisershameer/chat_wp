@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:chat_wp/reports/rpt_ac_ledger.dart';
-import 'package:chat_wp/pages/logins_chat/home_page.dart';
+import 'package:chat_wp/pages/accounts/home_page.dart';
 import 'package:chat_wp/services/accounts/area_service.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 import 'package:chat_wp/services/accounts/ac_voucher_service.dart';

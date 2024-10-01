@@ -8,7 +8,7 @@ import 'package:chat_wp/pages/accounts/voucher_crv_add.dart';
 import 'package:chat_wp/pages/accounts/voucher_cpv_add.dart';
 import 'package:chat_wp/pages/accounts/voucher_jv_add.dart';
 
-import 'package:chat_wp/pages/logins_chat/home_page.dart';
+import 'package:chat_wp/pages/accounts/home_page.dart';
 import 'package:chat_wp/services/accounts/account_service.dart';
 import 'package:chat_wp/services/accounts/ac_voucher_service.dart';
 
@@ -541,7 +541,7 @@ class RptCashBookState extends State<RptCashBook> {
                               final dateText =
                                   (data['date'] as Timestamp).toDate();
                               final formattedDate =
-                                  DateFormat('ddMMM').format(dateText);
+                                  DateFormat('dd MMM').format(dateText);
                               final remarksText = data['remarks'] ?? '';
                               final type = data['type'] ?? '';
 

@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:chat_wp/themes/theme_provider.dart';
 import 'package:chat_wp/components/my_list_tile.dart';
-import 'package:chat_wp/pages/logins_chat/home_page.dart';
+import 'package:chat_wp/pages/accounts/home_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});

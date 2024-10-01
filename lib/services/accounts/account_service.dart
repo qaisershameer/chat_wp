@@ -59,7 +59,7 @@ class AccountService {
 
     // Add ordering
     query1 = query1
-        .orderBy('accountName', descending: true);
+        .orderBy('accountName', descending: false);
 
     return query1.snapshots();
 

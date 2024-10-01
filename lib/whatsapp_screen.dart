@@ -4,7 +4,7 @@ import 'package:chat_wp/components/user_tile.dart';
 import 'package:chat_wp/services/auth/auth_service.dart';
 import 'package:chat_wp/services/chat/chat_service.dart';
 import 'package:chat_wp/pages/logins_chat/chat_page.dart';
-import 'package:chat_wp/pages/logins_chat/home_page.dart';
+import 'package:chat_wp/pages/accounts/home_page.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String id = 'home_screen';

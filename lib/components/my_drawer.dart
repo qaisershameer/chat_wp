@@ -5,7 +5,7 @@ import '../services/auth/auth_service.dart';
 import '../pages/logins_chat/settings_page.dart';
 import 'package:chat_wp/pages/accounts/acc_dashboard.dart';
 import 'package:chat_wp/pages/inventory/a_inv_dashboard.dart';
-import 'package:chat_wp/pages/logins_chat/home_page.dart';
+import 'package:chat_wp/pages/accounts/home_page.dart';
 
 class MyDrawer extends StatelessWidget {
   const MyDrawer({super.key});
