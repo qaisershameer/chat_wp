@@ -1,12 +1,15 @@
-import 'package:chat_wp/themes/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:chat_wp/themes/theme_provider.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:chat_wp/services/auth/auth_gate.dart';
-import 'package:provider/provider.dart';
+
 
 void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
       options: const FirebaseOptions(
         apiKey: 'AIzaSyBY6lJkkiY5lT0PopaXEJjxFFfmeAywpp0',        // web api key done

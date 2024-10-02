@@ -1,8 +1,9 @@
-import 'package:chat_wp/pages/accounts/home_page.dart';
-// import 'package:chat_wp/pages/accounts/acc_dashboard.dart';
-import 'package:chat_wp/services/auth/login_or_register.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:chat_wp/pages/accounts/home_page.dart';
+import 'package:chat_wp/services/auth/login_or_register.dart';
+
+import 'package:http/http.dart' as http;
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});

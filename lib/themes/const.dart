@@ -17,6 +17,16 @@ import '../../services/auth/auth_service.dart';
   String kCash = 'CASH';
   String kBank = 'BANK';
 
+  String kApiUrl = 'http://10.0.2.2:8000/api/';
+
+  String kToken = '1|IldYuTylZ8HIV4MIRqRCrh6IFewUIOBgDQFMIMSja2aa25d7';
+
+  Map<String, String> kHeaders = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': 'Bearer $kToken', // Replace with your actual token
+  };
+
   final DateTime stDate = DateTime(DateTime.now().year, 7, 1);
   final String kStartDate = DateFormat('dd-MMM-yyyy').format(stDate);
 
